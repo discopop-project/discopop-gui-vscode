@@ -30,7 +30,7 @@ export class Config {
 
     public static discopopFileMapper: string =
         vscode.workspace.getConfiguration('discopop').get('discopopRoot') +
-        '/scripts/dp-fmap'
+        '/build/scripts/dp-fmap'
 
     public static clang: string = vscode.workspace
         .getConfiguration('discopop')

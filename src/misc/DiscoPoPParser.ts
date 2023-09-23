@@ -66,7 +66,7 @@ export default class DiscoPoPParser {
         this.results = {}
     }
     parseResultString = async () => {
-        // parse discoPoP result from state manager and apply it to eisting treeView
+        // parse discoPoP result from state manager and apply it to existing treeView
         // the application to the treeview is made through appending them as result nodes
 
         let resultString = ""
@@ -74,7 +74,7 @@ export default class DiscoPoPParser {
         if (Config.scriptModeEnabled) {
             const storageManager = new StorageManager(this.context, true);
 
-            resultString = await storageManager.readFile("discopop_tmp/ranked_patterns.txt", true) as any;
+            resultString = await storageManager.readFile(".discopop/ranked_patterns.txt", true) as any; // TODO Bertin use the json file instead
         } else {
             const stateManager = new StateManager(this.context)
 

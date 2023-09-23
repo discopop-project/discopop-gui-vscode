@@ -9,7 +9,7 @@ import { ResultType } from './ResultType'
 export default class Utils {
     static getCWD = (context: vscode.ExtensionContext) => {
         if (Config.cwdWorkspace) {
-            return this.getWorkspacePath() + '/discopop_tmp'
+            return this.getWorkspacePath() + '/.discopop'
         }
         return context.storageUri?.path
     }
@@ -60,7 +60,7 @@ export default class Utils {
 
         const scriptPath = await vscode.window.showInputBox({
             value: value,
-            prompt: 'Please enter the path to the script (This extension expects a FileMapping.txt and ranked_patterns.txt inside a discopop_tmp folder to work): ',
+            prompt: 'Please enter the path to the script (This extension expects a FileMapping.txt and ranked_patterns.txt inside a .discopop folder to work): ',
         })
 
         /*         if (!scriptPath?.length) {
