@@ -13,6 +13,8 @@ export class Commands {
 
     public static executeAll: string = 'discopop.executeAll'
 
+    public static executeAllNew: string = 'discopop.executeAllNew'
+
     public static executeByScript: string = 'discopop.executeByScript'
 
     public static parseResults: string = 'discopop.parseResults'
