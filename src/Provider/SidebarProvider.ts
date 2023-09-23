@@ -69,6 +69,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
                     vscode.commands.executeCommand(Commands.executeAll)
                     break
                 }
+                case 'executeAllNew': {
+                    vscode.commands.executeCommand(Commands.executeAllNew)
+                    break
+                }
             }
         })
     }
@@ -130,7 +134,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
                   </div>
                   <div>
                     <button class="execute-patternid">Identify Parallel Patterns</button>
-                  </div>  
+                  </div>
+                  <div>
+                    <button class="execute-all-new">Execute All (NEW)</button>
+                  </div>
                 </div>
                 
                 <script nonce="${nonce}" src="${scriptUri}"></script>

@@ -31,6 +31,10 @@
         onExecuteAll();
     });
 
+    document.querySelector('.execute-all-new').addEventListener('click', () => {
+        onExecuteAllNew();
+    });
+
     document.querySelector('.execute-script').addEventListener('click', () => {
         onExecuteScript();
     })
@@ -70,6 +74,10 @@
 
     function onExecuteAll() {
         vscode.postMessage({type: 'executeAll'})
+    }
+
+    function onExecuteAllNew() {
+        vscode.postMessage({type: 'executeAllNew'})
     }
 
     function onExecuteScript() {

@@ -20,35 +20,20 @@ export class FileMapper {
     }
 
     public async execute() {
-        new Promise<void>((res, rej) => {
-            fs.stat(Config.discopopFileMapper, (err) => {
-                // ERROR DP-FMAP NOT FOUND
-                if (err) {
-                    console.log(`error: ${err.message}`)
-                    rej()
-                    return
-                }
-                res()
-                return
-            })
-        })
-
-        const sm = new StorageManager(this.context)
-        const fileMappingScriptPath = await sm.copyToStorage(
-            Config.discopopFileMapper,
-            'dp-fmap'
-        )
-
-        const options = {
-            // this actually specifies folder where script saves > FileMapping.txt
-            // maybe custom script which has folderPath as input?
-            cwd: Config.getWorkspacePath(),
+        // check if dp-fmap script exists
+        if (!fs.existsSync(Config.discopopFileMapper)) {
+            vscode.window.showErrorMessage(
+                'Error creating File Mapping: dp-fmap script not found!'
+            )
+            return
         }
 
-        // TODO avoid replacing to bash path style by using bash style in first place
+        // run the filemapping script
         exec(
-            fileMappingScriptPath.replace(' ', '\\ '),
-            options,
+            Config.discopopFileMapper,
+            {
+                cwd: Config.getWorkspacePath(),
+            },
             async (error, stdout, stderr) => {
                 if (error) {
                     vscode.window.showErrorMessage(
@@ -58,17 +43,16 @@ export class FileMapper {
                     return
                 }
 
-                await sm.copyToStorage(
-                    Config.getWorkspacePath() + '/FileMapping.txt',
-                    'FileMapping.txt'
-                )
-
-                // todo cleanup FileMapping.txt from workspacePath
-
                 vscode.commands.executeCommand(Commands.refreshFileMapping)
 
                 vscode.window.showInformationMessage('File Mapping done!')
             }
         )
+
+        if (this.onDone) {
+            this.onDone()
+        }
+
+        return
     }
 }

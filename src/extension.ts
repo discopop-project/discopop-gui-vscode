@@ -18,6 +18,7 @@ import DiscoPoPParser from './misc/DiscoPoPParser'
 import { DetailViewProvider } from './Provider/DetailViewProvider'
 import { Config } from './Config'
 import { exec } from 'child_process'
+import { NewRunner } from './TaskRunners/NewRunner'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -149,12 +150,12 @@ export function activate(context: vscode.ExtensionContext) {
                 if (Config.scriptModeEnabled) {
                     if (
                         fs.existsSync(
-                            `${Utils.getWorkspacePath()}/discopop_tmp/FileMapping.txt`
+                            `${Utils.getWorkspacePath()}/.discopop/FileMapping.txt`
                         )
                     ) {
                         const workspaceSM = new StorageManager(context, true)
                         const newFileMapping = (await workspaceSM.readFile(
-                            'discopop_tmp/FileMapping.txt',
+                            '.discopop/FileMapping.txt',
                             true
                         )) as string
 
@@ -404,6 +405,51 @@ export function activate(context: vscode.ExtensionContext) {
 
             codeLensProvider.unhideCodeLenses()
             codeLensProvider._onDidChangeCodeLenses.fire()
+            
+        })
+    )
+
+    // EXECUTE ALL NEW
+    context.subscriptions.push(
+        vscode.commands.registerCommand(Commands.executeAllNew, async () => {
+            // let the user select a directory
+            const projectDirectoryPath = await vscode.window.showOpenDialog({
+                canSelectFiles: false,
+                canSelectFolders: true,
+                canSelectMany: false,
+                openLabel: 'Select a folder that contains a cmake project',
+                title: 'Select a folder that contains a cmake project',
+            })
+            if (!projectDirectoryPath) {
+                vscode.window.showErrorMessage(
+                    'No path was selected!'
+                )
+                return
+            }
+
+            // TODO let the user specify additional arguments for building
+
+            // let the user specify the executable name
+            const executableName = await vscode.window.showInputBox({
+                prompt: "Please enter the name of the executable",
+                value: "hello_world"
+            })
+            if (!executableName || executableName.length === 0) {
+                vscode.window.showErrorMessage(
+                    'No executable name was specified! Aborting...'
+                )
+                return
+            }
+
+            // let the user specify the arguments for the executable
+            const executableArguments = await vscode.window.showInputBox({
+                prompt: "Please enter the arguments for the executable",
+                value: ""
+            })
+
+            const newRunner = new NewRunner(context, projectDirectoryPath[0].fsPath, executableName, executableArguments)
+
+            newRunner.execute()
         })
     )
 }
