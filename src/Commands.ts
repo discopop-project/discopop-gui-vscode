@@ -15,6 +15,24 @@ export class Commands {
 
     public static executeAllNew: string = 'discopop.executeAllNew'
 
+    public static createProject: string = 'discopop.createProject'
+
+    public static addProject: string = 'discopop.addProject'
+
+    public static removeProject: string = 'discopop.removeProject'
+
+    public static renameProject: string = 'discopop.renameProject'
+
+    public static addConfiguration: string = 'discopop.addConfiguration'
+
+    public static createConfiguration: string = 'discopop.createConfiguration'
+
+    public static removeConfiguration: string = 'discopop.removeConfiguration'
+
+    public static renameConfiguration: string = 'discopop.renameConfiguration'
+
+    public static runConfiguration: string = 'discopop.runConfiguration'
+
     public static executeByScript: string = 'discopop.executeByScript'
 
     public static parseResults: string = 'discopop.parseResults'
