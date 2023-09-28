@@ -12,14 +12,16 @@ export class NewRunner {
     private executableName: string
     private executableArgs: string
 
-    constructor(context: vscode.ExtensionContext, projectRoot: string, executableName: string, executableArgs: string) {
+    constructor(projectRoot: string, executableName: string, executableArgs: string, buildDirectoryPath: string = Utils.getWorkspacePath() + "/.discopop") {
         this.projectRoot = projectRoot
-        this.buildDirectoryPath = Utils.getCWD(context)
         this.executableName = executableName
         this.executableArgs = executableArgs
+        this.buildDirectoryPath = buildDirectoryPath
     }
-
+    
     async execute() {
+        vscode.window.showInformationMessage("Running DiscoPoP on project " + this.projectRoot + " with executable " + this.executableName + " and arguments " + this.executableArgs + ". Results will be stored in " + this.buildDirectoryPath)
+        
         // run filemapping in the selected directory
         const fileMappingScript = `${Config.discopopRoot}/build/scripts/dp-fmap`
         await new Promise<void>((resolve, reject) => {
@@ -45,9 +47,9 @@ export class NewRunner {
             fs.mkdirSync(this.buildDirectoryPath)
         }
         else {
-            const answer = await vscode.window.showInformationMessage("There is already a directory called '.discopop'. Do you want to overwrite it?", "Yes", "No")
+            const answer = await vscode.window.showWarningMessage("There is already a directory called '.discopop' in your workspace. Do you want to overwrite it?", {modal:true}, "Yes", "No")
             if (answer === "Yes") {
-                fs.rmdirSync(this.buildDirectoryPath, { recursive: true })
+                fs.rmSync(this.buildDirectoryPath, { recursive: true })
                 fs.mkdirSync(this.buildDirectoryPath)
             }
             else {
@@ -80,7 +82,7 @@ export class NewRunner {
         // run make in the build directory (providing projectDirectoryPath/FileMapping.txt as an environment variable DP_FM_PATH)
         await new Promise<void>((resolve, reject) => {
             exec(
-                `DP_FM_PATH=${this.projectRoot}/FileMapping.txt make`,
+                `DP_FM_PATH=${this.projectRoot}/FileMapping.txt make > make.log 2>&1`,
                 { cwd: this.buildDirectoryPath },
                 (err, stdout, stderr) => {
                     if (err) {
@@ -95,6 +97,21 @@ export class NewRunner {
                 }
             )
         })
+
+        
+        // automatically detect the executable name
+        //let autoDetectedExecutableName: string | undefined
+        //const makeLog = fs.readFileSync(`${this.buildDirectoryPath}/make.log`, 'utf-8')
+        //const regex = /Linking CXX executable ([a-zA-Z0-9_]+)/
+        //const match = makeLog.match(regex)
+        //if (match) {
+        //    vscode.window.showInformationMessage("Executable name detected: " + match[1])
+        //    autoDetectedExecutableName = match[1]
+        //}
+        //else {
+        //    vscode.window.showErrorMessage("Could not automatically detect executable name. Please specify it manually.")
+        //    return
+        //}
 
 
         // run the executable with the arguments
@@ -116,10 +133,15 @@ export class NewRunner {
             )
         })
 
+        // move the FileMapping.txt file to the build directory
+        fs.copyFileSync(`${this.projectRoot}/FileMapping.txt`, `${this.buildDirectoryPath}/FileMapping.txt`)
+        fs.rmSync(`${this.projectRoot}/FileMapping.txt`)
+
         // run discopop_explorer in the build directory
+        // TODO errors are not reliably reported --> fix in discopop_explorer!
         await new Promise<void>((resolve, reject) => {
             exec(
-                `python3 -m discopop_explorer --fmap ${this.projectRoot}/FileMapping.txt --path ${this.buildDirectoryPath} --dep-file ${this.buildDirectoryPath}/${this.executableName}_dep.txt --json patterns.json`,
+                `python3 -m discopop_explorer --fmap ${this.buildDirectoryPath}/FileMapping.txt --path ${this.buildDirectoryPath} --dep-file ${this.buildDirectoryPath}/${this.executableName}_dep.txt --json patterns.json`,
                 { cwd: this.buildDirectoryPath },
                 (err, stdout, stderr) => {
                     if (err) {
@@ -134,6 +156,8 @@ export class NewRunner {
                 }
             )
         })
+
+        vscode.window.showInformationMessage("DiscoPoP finished running. Results are stored in " + this.buildDirectoryPath)
 
         // interpret results and somehow show them to the user
         // TODO
