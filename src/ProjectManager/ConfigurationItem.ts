@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { ProjectManagerTreeItem } from "./ProjectManagerTreeItem"
+import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Configuration } from './Configuration'
 
 export class ConfigurationItem extends ProjectManagerTreeItem {
@@ -12,8 +12,8 @@ export class ConfigurationItem extends ProjectManagerTreeItem {
         this.key = key
         this.description = value
         this.tooltip = description
-        this.contextValue = "configurationItem"
-        this.iconPath = new vscode.ThemeIcon("gear")
+        this.contextValue = 'configurationItem'
+        this.iconPath = new vscode.ThemeIcon('gear')
     }
 
     getKey(): string {

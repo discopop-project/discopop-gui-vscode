@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { Configuration, DefaultConfiguration } from "./Configuration"
+import { Configuration, DefaultConfiguration } from './Configuration'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Commands } from '../Commands'
 
@@ -14,8 +14,8 @@ export class Project extends ProjectManagerTreeItem {
         this.name = name
         this.defaultConfiguration = defaultConfiguration
         this.defaultConfiguration.setParent(this)
-        this.contextValue = "project"
-        this.iconPath = new vscode.ThemeIcon("folder")
+        this.contextValue = 'project'
+        this.iconPath = new vscode.ThemeIcon('folder')
     }
 
     addConfiguration(configuration: Configuration) {
@@ -24,7 +24,9 @@ export class Project extends ProjectManagerTreeItem {
     }
 
     removeConfiguration(configuration: Configuration) {
-        this.configurations = this.configurations.filter(c => c !== configuration)
+        this.configurations = this.configurations.filter(
+            (c) => c !== configuration
+        )
     }
 
     getConfigurations(): Configuration[] {

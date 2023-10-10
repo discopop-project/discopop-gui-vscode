@@ -115,7 +115,12 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
         const codeLens = new vscode.CodeLens(range, {
             title: `${typeText} recommended with pragma: ${result.pragma}. Click to insert.`,
             command: 'discopop.codelensAction',
-            arguments: [result.id, result.fileId, result.startLine, result.resultType],
+            arguments: [
+                result.id,
+                result.fileId,
+                result.startLine,
+                result.resultType,
+            ],
         })
 
         return codeLens
