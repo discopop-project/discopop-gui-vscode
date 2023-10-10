@@ -216,13 +216,24 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
         this.setFileMapping(fileMappingString)
     }
 
-    public moveOtherRecommendations(recommendationId, fileId, startLine, resultType) {
+    public moveOtherRecommendations(
+        recommendationId,
+        fileId,
+        startLine,
+        resultType
+    ) {
         const item = TreeUtils.getChildById(this.data, fileId.toString())
 
         item.children = item.children.map((result) => {
-            if (result.resultIdentifier !== recommendationId && result.startLine > startLine) {
+            if (
+                result.resultIdentifier !== recommendationId &&
+                result.startLine > startLine
+            ) {
                 result.startLine += 1
-                result.label = Utils.getResultLabel(resultType, result.startLine)
+                result.label = Utils.getResultLabel(
+                    resultType,
+                    result.startLine
+                )
                 return result
             }
             return result

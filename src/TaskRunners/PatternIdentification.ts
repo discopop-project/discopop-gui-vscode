@@ -13,7 +13,7 @@ export class PatternIdentification extends TaskExecuter {
 
     getOptions() {
         const options = {
-            cwd: Config.discopopRoot
+            cwd: Config.discopopRoot,
         }
         return options
     }
@@ -42,7 +42,7 @@ export class PatternIdentification extends TaskExecuter {
 
         await this.exportDPInstall()
 
-        const cwd = Utils.getCWD(this.context);
+        const cwd = Utils.getCWD(this.context)
         // mv $HOME_DIR/discopop/$bin_dir/dp_run_dep.txt $HOME_DIR/discopop/
         // mv $HOME_DIR/FileMapping.txt $HOME_DIR/discopop/
         // python3 -m discopop_explorer --path=<path> --cu-xml=<cuxml> --dep-file=<depfile> --loop-counter=<loopcount> --reduction=<reduction> --generate-data-cu-inst=<outputdir>
