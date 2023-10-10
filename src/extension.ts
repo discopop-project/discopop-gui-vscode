@@ -21,7 +21,10 @@ import { exec } from 'child_process'
 import { NewRunner } from './TaskRunners/NewRunner'
 import { ProjectManager } from './ProjectManager/ProjectManager'
 import { Project } from './ProjectManager/Project'
-import { Configuration, DefaultConfiguration } from './ProjectManager/Configuration'
+import {
+    Configuration,
+    DefaultConfiguration,
+} from './ProjectManager/Configuration'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -44,9 +47,12 @@ export function activate(context: vscode.ExtensionContext) {
     //context.subscriptions.push(
     //    vscode.window.registerTreeDataProvider('sidebar-projects-view', projectTreeDataProvider)
     //)
-    const projectViewer = vscode.window.createTreeView("sidebar-projects-view", { treeDataProvider: projectTreeDataProvider })
+    const projectViewer = vscode.window.createTreeView(
+        'sidebar-projects-view',
+        { treeDataProvider: projectTreeDataProvider }
+    )
     context.subscriptions.push(projectViewer)
-    
+
     // EXECUTION Sidebar (will be removed soon)
     const sidebarProvider = new SidebarProvider(context)
     const scriptProvider = new ScriptProvider(context)
@@ -137,7 +143,12 @@ export function activate(context: vscode.ExtensionContext) {
             'discopop.codelensAction',
             (recommendationId, fileId, startLine, resultType) => {
                 codeLensProvider.insertRecommendation(recommendationId)
-                treeDataProvider.moveOtherRecommendations(recommendationId, fileId, startLine, resultType)
+                treeDataProvider.moveOtherRecommendations(
+                    recommendationId,
+                    fileId,
+                    startLine,
+                    resultType
+                )
             }
         )
     )
@@ -164,7 +175,7 @@ export function activate(context: vscode.ExtensionContext) {
             async () => {
                 codeLensProvider.hideCodeLenses()
                 const stateManager = new StateManager(context)
-                stateManager.save('tree', "")
+                stateManager.save('tree', '')
 
                 if (Config.scriptModeEnabled) {
                     if (
@@ -337,7 +348,8 @@ export function activate(context: vscode.ExtensionContext) {
     )
 
     // JUST PARSE RESULTS
-    context.subscriptions.push(vscode.commands.registerCommand(Commands.parseResults, async () => {
+    context.subscriptions.push(
+        vscode.commands.registerCommand(Commands.parseResults, async () => {
             detailViewProvider.clearView()
 
             // Refresh file mapping here to apply results correctly to the tree view
@@ -348,8 +360,8 @@ export function activate(context: vscode.ExtensionContext) {
 
             codeLensProvider.unhideCodeLenses()
             codeLensProvider._onDidChangeCodeLenses.fire()
-        }
-    ))
+        })
+    )
 
     // EXECUTE BY SCRIPT
     context.subscriptions.push(
@@ -419,82 +431,100 @@ export function activate(context: vscode.ExtensionContext) {
 
             const patternidRunner = new PatternIdentification(context)
             await patternidRunner.executeDefault()
-            
+
             vscode.commands.executeCommand(Commands.applyResultsToTreeView)
-            
+
             codeLensProvider.unhideCodeLenses()
             codeLensProvider._onDidChangeCodeLenses.fire()
-            
         })
     )
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(Commands.createConfiguration, async (defaultConfiguration: boolean): Promise<Configuration> => {
-            
-            // let the user specify the name of the configuration
-            let configurationName = ""
-            if(!defaultConfiguration) {
-                configurationName = await vscode.window.showInputBox({
-                    prompt: "Please enter the name of the configuration",
-                    value: "MyConfiguration"
+        vscode.commands.registerCommand(
+            Commands.createConfiguration,
+            async (defaultConfiguration: boolean): Promise<Configuration> => {
+                // let the user specify the name of the configuration
+                let configurationName = ''
+                if (!defaultConfiguration) {
+                    configurationName = await vscode.window.showInputBox({
+                        prompt: 'Please enter the name of the configuration',
+                        value: 'MyConfiguration',
+                    })
+                }
+
+                // let the user select a directory
+                const projectDirectoryPath = await vscode.window.showOpenDialog(
+                    {
+                        canSelectFiles: false,
+                        canSelectFolders: true,
+                        canSelectMany: false,
+                        openLabel:
+                            'Select a folder that contains a cmake project',
+                        title: 'Select a folder that contains a cmake project',
+                    }
+                )
+                if (!projectDirectoryPath) {
+                    vscode.window.showErrorMessage('No path was selected!')
+                    return
+                }
+
+                // TODO let the user specify additional arguments for building
+
+                // let the user specify the executable name
+                const executableName = await vscode.window.showInputBox({
+                    prompt: 'Please enter the name of the executable',
+                    value: 'hello_world',
                 })
-            }
+                if (!executableName || executableName.length === 0) {
+                    vscode.window.showErrorMessage(
+                        'No executable name was specified! Aborting...'
+                    )
+                    return
+                }
 
-            // let the user select a directory
-            const projectDirectoryPath = await vscode.window.showOpenDialog({
-                canSelectFiles: false,
-                canSelectFolders: true,
-                canSelectMany: false,
-                openLabel: 'Select a folder that contains a cmake project',
-                title: 'Select a folder that contains a cmake project',
-            })
-            if (!projectDirectoryPath) {
-                vscode.window.showErrorMessage(
-                    'No path was selected!'
-                )
-                return
-            }
+                // let the user specify the arguments for the executable
+                const executableArguments = await vscode.window.showInputBox({
+                    prompt: 'Please enter the arguments for the executable',
+                    value: '',
+                })
 
-            // TODO let the user specify additional arguments for building
-
-            // let the user specify the executable name
-            const executableName = await vscode.window.showInputBox({
-                prompt: "Please enter the name of the executable",
-                value: "hello_world"
-            })
-            if (!executableName || executableName.length === 0) {
-                vscode.window.showErrorMessage(
-                    'No executable name was specified! Aborting...'
-                )
-                return
+                if (defaultConfiguration) {
+                    return new Configuration(
+                        'Default Configuration',
+                        projectDirectoryPath[0].fsPath,
+                        executableName,
+                        executableArguments,
+                        Utils.getWorkspacePath() + '/.discopop',
+                        ''
+                    )
+                } else {
+                    return new Configuration(
+                        configurationName!,
+                        projectDirectoryPath[0].fsPath,
+                        executableName,
+                        executableArguments,
+                        Utils.getWorkspacePath() + '/.discopop',
+                        ''
+                    )
+                }
             }
-
-            // let the user specify the arguments for the executable
-            const executableArguments = await vscode.window.showInputBox({
-                prompt: "Please enter the arguments for the executable",
-                value: ""
-            })
-
-            if(defaultConfiguration) {
-                return new Configuration("Default Configuration", projectDirectoryPath[0].fsPath, executableName, executableArguments, Utils.getWorkspacePath() + "/.discopop", "")
-            }
-            else {
-                return new Configuration(configurationName!, projectDirectoryPath[0].fsPath, executableName, executableArguments, Utils.getWorkspacePath() + "/.discopop", "")
-            }
-        })
+        )
     )
-    
+
     context.subscriptions.push(
         vscode.commands.registerCommand(Commands.createProject, async () => {
-
             // let the user specify the name of the project
             const projectName = await vscode.window.showInputBox({
-                prompt: "Please enter the name of the project",
-                value: "MyProject"
+                prompt: 'Please enter the name of the project',
+                value: 'MyProject',
             })
 
             // let the user create the default configuration
-            const defaultConfiguration : DefaultConfiguration = await vscode.commands.executeCommand(Commands.createConfiguration, true)
+            const defaultConfiguration: DefaultConfiguration =
+                await vscode.commands.executeCommand(
+                    Commands.createConfiguration,
+                    true
+                )
             const project = new Project(projectName, defaultConfiguration)
             vscode.commands.executeCommand(Commands.addProject, project)
         })
@@ -502,86 +532,120 @@ export function activate(context: vscode.ExtensionContext) {
 
     // TODO make this more consistent
     context.subscriptions.push(
-        vscode.commands.registerCommand(Commands.addConfiguration, async (project: Project) => {
-            // let the user create another configuration
-            const configuration : Configuration = await vscode.commands.executeCommand(Commands.createConfiguration, false)
-            project.addConfiguration(configuration)
-            projectTreeDataProvider.refresh()
-        })
+        vscode.commands.registerCommand(
+            Commands.addConfiguration,
+            async (project: Project) => {
+                // let the user create another configuration
+                const configuration: Configuration =
+                    await vscode.commands.executeCommand(
+                        Commands.createConfiguration,
+                        false
+                    )
+                project.addConfiguration(configuration)
+                projectTreeDataProvider.refresh()
+            }
+        )
     )
 
     // TODO we do not need a command to add a project, we can just call projectTreeDataProvider.addProject(project) directly
     context.subscriptions.push(
-        vscode.commands.registerCommand(Commands.addProject, async (project: Project) => {
+        vscode.commands.registerCommand(
+            Commands.addProject,
+            async (project: Project) => {
                 projectTreeDataProvider.addProject(project)
             }
         )
     )
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(Commands.removeProject, async (project: Project) => {
-            vscode.window.showWarningMessage("Are you sure you want to remove this project?",
-                {modal:true},
-                "Yes",
-                "No"
-            ).then((value) => {
-                if (value === "Yes") {
-                    projectTreeDataProvider.removeProject(project)
-                }
-            })
-        })
-    )
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(Commands.renameProject, async (project: Project) => {
-                vscode.window.showInputBox({
-                    prompt: "Please enter the new name of the project",
-                    value: project.getName()
-                }).then((value) => {
-                    if (value) {
-                        project.setName(value)
-                        projectTreeDataProvider.refresh()
-                    }
-                })
+        vscode.commands.registerCommand(
+            Commands.removeProject,
+            async (project: Project) => {
+                vscode.window
+                    .showWarningMessage(
+                        'Are you sure you want to remove this project?',
+                        { modal: true },
+                        'Yes',
+                        'No'
+                    )
+                    .then((value) => {
+                        if (value === 'Yes') {
+                            projectTreeDataProvider.removeProject(project)
+                        }
+                    })
             }
         )
     )
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(Commands.renameConfiguration, async (configuration: Configuration) => {
-                vscode.window.showInputBox({
-                    prompt: "Please enter the new name of the Configuration",
-                    value: configuration.getName()
-                }).then((value) => {
-                    if (value) {
-                        configuration.setName(value)
-                        projectTreeDataProvider.refresh()
-                    }
-                })
+        vscode.commands.registerCommand(
+            Commands.renameProject,
+            async (project: Project) => {
+                vscode.window
+                    .showInputBox({
+                        prompt: 'Please enter the new name of the project',
+                        value: project.getName(),
+                    })
+                    .then((value) => {
+                        if (value) {
+                            project.setName(value)
+                            projectTreeDataProvider.refresh()
+                        }
+                    })
             }
         )
     )
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(Commands.removeConfiguration, async (configuration: Configuration) => {
-            vscode.window.showWarningMessage("Are you sure you want to remove this configuration?",
-                {modal:true},
-                "Yes",
-                "No"
-            ).then((value) => {
-                if (value === "Yes") {
-                    configuration.getParent()?.removeConfiguration(configuration)
-                    projectTreeDataProvider.refresh()
-                }
-            })
-        }
-    ))
+        vscode.commands.registerCommand(
+            Commands.renameConfiguration,
+            async (configuration: Configuration) => {
+                vscode.window
+                    .showInputBox({
+                        prompt: 'Please enter the new name of the Configuration',
+                        value: configuration.getName(),
+                    })
+                    .then((value) => {
+                        if (value) {
+                            configuration.setName(value)
+                            projectTreeDataProvider.refresh()
+                        }
+                    })
+            }
+        )
+    )
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(Commands.runConfiguration, async (configuration: Configuration) => {
-            configuration.run()
-        }
-    ))
+        vscode.commands.registerCommand(
+            Commands.removeConfiguration,
+            async (configuration: Configuration) => {
+                vscode.window
+                    .showWarningMessage(
+                        'Are you sure you want to remove this configuration?',
+                        { modal: true },
+                        'Yes',
+                        'No'
+                    )
+                    .then((value) => {
+                        if (value === 'Yes') {
+                            configuration
+                                .getParent()
+                                ?.removeConfiguration(configuration)
+                            projectTreeDataProvider.refresh()
+                        }
+                    })
+            }
+        )
+    )
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            Commands.runConfiguration,
+            async (configuration: Configuration) => {
+                configuration.run()
+            }
+        )
+    )
 }
 
 // this method is called when your extension is deactivated

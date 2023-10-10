@@ -1,7 +1,10 @@
 import * as vscode from 'vscode'
 
 export abstract class ProjectManagerTreeItem extends vscode.TreeItem {
-    constructor(name: string, collapsibleState: vscode.TreeItemCollapsibleState) {
+    constructor(
+        name: string,
+        collapsibleState: vscode.TreeItemCollapsibleState
+    ) {
         super(name, collapsibleState)
     }
 

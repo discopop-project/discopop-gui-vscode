@@ -46,7 +46,7 @@ export class CUGen extends TaskExecuter {
         }
 
         const executeString = `${Config.clang} -DUSE_MPI=Off -DUSE_OPENMP=Off -g -O0 -fno-discard-value-names -Xclang -load -Xclang ${Config.discopopBuild}/libi/LLVMCUGeneration.so -mllvm -fm-path -mllvm ./FileMapping.txt -o dp_cu_${file.name}.ll -c ${file.path}`
-        console.log("Executing CU Gen")
+        console.log('Executing CU Gen')
         console.log(executeString)
 
         await new Promise<void>((resolve, reject) => {

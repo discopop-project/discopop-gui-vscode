@@ -1,12 +1,12 @@
 html {
-  box-sizing: border-box;
-  font-size: 13px;
+    box-sizing: border-box;
+    font-size: 13px;
 }
 
 *,
 *:before,
 *:after {
-  box-sizing: inherit;
+    box-sizing: inherit;
 }
 
 body,
@@ -20,9 +20,9 @@ p,
 ol,
 ul,
 button {
-  margin: 0;
-  padding: 6px;
-  font-weight: normal;
+    margin: 0;
+    padding: 6px;
+    font-weight: normal;
 }
 
 h1,
@@ -32,14 +32,14 @@ h4,
 h5,
 h6,
 p {
-  text-align: center;
+    text-align: center;
 }
 
 img {
-  max-width: 100%;
-  height: auto;
+    max-width: 100%;
+    height: auto;
 }
 
 button {
-  margin-bottom: 16px;
+    margin-bottom: 16px;
 }

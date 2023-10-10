@@ -9,11 +9,11 @@ export class TreeUtils {
         if (root.id === id) {
             return root
         }
-        
+
         if (!root.children) {
             return null
         }
-        
+
         for (let i = 0; i < root.children.length; i++) {
             const found = this.getChildById(root.children[i], id)
             if (found) {

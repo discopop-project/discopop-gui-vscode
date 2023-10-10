@@ -108,25 +108,25 @@
             },
             {
                 "title": "Add Configuration",
-                "command" : "discopop.addConfiguration",
+                "command": "discopop.addConfiguration",
                 "category": "DiscoPoP",
                 "icon": "$(symbol-namespace)"
             },
             {
                 "title": "Remove Configuration",
-                "command" : "discopop.removeConfiguration",
+                "command": "discopop.removeConfiguration",
                 "category": "DiscoPoP",
                 "icon": "$(trashcan)"
             },
             {
                 "title": "Rename Configuration",
-                "command" : "discopop.renameConfiguration",
+                "command": "discopop.renameConfiguration",
                 "category": "DiscoPoP",
                 "icon": "$(edit)"
             },
             {
                 "title": "Run Configuration",
-                "command" : "discopop.runConfiguration",
+                "command": "discopop.runConfiguration",
                 "category": "DiscoPoP",
                 "icon": "$(play)"
             },
@@ -263,11 +263,16 @@
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "pretest": "npm run compile && npm run lint",
+        "pretest": "npm run compile && npm run lint && npm run prettier",
+        "prettier": "prettier --write \"src/**/*.ts\"",
         "lint": "eslint src --ext ts",
-        "test": "node ./out/test/runTest.js"
+        "test": "echo \"there are no tests. (node ./out/test/runTest.js)\"",
+        "prepare": "husky install",
+        "commitlint": "commitlint --edit"
     },
     "devDependencies": {
+        "@commitlint/cli": "^17.7.2",
+        "@commitlint/config-conventional": "^17.7.0",
         "@types/glob": "^7.2.0",
         "@types/mocha": "^9.1.1",
         "@types/node": "16.x",
@@ -276,7 +281,10 @@
         "@typescript-eslint/parser": "^5.27.0",
         "@vscode/test-electron": "^2.1.3",
         "eslint": "^8.16.0",
+        "eslint-config-prettier": "^9.0.0",
         "glob": "^8.0.3",
+        "husky": "^8.0.3",
+        "lint-staged": "^14.0.1",
         "mocha": "^10.0.0",
         "prettier": "2.7.1",
         "typescript": "^4.7.2"
@@ -285,5 +293,9 @@
         "@vscode/codicons": "^0.0.33",
         "bson": "^4.6.5",
         "mkdirp": "^1.0.4"
+    },
+    "lint-staged": {
+        "*.ts": "eslint --cache --fix",
+        "*.{ts,js,css,md}": "prettier --write"
     }
 }

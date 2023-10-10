@@ -1,8 +1,10 @@
-import * as vscode from "vscode"
-import { Project } from "./Project"
-import { ProjectManagerTreeItem } from "./ProjectManagerTreeItem"
+import * as vscode from 'vscode'
+import { Project } from './Project'
+import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 
-export class ProjectManager implements vscode.TreeDataProvider<ProjectManagerTreeItem>{
+export class ProjectManager
+    implements vscode.TreeDataProvider<ProjectManagerTreeItem>
+{
     private static instance: ProjectManager
     private projects: Project[] = []
 
@@ -21,7 +23,7 @@ export class ProjectManager implements vscode.TreeDataProvider<ProjectManagerTre
     }
 
     removeProject(project: Project) {
-        this.projects = this.projects.filter(p => p !== project)
+        this.projects = this.projects.filter((p) => p !== project)
         this.refresh()
     }
 
@@ -29,31 +31,42 @@ export class ProjectManager implements vscode.TreeDataProvider<ProjectManagerTre
         return this.projects
     }
 
-
     // TreeDataProvider implementation:
-    private _onDidChangeTreeData: vscode.EventEmitter<ProjectManagerTreeItem | undefined | null | void> = new vscode.EventEmitter<ProjectManagerTreeItem | undefined | null | void>();
-    readonly onDidChangeTreeData: vscode.Event<ProjectManagerTreeItem | undefined | null | void> = this._onDidChangeTreeData.event;
+    private _onDidChangeTreeData: vscode.EventEmitter<
+        ProjectManagerTreeItem | undefined | null | void
+    > = new vscode.EventEmitter<
+        ProjectManagerTreeItem | undefined | null | void
+    >()
+    readonly onDidChangeTreeData: vscode.Event<
+        ProjectManagerTreeItem | undefined | null | void
+    > = this._onDidChangeTreeData.event
 
     static refresh(): void {
-        this.getInstance()._onDidChangeTreeData.fire();
+        this.getInstance()._onDidChangeTreeData.fire()
     }
 
     refresh(): void {
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire()
     }
 
-    getTreeItem(element: ProjectManagerTreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+    getTreeItem(
+        element: ProjectManagerTreeItem
+    ): vscode.TreeItem | Thenable<vscode.TreeItem> {
         return element
     }
 
-    getChildren(element?: ProjectManagerTreeItem): vscode.ProviderResult<ProjectManagerTreeItem[]> {
+    getChildren(
+        element?: ProjectManagerTreeItem
+    ): vscode.ProviderResult<ProjectManagerTreeItem[]> {
         if (!element) {
             return this.getProjects()
         }
         return element.getChildren()
     }
 
-    getParent(element: ProjectManagerTreeItem): vscode.ProviderResult<ProjectManagerTreeItem> {
+    getParent(
+        element: ProjectManagerTreeItem
+    ): vscode.ProviderResult<ProjectManagerTreeItem> {
         return element.getParent()
     }
 
@@ -61,7 +74,6 @@ export class ProjectManager implements vscode.TreeDataProvider<ProjectManagerTre
     //    throw new Error("Method not implemented.")
     //}
 }
-
 
 // NOTES TO SELF:
 // TODO

@@ -67,15 +67,18 @@ export default class DiscoPoPParser {
         // the application to the treeview is made through appending them as result nodes
 
         // fetch patterns.json as string (from state manager or from file)
-        let resultString = ""
+        let resultString = ''
         if (Config.scriptModeEnabled) {
-            const storageManager = new StorageManager(this.context, true);
-            resultString = await storageManager.readFile(".discopop/patterns.json", true) as string;
+            const storageManager = new StorageManager(this.context, true)
+            resultString = (await storageManager.readFile(
+                '.discopop/patterns.json',
+                true
+            )) as string
         } else {
             const stateManager = new StateManager(this.context)
             resultString = stateManager.read('explorerResult')
         }
-        
+
         // const reductionRegex = new RegExp('Reduction at')
         // const doAllRegex = new RegExp('Do-all at')
 
@@ -206,7 +209,6 @@ export default class DiscoPoPParser {
     //     this.saveResultToState(doAllResult)
 
     //     let treeItem = new TreeItem(Utils.getResultLabel(doAllResult.resultType, doAllResult.startLine))
-
 
     //     treeItem.contextValue = ItemType.Result
     //     treeItem.collapsibleState = TreeItemCollapsibleState.None

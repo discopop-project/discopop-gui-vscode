@@ -43,7 +43,10 @@ function getFileName(label: string) {
     return path.parse(label).name
 }
 
-export default function parseMappingToTree(fileMapping: string, context: any): TreeItem {
+export default function parseMappingToTree(
+    fileMapping: string,
+    context: any
+): TreeItem {
     const lines = fileMapping.split('\n').filter((line) => line !== '')
 
     let tree: TreeItem[] = []
@@ -57,8 +60,7 @@ export default function parseMappingToTree(fileMapping: string, context: any): T
         stateManager.save(path, JSON.stringify([]))
 
         path = TreeUtils.removeAbsoluteSubpath(path)
-    
-    
+
         const split = path.split('/')
 
         createNode(tree, split, id)
