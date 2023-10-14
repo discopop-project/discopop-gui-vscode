@@ -18,13 +18,10 @@ import DiscoPoPParser from './misc/DiscoPoPParser'
 import { DetailViewProvider } from './Provider/DetailViewProvider'
 import { Config } from './Config'
 import { exec } from 'child_process'
-import { NewRunner } from './TaskRunners/NewRunner'
 import { ProjectManager } from './ProjectManager/ProjectManager'
 import { Project } from './ProjectManager/Project'
-import {
-    Configuration,
-    DefaultConfiguration,
-} from './ProjectManager/Configuration'
+import { Configuration } from './ProjectManager/Configuration'
+import { UIPrompts } from './UIPrompts'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -439,94 +436,128 @@ export function activate(context: vscode.ExtensionContext) {
         })
     )
 
+    // TODO check that it is possible to skip steps
     context.subscriptions.push(
         vscode.commands.registerCommand(
             Commands.createConfiguration,
-            async (defaultConfiguration: boolean): Promise<Configuration> => {
+            async (): Promise<Configuration> => {
+                const totalSteps = 6
+
                 // let the user specify the name of the configuration
-                let configurationName = ''
-                if (!defaultConfiguration) {
-                    configurationName = await vscode.window.showInputBox({
-                        prompt: 'Please enter the name of the configuration',
-                        value: 'MyConfiguration',
-                    })
-                }
+                const configurationName = await UIPrompts.genericInputBoxQuery(
+                    'Create Configuration',
+                    'Please enter the name of the configuration',
+                    1,
+                    totalSteps
+                )
 
                 // let the user select a directory
-                const projectDirectoryPath = await vscode.window.showOpenDialog(
-                    {
-                        canSelectFiles: false,
-                        canSelectFolders: true,
-                        canSelectMany: false,
-                        openLabel:
-                            'Select a folder that contains a cmake project',
-                        title: 'Select a folder that contains a cmake project',
-                    }
+                const projectPath = await UIPrompts.genericOpenDialogQuery(
+                    'Create Configuration',
+                    'Please select the project directory',
+                    2,
+                    totalSteps
                 )
-                if (!projectDirectoryPath) {
-                    vscode.window.showErrorMessage('No path was selected!')
-                    return
-                }
-
-                // TODO let the user specify additional arguments for building
 
                 // let the user specify the executable name
-                const executableName = await vscode.window.showInputBox({
-                    prompt: 'Please enter the name of the executable',
-                    value: 'hello_world',
-                })
-                if (!executableName || executableName.length === 0) {
-                    vscode.window.showErrorMessage(
-                        'No executable name was specified! Aborting...'
-                    )
-                    return
-                }
+                const executableName = await UIPrompts.genericInputBoxQuery(
+                    'Create Configuration',
+                    'Please enter the name of the executable',
+                    3,
+                    totalSteps
+                )
 
                 // let the user specify the arguments for the executable
-                const executableArguments = await vscode.window.showInputBox({
-                    prompt: 'Please enter the arguments for the executable',
-                    value: '',
-                })
+                const executableArguments =
+                    await UIPrompts.genericInputBoxQuery(
+                        'Create Configuration',
+                        'Please enter the arguments for the executable',
+                        4,
+                        totalSteps
+                    )
 
-                if (defaultConfiguration) {
-                    return new Configuration(
-                        'Default Configuration',
-                        projectDirectoryPath[0].fsPath,
-                        executableName,
-                        executableArguments,
-                        Utils.getWorkspacePath() + '/.discopop',
-                        ''
-                    )
-                } else {
-                    return new Configuration(
-                        configurationName!,
-                        projectDirectoryPath[0].fsPath,
-                        executableName,
-                        executableArguments,
-                        Utils.getWorkspacePath() + '/.discopop',
-                        ''
-                    )
-                }
+                // let the user specify the build directory
+                const buildDirectory = await UIPrompts.genericOpenDialogQuery(
+                    'Create Configuration',
+                    'Please select the build directory',
+                    5,
+                    totalSteps
+                ) // TODO the openDialog only allows to open existing directories, we need to be able to create new directories too
+                // TODO default to projectPath/.discopop
+
+                // let the user specify the cmake arguments
+                const cmakeArguments = await UIPrompts.genericInputBoxQuery(
+                    'Create Configuration',
+                    'Please enter the cmake arguments',
+                    6,
+                    totalSteps
+                )
+
+                // create the configuration
+                const configuration = new Configuration(
+                    configurationName,
+                    projectPath,
+                    executableName,
+                    executableArguments,
+                    buildDirectory,
+                    cmakeArguments
+                )
+                return configuration
             }
         )
     )
 
     context.subscriptions.push(
         vscode.commands.registerCommand(Commands.createProject, async () => {
-            // let the user specify the name of the project
-            const projectName = await vscode.window.showInputBox({
-                prompt: 'Please enter the name of the project',
-                value: 'MyProject',
-            })
+            // query the user for all the necessary information
+            const steps = 6
+            const projectName = await UIPrompts.genericInputBoxQuery(
+                'Create Project',
+                'Please enter the project name',
+                1,
+                steps
+            )
+            const projectPath = await UIPrompts.genericOpenDialogQuery(
+                'Create Project',
+                'Please select the project path',
+                2,
+                steps
+            )
+            const executableName = await UIPrompts.genericInputBoxQuery(
+                'Create Project',
+                'Please enter the executable name',
+                3,
+                steps
+            )
+            const executableArguments = await UIPrompts.genericInputBoxQuery(
+                'Create Project',
+                'Please enter the executable arguments',
+                4,
+                steps
+            )
+            const buildDirectory = await UIPrompts.genericOpenDialogQuery(
+                'Create Project',
+                'Please enter the build directory',
+                5,
+                steps
+            )
+            const cmakeArguments = await UIPrompts.genericInputBoxQuery(
+                'Create Project',
+                'Please enter the CMake arguments',
+                6,
+                steps
+            )
 
-            // let the user create the default configuration
-            const defaultConfiguration: DefaultConfiguration =
-                await vscode.commands.executeCommand(
-                    Commands.createConfiguration,
-                    true
-                )
-            const project = new Project(projectName, defaultConfiguration)
-            vscode.commands.executeCommand(Commands.addProject, project)
+            // create and add the project to the project manager
+            const project = new Project(
+                projectName,
+                projectPath,
+                executableName,
+                executableArguments,
+                buildDirectory,
+                cmakeArguments
+            )
+            ProjectManager.getInstance().addProject(project)
         })
     )
 
@@ -538,8 +569,7 @@ export function activate(context: vscode.ExtensionContext) {
                 // let the user create another configuration
                 const configuration: Configuration =
                     await vscode.commands.executeCommand(
-                        Commands.createConfiguration,
-                        false
+                        Commands.createConfiguration
                     )
                 project.addConfiguration(configuration)
                 projectTreeDataProvider.refresh()
@@ -608,6 +638,35 @@ export function activate(context: vscode.ExtensionContext) {
                     .then((value) => {
                         if (value) {
                             configuration.setName(value)
+                            projectTreeDataProvider.refresh()
+                        }
+                    })
+            }
+        )
+    )
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            Commands.copyConfiguration,
+            async (configuration: Configuration) => {
+                vscode.window
+                    .showInputBox({
+                        prompt: 'Please enter the name of the new Configuration',
+                        value: configuration.getName() + ' (copy)',
+                    })
+                    .then((value) => {
+                        if (value) {
+                            const newConfiguration = new Configuration(
+                                value,
+                                configuration.projectPath,
+                                configuration.executableName,
+                                configuration.executableArguments,
+                                configuration.buildDirectory,
+                                configuration.cmakeArguments
+                            )
+                            configuration
+                                .getParent()
+                                ?.addConfiguration(newConfiguration)
                             projectTreeDataProvider.refresh()
                         }
                     })

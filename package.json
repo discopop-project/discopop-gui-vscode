@@ -110,13 +110,19 @@
                 "title": "Add Configuration",
                 "command": "discopop.addConfiguration",
                 "category": "DiscoPoP",
-                "icon": "$(symbol-namespace)"
+                "icon": "$(add)"
             },
             {
                 "title": "Remove Configuration",
                 "command": "discopop.removeConfiguration",
                 "category": "DiscoPoP",
                 "icon": "$(trashcan)"
+            },
+            {
+                "title": "Copy Configuration",
+                "command": "discopop.copyConfiguration",
+                "category": "DiscoPoP",
+                "icon": "$(copy)"
             },
             {
                 "title": "Rename Configuration",
@@ -234,17 +240,22 @@
                 {
                     "command": "discopop.removeConfiguration",
                     "when": "view == sidebar-projects-view && viewItem==configuration",
-                    "group": "inline"
+                    "group": "inline@1"
+                },
+                {
+                    "command": "discopop.copyConfiguration",
+                    "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
+                    "group": "inline@3"
                 },
                 {
                     "command": "discopop.renameConfiguration",
                     "when": "view == sidebar-projects-view && viewItem==configuration",
-                    "group": "inline"
+                    "group": "inline@2"
                 },
                 {
                     "command": "discopop.runConfiguration",
                     "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
-                    "group": "inline"
+                    "group": "inline@4"
                 },
                 {
                     "command": "discopop.toggleEntry",
