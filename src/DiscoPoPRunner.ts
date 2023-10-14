@@ -6,6 +6,7 @@ import {
     Configuration,
     DefaultConfiguration,
 } from './ProjectManager/Configuration'
+import { UIPrompts } from './UIPrompts'
 
 // TODO use withProgress to show progress of the execution
 
@@ -56,13 +57,11 @@ export class DiscoPoPRunner {
         if (!fs.existsSync(fullConfiguration.buildDirectory)) {
             fs.mkdirSync(fullConfiguration.buildDirectory)
         } else {
-            const answer = await vscode.window.showWarningMessage(
-                "There is already a directory called '.discopop' in your workspace. Do you want to overwrite it?",
-                { modal: true },
-                'Yes',
-                'No'
-            )
-            if (answer === 'Yes') {
+            if (
+                UIPrompts.actionConfirmed(
+                    'The build directory already exists. Do you want to overwrite it?'
+                )
+            ) {
                 fs.rmSync(fullConfiguration.buildDirectory, { recursive: true })
                 fs.mkdirSync(fullConfiguration.buildDirectory)
             } else {

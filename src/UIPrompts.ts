@@ -52,4 +52,15 @@ export class UIPrompts {
         }
         return projectDirectoryUri[0].fsPath
     }
+
+    // request confirmation with a modal dialog
+    static async actionConfirmed(prompt: string): Promise<boolean> {
+        const answer = await vscode.window.showWarningMessage(
+            prompt,
+            { modal: true },
+            'Yes',
+            'No'
+        )
+        return answer === 'Yes'
+    }
 }
