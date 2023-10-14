@@ -649,27 +649,24 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             Commands.copyConfiguration,
             async (configuration: Configuration) => {
-                vscode.window
-                    .showInputBox({
-                        prompt: 'Please enter the name of the new Configuration',
-                        value: configuration.getName() + ' (copy)',
-                    })
-                    .then((value) => {
-                        if (value) {
-                            const newConfiguration = new Configuration(
-                                value,
-                                configuration.projectPath,
-                                configuration.executableName,
-                                configuration.executableArguments,
-                                configuration.buildDirectory,
-                                configuration.cmakeArguments
-                            )
-                            configuration
-                                .getParent()
-                                ?.addConfiguration(newConfiguration)
-                            projectTreeDataProvider.refresh()
-                        }
-                    })
+                const value = await vscode.window.showInputBox({
+                    prompt: 'Please enter the name of the new Configuration',
+                    value: configuration.getName() + ' (copy)',
+                })
+                if (value) {
+                    const newConfiguration = new Configuration(
+                        value,
+                        configuration.projectPath,
+                        configuration.executableName,
+                        configuration.executableArguments,
+                        configuration.buildDirectory,
+                        configuration.cmakeArguments
+                    )
+                    configuration
+                        .getParent()
+                        ?.addConfiguration(newConfiguration)
+                    projectTreeDataProvider.refresh()
+                }
             }
         )
     )
