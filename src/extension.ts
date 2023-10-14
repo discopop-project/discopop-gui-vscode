@@ -591,18 +591,13 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             Commands.removeProject,
             async (project: Project) => {
-                vscode.window
-                    .showWarningMessage(
-                        'Are you sure you want to remove this project?',
-                        { modal: true },
-                        'Yes',
-                        'No'
+                if (
+                    UIPrompts.actionConfirmed(
+                        'Are you sure you want to remove this project?'
                     )
-                    .then((value) => {
-                        if (value === 'Yes') {
-                            projectTreeDataProvider.removeProject(project)
-                        }
-                    })
+                ) {
+                    projectTreeDataProvider.removeProject(project)
+                }
             }
         )
     )
@@ -611,17 +606,14 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             Commands.renameProject,
             async (project: Project) => {
-                vscode.window
-                    .showInputBox({
-                        prompt: 'Please enter the new name of the project',
-                        value: project.getName(),
-                    })
-                    .then((value) => {
-                        if (value) {
-                            project.setName(value)
-                            projectTreeDataProvider.refresh()
-                        }
-                    })
+                const value = await vscode.window.showInputBox({
+                    prompt: 'Please enter the new name of the project',
+                    value: project.getName(),
+                })
+                if (value) {
+                    project.setName(value)
+                    projectTreeDataProvider.refresh()
+                }
             }
         )
     )
@@ -630,17 +622,15 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             Commands.renameConfiguration,
             async (configuration: Configuration) => {
-                vscode.window
-                    .showInputBox({
-                        prompt: 'Please enter the new name of the Configuration',
-                        value: configuration.getName(),
-                    })
-                    .then((value) => {
-                        if (value) {
-                            configuration.setName(value)
-                            projectTreeDataProvider.refresh()
-                        }
-                    })
+                const value = await vscode.window.showInputBox({
+                    prompt: 'Please enter the new name of the Configuration',
+                    value: configuration.getName(),
+                })
+
+                if (value) {
+                    configuration.setName(value)
+                    projectTreeDataProvider.refresh()
+                }
             }
         )
     )
@@ -675,21 +665,16 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             Commands.removeConfiguration,
             async (configuration: Configuration) => {
-                vscode.window
-                    .showWarningMessage(
-                        'Are you sure you want to remove this configuration?',
-                        { modal: true },
-                        'Yes',
-                        'No'
+                if (
+                    UIPrompts.actionConfirmed(
+                        'Are you sure you want to remove this configuration?'
                     )
-                    .then((value) => {
-                        if (value === 'Yes') {
-                            configuration
-                                .getParent()
-                                ?.removeConfiguration(configuration)
-                            projectTreeDataProvider.refresh()
-                        }
-                    })
+                ) {
+                    configuration
+                        .getParent()
+                        ?.removeConfiguration(configuration)
+                    projectTreeDataProvider.refresh()
+                }
             }
         )
     )
