@@ -29,6 +29,8 @@ export class Commands {
 
     public static removeConfiguration: string = 'discopop.removeConfiguration'
 
+    public static copyConfiguration: string = 'discopop.copyConfiguration'
+
     public static renameConfiguration: string = 'discopop.renameConfiguration'
 
     public static runConfiguration: string = 'discopop.runConfiguration'

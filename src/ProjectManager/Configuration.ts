@@ -2,7 +2,7 @@ import * as vscode from 'vscode'
 import { ConfigurationItem } from './ConfigurationItem'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Project } from './Project'
-import { NewRunner } from '../TaskRunners/NewRunner'
+import { DiscoPoPRunner } from '../DiscoPoPRunner'
 
 export class Configuration extends ProjectManagerTreeItem {
     private name: string
@@ -30,7 +30,7 @@ export class Configuration extends ProjectManagerTreeItem {
         this.buildDirectory = buildDirectory
         this.cmakeArguments = cmakeArguments
         this.contextValue = 'configuration'
-        this.iconPath = new vscode.ThemeIcon('symbol-namespace')
+        this.iconPath = new vscode.ThemeIcon('gear')
     }
 
     getConfigurationItems(): ConfigurationItem[] {
@@ -76,12 +76,7 @@ export class Configuration extends ProjectManagerTreeItem {
     }
 
     run() {
-        const newRunner = new NewRunner(
-            this.projectPath,
-            this.executableName,
-            this.executableArguments
-        )
-        newRunner.execute()
+        DiscoPoPRunner.runConfiguration(this)
     }
 
     setName(name: string) {

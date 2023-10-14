@@ -13,7 +13,7 @@ export class ConfigurationItem extends ProjectManagerTreeItem {
         this.description = value
         this.tooltip = description
         this.contextValue = 'configurationItem'
-        this.iconPath = new vscode.ThemeIcon('gear')
+        this.iconPath = new vscode.ThemeIcon('symbol-variable')
     }
 
     getKey(): string {

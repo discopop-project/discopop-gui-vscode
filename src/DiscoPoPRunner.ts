@@ -1,37 +1,35 @@
 import * as vscode from 'vscode'
-import { Config } from '../Config'
+import { Config } from './Config'
 import * as fs from 'fs'
 import { exec } from 'child_process'
-import Utils from '../Utils'
+import {
+    Configuration,
+    DefaultConfiguration,
+} from './ProjectManager/Configuration'
 
-export class NewRunner {
-    private projectRoot: string
-    private buildDirectoryPath: string
-    private executableName: string
-    private executableArgs: string
+// TODO use withProgress to show progress of the execution
 
-    constructor(
-        projectRoot: string,
-        executableName: string,
-        executableArgs: string,
-        buildDirectoryPath: string = Utils.getWorkspacePath() + '/.discopop'
-    ) {
-        this.projectRoot = projectRoot
-        this.executableName = executableName
-        this.executableArgs = executableArgs
-        this.buildDirectoryPath = buildDirectoryPath
-    }
+export class DiscoPoPRunner {
+    static async runConfiguration(configuration: Configuration) {
+        let fullConfiguration: DefaultConfiguration
+        if (configuration instanceof DefaultConfiguration) {
+            fullConfiguration = configuration
+        } else {
+            fullConfiguration =
+                await this._combineConfigurationWithDefaultConfigurationToGetExecutableConfiguration(
+                    configuration
+                )
+        }
 
-    async execute() {
         vscode.window.showInformationMessage(
             'Running DiscoPoP on project ' +
-                this.projectRoot +
+                fullConfiguration.projectPath +
                 ' with executable ' +
-                this.executableName +
+                fullConfiguration.executableName +
                 ' and arguments ' +
-                this.executableArgs +
+                fullConfiguration.executableArguments +
                 '. Results will be stored in ' +
-                this.buildDirectoryPath
+                fullConfiguration.buildDirectory
         )
 
         // run filemapping in the selected directory
@@ -39,7 +37,7 @@ export class NewRunner {
         await new Promise<void>((resolve, reject) => {
             exec(
                 fileMappingScript,
-                { cwd: this.projectRoot },
+                { cwd: fullConfiguration.projectPath },
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
@@ -55,8 +53,8 @@ export class NewRunner {
         })
 
         // create a build directory
-        if (!fs.existsSync(this.buildDirectoryPath)) {
-            fs.mkdirSync(this.buildDirectoryPath)
+        if (!fs.existsSync(fullConfiguration.buildDirectory)) {
+            fs.mkdirSync(fullConfiguration.buildDirectory)
         } else {
             const answer = await vscode.window.showWarningMessage(
                 "There is already a directory called '.discopop' in your workspace. Do you want to overwrite it?",
@@ -65,8 +63,8 @@ export class NewRunner {
                 'No'
             )
             if (answer === 'Yes') {
-                fs.rmSync(this.buildDirectoryPath, { recursive: true })
-                fs.mkdirSync(this.buildDirectoryPath)
+                fs.rmSync(fullConfiguration.buildDirectory, { recursive: true })
+                fs.mkdirSync(fullConfiguration.buildDirectory)
             } else {
                 vscode.window.showInformationMessage('Aborting...')
                 return
@@ -77,8 +75,8 @@ export class NewRunner {
         const cmakeWrapperScript = `${Config.discopopRoot}/build/scripts/CMAKE_wrapper.sh`
         await new Promise<void>((resolve, reject) => {
             exec(
-                `${cmakeWrapperScript} ${this.projectRoot}`,
-                { cwd: this.buildDirectoryPath },
+                `${cmakeWrapperScript} ${fullConfiguration.projectPath}`,
+                { cwd: fullConfiguration.buildDirectory },
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
@@ -96,8 +94,8 @@ export class NewRunner {
         // run make in the build directory (providing projectDirectoryPath/FileMapping.txt as an environment variable DP_FM_PATH)
         await new Promise<void>((resolve, reject) => {
             exec(
-                `DP_FM_PATH=${this.projectRoot}/FileMapping.txt make > make.log 2>&1`,
-                { cwd: this.buildDirectoryPath },
+                `DP_FM_PATH=${fullConfiguration.projectPath}/FileMapping.txt make > make.log 2>&1`,
+                { cwd: fullConfiguration.buildDirectory },
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
@@ -112,9 +110,9 @@ export class NewRunner {
             )
         })
 
-        // automatically detect the executable name
+        // approach on how to automatically detect the executable name: parse the make log and look for "Linking CXX executable"
         //let autoDetectedExecutableName: string | undefined
-        //const makeLog = fs.readFileSync(`${this.buildDirectoryPath}/make.log`, 'utf-8')
+        //const makeLog = fs.readFileSync(`${fullConfiguration.buildDirectory}/make.log`, 'utf-8')
         //const regex = /Linking CXX executable ([a-zA-Z0-9_]+)/
         //const match = makeLog.match(regex)
         //if (match) {
@@ -129,10 +127,14 @@ export class NewRunner {
         // run the executable with the arguments
         await new Promise<void>((resolve, reject) => {
             exec(
-                `${this.buildDirectoryPath}/${this.executableName} ${
-                    this.executableArgs ? this.executableArgs : ''
+                `${fullConfiguration.buildDirectory}/${
+                    fullConfiguration.executableName
+                } ${
+                    fullConfiguration.executableArguments
+                        ? fullConfiguration.executableArguments
+                        : ''
                 }`,
-                { cwd: this.buildDirectoryPath },
+                { cwd: fullConfiguration.buildDirectory },
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
@@ -149,17 +151,17 @@ export class NewRunner {
 
         // move the FileMapping.txt file to the build directory
         fs.copyFileSync(
-            `${this.projectRoot}/FileMapping.txt`,
-            `${this.buildDirectoryPath}/FileMapping.txt`
+            `${fullConfiguration.projectPath}/FileMapping.txt`,
+            `${fullConfiguration.buildDirectory}/FileMapping.txt`
         )
-        fs.rmSync(`${this.projectRoot}/FileMapping.txt`)
+        fs.rmSync(`${fullConfiguration.projectPath}/FileMapping.txt`)
 
         // run discopop_explorer in the build directory
         // TODO errors are not reliably reported --> fix in discopop_explorer!
         await new Promise<void>((resolve, reject) => {
             exec(
-                `python3 -m discopop_explorer --fmap ${this.buildDirectoryPath}/FileMapping.txt --path ${this.buildDirectoryPath} --dep-file ${this.buildDirectoryPath}/${this.executableName}_dep.txt --json patterns.json`,
-                { cwd: this.buildDirectoryPath },
+                `python3 -m discopop_explorer --fmap ${fullConfiguration.buildDirectory}/FileMapping.txt --path ${fullConfiguration.buildDirectory} --dep-file ${fullConfiguration.buildDirectory}/${fullConfiguration.executableName}_dep.txt --json patterns.json`,
+                { cwd: fullConfiguration.buildDirectory },
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
@@ -176,10 +178,27 @@ export class NewRunner {
 
         vscode.window.showInformationMessage(
             'DiscoPoP finished running. Results are stored in ' +
-                this.buildDirectoryPath
+                fullConfiguration.buildDirectory
         )
 
         // interpret results and somehow show them to the user
         // TODO
+    }
+
+    private static async _combineConfigurationWithDefaultConfigurationToGetExecutableConfiguration(
+        configuration: Configuration
+    ): Promise<DefaultConfiguration> {
+        const defaults = configuration.getParent().getDefaultConfiguration()
+        const combined = new DefaultConfiguration(
+            configuration.projectPath ?? defaults.projectPath,
+            configuration.executableName ?? defaults.executableName,
+            configuration.executableArguments ?? defaults.executableArguments,
+            configuration.buildDirectory ?? defaults.buildDirectory,
+            configuration.getName() ?? defaults.getName()
+        )
+
+        combined.setName(configuration.getName() ?? defaults.getName())
+
+        return combined
     }
 }
