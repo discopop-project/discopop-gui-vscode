@@ -36,3 +36,12 @@ export class ConfigurationItem extends ProjectManagerTreeItem {
         return this.parent
     }
 }
+
+// an enum to represent the different types of configuration items
+export enum ConfigurationItemType {
+    ProjectPath = 'project path',
+    CMakeArguments = 'cmake arguments',
+    ExecutableName = 'executable name',
+    ExecutableArguments = 'executable arguments',
+    BuildDirectory = 'build directory',
+}
