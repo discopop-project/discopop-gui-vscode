@@ -1,8 +1,9 @@
 import * as vscode from 'vscode'
-import { ConfigurationItem } from './ConfigurationItem'
+import { ConfigurationItem, ConfigurationItemType } from './ConfigurationItem'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Project } from './Project'
 import { DiscoPoPRunner } from '../DiscoPoPRunner'
+import { ProjectManager } from './ProjectManager'
 
 export class Configuration extends ProjectManagerTreeItem {
     private name: string
@@ -36,31 +37,66 @@ export class Configuration extends ProjectManagerTreeItem {
     getConfigurationItems(): ConfigurationItem[] {
         return [
             new ConfigurationItem(
-                'project path',
+                ConfigurationItemType.ProjectPath,
                 this.projectPath,
                 'The path to the root directory of the project. It should contain a CMakeLists.txt file.'
             ),
             new ConfigurationItem(
-                'cmake arguments',
+                ConfigurationItemType.CMakeArguments,
                 this.cmakeArguments,
                 'The arguments passed to cmake during the build process'
             ),
             new ConfigurationItem(
-                'executable name',
+                ConfigurationItemType.ExecutableName,
                 this.executableName,
                 'The name of the executable'
             ),
             new ConfigurationItem(
-                'executable arguments',
+                ConfigurationItemType.ExecutableArguments,
                 this.executableArguments,
                 'The arguments passed to the executable'
             ),
             new ConfigurationItem(
-                'build directory',
+                ConfigurationItemType.BuildDirectory,
                 this.buildDirectory,
                 'Path to where the build should be performed. Also the DiscoPoP results will be stored in this directory.'
             ),
         ]
+    }
+
+    setConfigurationItem(
+        configurationItemType: ConfigurationItemType,
+        value: string
+    ) {
+        console.log(
+            'setConfigurationItem called with: ' +
+                configurationItemType +
+                ' and value: ' +
+                value
+        )
+        switch (configurationItemType) {
+            case ConfigurationItemType.ProjectPath:
+                this.projectPath = value
+                break
+            case ConfigurationItemType.CMakeArguments:
+                this.cmakeArguments = value
+                break
+            case ConfigurationItemType.ExecutableName:
+                this.executableName = value
+                break
+            case ConfigurationItemType.ExecutableArguments:
+                this.executableArguments = value
+                break
+            case ConfigurationItemType.BuildDirectory:
+                this.buildDirectory = value
+                break
+            default:
+                throw new Error(
+                    'This ConfigurationItemType is not implemented properly: ' +
+                        configurationItemType
+                )
+        }
+        ProjectManager.refresh()
     }
 
     getChildren(): ProjectManagerTreeItem[] {

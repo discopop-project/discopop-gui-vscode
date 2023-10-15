@@ -35,6 +35,8 @@ export class Commands {
 
     public static runConfiguration: string = 'discopop.runConfiguration'
 
+    public static addConfigurationItem: string = 'discopop.addConfigurationItem'
+
     public static executeByScript: string = 'discopop.executeByScript'
 
     public static parseResults: string = 'discopop.parseResults'
