@@ -137,6 +137,12 @@
                 "icon": "$(play)"
             },
             {
+                "title": "Add Configuration Item",
+                "command": "discopop.addConfigurationItem",
+                "category": "DiscoPoP",
+                "icon": "$(add)"
+            },
+            {
                 "title": "Run File Mapping",
                 "command": "discopop.refreshFileMapping",
                 "category": "DiscoPoP"
@@ -256,6 +262,11 @@
                     "command": "discopop.runConfiguration",
                     "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
                     "group": "inline@4"
+                },
+                {
+                    "command": "discopop.addConfigurationItem",
+                    "when": "view == sidebar-projects-view && viewItem==configuration",
+                    "group": "inline@0"
                 },
                 {
                     "command": "discopop.toggleEntry",

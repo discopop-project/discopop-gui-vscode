@@ -22,6 +22,7 @@ import { ProjectManager } from './ProjectManager/ProjectManager'
 import { Project } from './ProjectManager/Project'
 import { Configuration } from './ProjectManager/Configuration'
 import { UIPrompts } from './UIPrompts'
+import { ConfigurationItemType } from './ProjectManager/ConfigurationItem'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -684,6 +685,44 @@ export function activate(context: vscode.ExtensionContext) {
             Commands.runConfiguration,
             async (configuration: Configuration) => {
                 configuration.run()
+            }
+        )
+    )
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            Commands.addConfigurationItem,
+            async (configuration: Configuration) => {
+                // let the user select the ConfigurationItemType
+                // TODO properly implement step/totalSteps 1/2
+                const configurationItemTypeString =
+                    await vscode.window.showQuickPick(
+                        Object.keys(ConfigurationItemType), // TODO only show those that are not already set
+                        {
+                            title: 'Edit Configuration: What setting should be overwritten by this configuration? (1/2) ',
+                        }
+                    )
+                console.log(
+                    'selected configuration item type: ' +
+                        configurationItemTypeString
+                )
+                const configurationItemType =
+                    ConfigurationItemType[
+                        configurationItemTypeString as keyof typeof ConfigurationItemType
+                    ]
+                console.log(
+                    'selected configuration item type: ' + configurationItemType
+                )
+
+                // let the user set the value
+                const value = await UIPrompts.genericInputBoxQuery(
+                    'Edit Configuration',
+                    'What should be the value of the setting?',
+                    2,
+                    2
+                )
+
+                configuration.setConfigurationItem(configurationItemType, value)
             }
         )
     )
