@@ -24,13 +24,13 @@ export class DiscoPoPRunner {
 
         vscode.window.showInformationMessage(
             'Running DiscoPoP on project ' +
-                fullConfiguration.projectPath +
+                fullConfiguration.getProjectPath() +
                 ' with executable ' +
-                fullConfiguration.executableName +
+                fullConfiguration.getExecutableName() +
                 ' and arguments ' +
-                fullConfiguration.executableArguments +
+                fullConfiguration.getExecutableArguments() +
                 '. Results will be stored in ' +
-                fullConfiguration.buildDirectory
+                fullConfiguration.getBuildDirectory()
         )
 
         // run filemapping in the selected directory
@@ -38,7 +38,7 @@ export class DiscoPoPRunner {
         await new Promise<void>((resolve, reject) => {
             exec(
                 fileMappingScript,
-                { cwd: fullConfiguration.projectPath },
+                { cwd: fullConfiguration.getProjectPath() },
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
@@ -54,16 +54,18 @@ export class DiscoPoPRunner {
         })
 
         // create a build directory
-        if (!fs.existsSync(fullConfiguration.buildDirectory)) {
-            fs.mkdirSync(fullConfiguration.buildDirectory)
+        if (!fs.existsSync(fullConfiguration.getBuildDirectory())) {
+            fs.mkdirSync(fullConfiguration.getBuildDirectory())
         } else {
             if (
-                UIPrompts.actionConfirmed(
+                await UIPrompts.actionConfirmed(
                     'The build directory already exists. Do you want to overwrite it?'
                 )
             ) {
-                fs.rmSync(fullConfiguration.buildDirectory, { recursive: true })
-                fs.mkdirSync(fullConfiguration.buildDirectory)
+                fs.rmSync(fullConfiguration.getBuildDirectory(), {
+                    recursive: true,
+                })
+                fs.mkdirSync(fullConfiguration.getBuildDirectory())
             } else {
                 vscode.window.showInformationMessage('Aborting...')
                 return
@@ -74,8 +76,8 @@ export class DiscoPoPRunner {
         const cmakeWrapperScript = `${Config.discopopRoot}/build/scripts/CMAKE_wrapper.sh`
         await new Promise<void>((resolve, reject) => {
             exec(
-                `${cmakeWrapperScript} ${fullConfiguration.projectPath}`,
-                { cwd: fullConfiguration.buildDirectory },
+                `${cmakeWrapperScript} ${fullConfiguration.getProjectPath()}`,
+                { cwd: fullConfiguration.getBuildDirectory() },
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
@@ -93,8 +95,8 @@ export class DiscoPoPRunner {
         // run make in the build directory (providing projectDirectoryPath/FileMapping.txt as an environment variable DP_FM_PATH)
         await new Promise<void>((resolve, reject) => {
             exec(
-                `DP_FM_PATH=${fullConfiguration.projectPath}/FileMapping.txt make > make.log 2>&1`,
-                { cwd: fullConfiguration.buildDirectory },
+                `DP_FM_PATH=${fullConfiguration.getProjectPath()}/FileMapping.txt make > make.log 2>&1`,
+                { cwd: fullConfiguration.getBuildDirectory() },
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
@@ -111,7 +113,7 @@ export class DiscoPoPRunner {
 
         // approach on how to automatically detect the executable name: parse the make log and look for "Linking CXX executable"
         //let autoDetectedExecutableName: string | undefined
-        //const makeLog = fs.readFileSync(`${fullConfiguration.buildDirectory}/make.log`, 'utf-8')
+        //const makeLog = fs.readFileSync(`${fullConfiguration.getBuildDirectory()}/make.log`, 'utf-8')
         //const regex = /Linking CXX executable ([a-zA-Z0-9_]+)/
         //const match = makeLog.match(regex)
         //if (match) {
@@ -126,14 +128,12 @@ export class DiscoPoPRunner {
         // run the executable with the arguments
         await new Promise<void>((resolve, reject) => {
             exec(
-                `${fullConfiguration.buildDirectory}/${
-                    fullConfiguration.executableName
-                } ${
-                    fullConfiguration.executableArguments
-                        ? fullConfiguration.executableArguments
+                `${fullConfiguration.getBuildDirectory()}/${fullConfiguration.getExecutableName()} ${
+                    fullConfiguration.getExecutableArguments()
+                        ? fullConfiguration.getExecutableArguments()
                         : ''
                 }`,
-                { cwd: fullConfiguration.buildDirectory },
+                { cwd: fullConfiguration.getBuildDirectory() },
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
@@ -150,17 +150,17 @@ export class DiscoPoPRunner {
 
         // move the FileMapping.txt file to the build directory
         fs.copyFileSync(
-            `${fullConfiguration.projectPath}/FileMapping.txt`,
-            `${fullConfiguration.buildDirectory}/FileMapping.txt`
+            `${fullConfiguration.getProjectPath()}/FileMapping.txt`,
+            `${fullConfiguration.getBuildDirectory()}/FileMapping.txt`
         )
-        fs.rmSync(`${fullConfiguration.projectPath}/FileMapping.txt`)
+        fs.rmSync(`${fullConfiguration.getProjectPath()}/FileMapping.txt`)
 
         // run discopop_explorer in the build directory
         // TODO errors are not reliably reported --> fix in discopop_explorer!
         await new Promise<void>((resolve, reject) => {
             exec(
-                `python3 -m discopop_explorer --fmap ${fullConfiguration.buildDirectory}/FileMapping.txt --path ${fullConfiguration.buildDirectory} --dep-file ${fullConfiguration.buildDirectory}/${fullConfiguration.executableName}_dep.txt --json patterns.json`,
-                { cwd: fullConfiguration.buildDirectory },
+                `python3 -m discopop_explorer --fmap ${fullConfiguration.getBuildDirectory()}/FileMapping.txt --path ${fullConfiguration.getBuildDirectory()} --dep-file ${fullConfiguration.getBuildDirectory()}/${fullConfiguration.getExecutableName()}_dep.txt --json patterns.json`,
+                { cwd: fullConfiguration.getBuildDirectory() },
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
@@ -177,7 +177,7 @@ export class DiscoPoPRunner {
 
         vscode.window.showInformationMessage(
             'DiscoPoP finished running. Results are stored in ' +
-                fullConfiguration.buildDirectory
+                fullConfiguration.getBuildDirectory()
         )
 
         // interpret results and somehow show them to the user
@@ -189,10 +189,11 @@ export class DiscoPoPRunner {
     ): Promise<DefaultConfiguration> {
         const defaults = configuration.getParent().getDefaultConfiguration()
         const combined = new DefaultConfiguration(
-            configuration.projectPath ?? defaults.projectPath,
-            configuration.executableName ?? defaults.executableName,
-            configuration.executableArguments ?? defaults.executableArguments,
-            configuration.buildDirectory ?? defaults.buildDirectory,
+            configuration.getProjectPath() ?? defaults.getProjectPath(),
+            configuration.getExecutableName() ?? defaults.getExecutableName(),
+            configuration.getExecutableArguments() ??
+                defaults.getExecutableArguments(),
+            configuration.getBuildDirectory() ?? defaults.getBuildDirectory(),
             configuration.getName() ?? defaults.getName()
         )
 
