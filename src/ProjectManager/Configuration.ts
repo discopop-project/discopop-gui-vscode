@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { ConfigurationItem, ConfigurationItemType } from './ConfigurationItem'
+import { ConfigurationItem } from './ConfigurationItem'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Project } from './Project'
 import { DiscoPoPRunner } from '../DiscoPoPRunner'
@@ -9,11 +9,11 @@ export class Configuration extends ProjectManagerTreeItem {
     private name: string
     parent: Project | undefined
 
-    projectPath: string | undefined
-    executableName: string | undefined
-    executableArguments: string | undefined
-    buildDirectory: string | undefined
-    cmakeArguments: string | undefined
+    private projectPath: ConfigurationItem | undefined
+    private executableName: ConfigurationItem | undefined
+    private executableArguments: ConfigurationItem | undefined
+    private buildDirectory: ConfigurationItem | undefined
+    private cmakeArguments: ConfigurationItem | undefined
 
     constructor(
         name: string,
@@ -24,79 +24,51 @@ export class Configuration extends ProjectManagerTreeItem {
         cmakeArguments?: string
     ) {
         super(name, vscode.TreeItemCollapsibleState.Collapsed)
-        this.name = name
-        this.projectPath = projectPath
-        this.executableName = executableName
-        this.executableArguments = executableArguments
-        this.buildDirectory = buildDirectory
-        this.cmakeArguments = cmakeArguments
         this.contextValue = 'configuration'
         this.iconPath = new vscode.ThemeIcon('gear')
+
+        this.name = name
+
+        this.projectPath = new ConfigurationItem(
+            this,
+            'Project Path',
+            projectPath,
+            'The path to the root directory of the project. It should contain a CMakeLists.txt file.'
+        )
+        this.cmakeArguments = new ConfigurationItem(
+            this,
+            'CMake Arguments',
+            cmakeArguments,
+            'The arguments passed to cmake during the build process'
+        )
+        this.executableName = new ConfigurationItem(
+            this,
+            'Executable Name',
+            executableName,
+            'The name of the executable'
+        )
+        this.executableArguments = new ConfigurationItem(
+            this,
+            'Executable Arguments',
+            executableArguments,
+            'The arguments passed to the executable'
+        )
+        this.buildDirectory = new ConfigurationItem(
+            this,
+            'Build Directory',
+            buildDirectory,
+            'Path to where the build should be performed. Also the DiscoPoP results will be stored in this directory.'
+        )
     }
 
     getConfigurationItems(): ConfigurationItem[] {
         return [
-            new ConfigurationItem(
-                ConfigurationItemType.ProjectPath,
-                this.projectPath,
-                'The path to the root directory of the project. It should contain a CMakeLists.txt file.'
-            ),
-            new ConfigurationItem(
-                ConfigurationItemType.CMakeArguments,
-                this.cmakeArguments,
-                'The arguments passed to cmake during the build process'
-            ),
-            new ConfigurationItem(
-                ConfigurationItemType.ExecutableName,
-                this.executableName,
-                'The name of the executable'
-            ),
-            new ConfigurationItem(
-                ConfigurationItemType.ExecutableArguments,
-                this.executableArguments,
-                'The arguments passed to the executable'
-            ),
-            new ConfigurationItem(
-                ConfigurationItemType.BuildDirectory,
-                this.buildDirectory,
-                'Path to where the build should be performed. Also the DiscoPoP results will be stored in this directory.'
-            ),
+            this.projectPath,
+            this.cmakeArguments,
+            this.executableName,
+            this.executableArguments,
+            this.buildDirectory,
         ]
-    }
-
-    setConfigurationItem(
-        configurationItemType: ConfigurationItemType,
-        value: string
-    ) {
-        console.log(
-            'setConfigurationItem called with: ' +
-                configurationItemType +
-                ' and value: ' +
-                value
-        )
-        switch (configurationItemType) {
-            case ConfigurationItemType.ProjectPath:
-                this.projectPath = value
-                break
-            case ConfigurationItemType.CMakeArguments:
-                this.cmakeArguments = value
-                break
-            case ConfigurationItemType.ExecutableName:
-                this.executableName = value
-                break
-            case ConfigurationItemType.ExecutableArguments:
-                this.executableArguments = value
-                break
-            case ConfigurationItemType.BuildDirectory:
-                this.buildDirectory = value
-                break
-            default:
-                throw new Error(
-                    'This ConfigurationItemType is not implemented properly: ' +
-                        configurationItemType
-                )
-        }
-        ProjectManager.refresh()
     }
 
     getChildren(): ProjectManagerTreeItem[] {
@@ -115,6 +87,8 @@ export class Configuration extends ProjectManagerTreeItem {
         DiscoPoPRunner.runConfiguration(this)
     }
 
+    // getters and setters for the configuration items (and name)
+
     setName(name: string) {
         this.name = name
         this.label = name
@@ -122,6 +96,75 @@ export class Configuration extends ProjectManagerTreeItem {
 
     getName(): string {
         return this.name
+    }
+
+    getProjectPath(): string | undefined {
+        return this.projectPath?.getValue()
+    }
+
+    setProjectPath(projectPath: string) {
+        this.projectPath?.setValue(projectPath)
+    }
+
+    getExecutableName(): string | undefined {
+        return this.executableName?.getValue()
+    }
+
+    setExecutableName(executableName: string) {
+        this.executableName?.setValue(executableName)
+    }
+
+    getExecutableArguments(): string | undefined {
+        return this.executableArguments?.getValue()
+    }
+
+    setExecutableArguments(executableArguments: string) {
+        this.executableArguments?.setValue(executableArguments)
+    }
+
+    getBuildDirectory(): string | undefined {
+        return this.buildDirectory?.getValue()
+    }
+
+    setBuildDirectory(buildDirectory: string) {
+        this.buildDirectory?.setValue(buildDirectory)
+    }
+
+    getCMakeArguments(): string | undefined {
+        return this.cmakeArguments?.getValue()
+    }
+
+    setCMakeArguments(cmakeArguments: string) {
+        this.cmakeArguments?.setValue(cmakeArguments)
+    }
+
+    // JSON serialization --> avoid circular objects and only store important properties
+
+    toJSONObject(): any {
+        return {
+            isDefault: false,
+            name: this.name,
+            projectPath: this.projectPath.getValue(),
+            executableName: this.executableName.getValue(),
+            executableArguments: this.executableArguments.getValue(),
+            buildDirectory: this.buildDirectory.getValue(),
+            cmakeArguments: this.cmakeArguments.getValue(),
+        }
+    }
+
+    static fromJSONObject(object: any): Configuration {
+        const conf = new Configuration(
+            object.name,
+            object.projectPath,
+            object.executableName,
+            object.executableArguments,
+            object.buildDirectory,
+            object.cmakeArguments
+        )
+        if (object.isDefault) {
+            return DefaultConfiguration.fromConfiguration(conf)
+        }
+        return conf
     }
 }
 
@@ -149,11 +192,11 @@ export class DefaultConfiguration extends Configuration {
         configuration: Configuration
     ): DefaultConfiguration {
         return new DefaultConfiguration(
-            configuration.projectPath!,
-            configuration.executableName!,
-            configuration.executableArguments!,
-            configuration.buildDirectory!,
-            configuration.cmakeArguments!
+            configuration.getProjectPath(),
+            configuration.getExecutableName(),
+            configuration.getExecutableArguments(),
+            configuration.getBuildDirectory(),
+            configuration.getCMakeArguments()
         )
     }
 }
