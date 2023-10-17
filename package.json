@@ -33,11 +33,6 @@
             "discopop-sidebar-view": [
                 {
                     "type": "tree",
-                    "id": "sidebar-settings-view",
-                    "name": "DiscoPoP Settings"
-                },
-                {
-                    "type": "tree",
                     "id": "sidebar-projects-view",
                     "name": "Projects"
                 },
@@ -45,14 +40,15 @@
                     "type": "webview",
                     "id": "detail-view",
                     "name": "RECOMMENDATION DETAIL"
-                },
-                {
-                    "type": "tree",
-                    "id": "explorerId",
-                    "name": "FILES"
                 }
             ]
         },
+        "viewsWelcome": [
+            {
+                "view": "sidebar-projects-view",
+                "contents": "No projects configured. Please add a project to get started.\n[Add Project](command:discopop.createProject)"
+            }
+        ],
         "configuration": {
             "title": "DiscoPoP",
             "properties": {
@@ -137,10 +133,10 @@
                 "icon": "$(play)"
             },
             {
-                "title": "Add Configuration Item",
-                "command": "discopop.addConfigurationItem",
+                "title": "Edit Configuration Item",
+                "command": "discopop.editConfigurationItem",
                 "category": "DiscoPoP",
-                "icon": "$(add)"
+                "icon": "$(edit)"
             },
             {
                 "title": "Run File Mapping",
@@ -264,19 +260,9 @@
                     "group": "inline@4"
                 },
                 {
-                    "command": "discopop.addConfigurationItem",
-                    "when": "view == sidebar-projects-view && viewItem==configuration",
+                    "command": "discopop.editConfigurationItem",
+                    "when": "view == sidebar-projects-view && viewItem==configurationItem",
                     "group": "inline@0"
-                },
-                {
-                    "command": "discopop.toggleEntry",
-                    "when": "view == explorerId && viewItem==file",
-                    "group": "inline"
-                },
-                {
-                    "command": "discopop.toggleFolder",
-                    "when": "view == explorerId && viewItem==folder",
-                    "group": "inline"
                 }
             ]
         }

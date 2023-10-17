@@ -73,4 +73,32 @@ export class Project extends ProjectManagerTreeItem {
     getName(): string {
         return this.name
     }
+
+    toJSONObject(): any {
+        return {
+            name: this.name,
+            defaultConfiguration: this.defaultConfiguration.toJSONObject(),
+            configurations: this.configurations.map((configuration) =>
+                configuration.toJSONObject()
+            ),
+        }
+    }
+
+    static fromJSONObject(project: any): Project {
+        const defaultConfiguration = DefaultConfiguration.fromJSONObject(
+            project.defaultConfiguration
+        )
+        const result = new Project(
+            project.name,
+            defaultConfiguration.getProjectPath(),
+            defaultConfiguration.getExecutableName(),
+            defaultConfiguration.getExecutableArguments(),
+            defaultConfiguration.getBuildDirectory(),
+            defaultConfiguration.getCMakeArguments()
+        )
+        project.configurations.forEach((configuration: any) => {
+            result.addConfiguration(Configuration.fromJSONObject(configuration))
+        })
+        return result
+    }
 }

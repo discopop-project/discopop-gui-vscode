@@ -3,25 +3,31 @@ import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Configuration } from './Configuration'
 
 export class ConfigurationItem extends ProjectManagerTreeItem {
-    private key: string // key
-    description: string // value
-    protected parent: Configuration | undefined
+    description?: string
+    protected parent: Configuration
 
-    constructor(key: string, value: string, description: string) {
-        super(key, vscode.TreeItemCollapsibleState.None)
-        this.key = key
-        this.description = value
-        this.tooltip = description
-        this.contextValue = 'configurationItem'
+    // e.g. "project path", "path/to/project", "The path to the project"
+    constructor(
+        parent: Configuration,
+        name: string,
+        value: string | undefined,
+        tooltip: string | undefined
+    ) {
+        super(name, vscode.TreeItemCollapsibleState.None) // name is renderred prominently (short and descriptive!)
+        this.description = value // "description" is renderred less prominently (perfect for the value)
+        this.tooltip = tooltip // only rendered when hovering over the item (useful for longer descriptions)
+
+        this.parent = parent
+        this.contextValue = 'configurationItem' // used to identify the view
         this.iconPath = new vscode.ThemeIcon('symbol-variable')
-    }
-
-    getKey(): string {
-        return this.key
     }
 
     getValue(): string {
         return this.description
+    }
+
+    setValue(value: string) {
+        this.description = value
     }
 
     getChildren(): ProjectManagerTreeItem[] {
@@ -35,13 +41,4 @@ export class ConfigurationItem extends ProjectManagerTreeItem {
     getParent(): Configuration | undefined {
         return this.parent
     }
-}
-
-// an enum to represent the different types of configuration items
-export enum ConfigurationItemType {
-    ProjectPath = 'project path',
-    CMakeArguments = 'cmake arguments',
-    ExecutableName = 'executable name',
-    ExecutableArguments = 'executable arguments',
-    BuildDirectory = 'build directory',
 }

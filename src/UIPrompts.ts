@@ -54,6 +54,7 @@ export class UIPrompts {
     }
 
     // request confirmation with a modal dialog
+    // make sure to await this function!!!
     static async actionConfirmed(prompt: string): Promise<boolean> {
         const answer = await vscode.window.showWarningMessage(
             prompt,
