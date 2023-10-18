@@ -7,6 +7,7 @@ import {
     DefaultConfiguration,
 } from './ProjectManager/Configuration'
 import { UIPrompts } from './UIPrompts'
+import { SuggestionTreeDataProvider } from './SuggestionTreeView/SuggestionTreeDataProvider'
 
 // TODO use withProgress to show progress of the execution
 
@@ -164,6 +165,8 @@ export class DiscoPoPRunner {
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
+                        console.log(`stdout: ${stdout}`)
+                        console.log(`stderr: ${stderr}`)
                         vscode.window.showErrorMessage(
                             `Discopop_explorer failed with error message ${err.message}`
                         )
@@ -180,8 +183,28 @@ export class DiscoPoPRunner {
                 fullConfiguration.getBuildDirectory()
         )
 
-        // interpret results and somehow show them to the user
-        // TODO
+        // ensure that patterns.json exists (located in the build directory)
+        if (
+            !fs.existsSync(
+                `${fullConfiguration.getBuildDirectory()}/patterns.json`
+            )
+        ) {
+            vscode.window.showErrorMessage(
+                'Could not find patterns.json in the build directory. Aborting...'
+            )
+            return
+        }
+
+        // parse the json file
+        const patternsJson = fs.readFileSync(
+            `${fullConfiguration.getBuildDirectory()}/patterns.json`,
+            'utf-8'
+        )
+        const patterns = JSON.parse(patternsJson)
+        console.log(patterns)
+
+        // show the results in a tree view (all patterns, grouped by their type: reduction, doall, ...)
+        SuggestionTreeDataProvider.getInstance(patterns)
     }
 
     private static async _combineConfigurationWithDefaultConfigurationToGetExecutableConfiguration(
