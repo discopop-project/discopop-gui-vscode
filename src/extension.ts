@@ -3,19 +3,11 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import { Commands } from './Commands'
-import { CUGen } from './TaskRunners/CUGen'
-import { DepProfiling } from './TaskRunners/DepProfiling'
-import { PatternIdentification } from './TaskRunners/PatternIdentification'
-import { RedOp } from './TaskRunners/RedOp'
 import { StorageManager } from './misc/StorageManager'
-import { SidebarProvider } from './Provider/SidebarProvider'
-import { ScriptProvider } from './Provider/ScriptProvider'
-import { TreeDataProvider, TreeItem } from './Provider/TreeDataProvider'
 import Utils from './Utils'
 import CodeLensProvider from './Provider/CodeLensProvider'
 import { StateManager } from './misc/StateManager'
 import DiscoPoPParser from './misc/DiscoPoPParser'
-import { DetailViewProvider } from './Provider/DetailViewProvider'
 import { Config } from './Config'
 import { exec } from 'child_process'
 import { ProjectManager } from './ProjectManager/ProjectManager'
@@ -30,46 +22,8 @@ import { NewDetailViewProvider } from './NewDetailViewProvider'
 // your extension is activated the very first time the command is executed
 
 export function activate(context: vscode.ExtensionContext) {
-    // TODO temporary
-    //context.workspaceState.update("projects", undefined)
-
     // Projects Sidebar
     const projectManager = ProjectManager.getInstance(context)
-
-    // EXECUTION Sidebar (will be removed soon)
-    const sidebarProvider = new SidebarProvider(context)
-    const scriptProvider = new ScriptProvider(context)
-    if (Config.scriptModeEnabled) {
-        context.subscriptions.push(
-            vscode.window.registerWebviewViewProvider(
-                'execution-view',
-                scriptProvider
-            )
-        )
-    } else {
-        context.subscriptions.push(
-            vscode.window.registerWebviewViewProvider(
-                'execution-view',
-                sidebarProvider
-            )
-        )
-    }
-
-    // // DETAIL VIEW
-    // const detailViewProvider = new DetailViewProvider(context)
-    // context.subscriptions.push(
-    //     vscode.window.registerWebviewViewProvider(
-    //         'detail-view',
-    //         detailViewProvider
-    //     )
-    // )
-
-    // // send to detail view
-    // context.subscriptions.push(
-    //     vscode.commands.registerCommand(Commands.sendToDetail, (id) => {
-    //         detailViewProvider.loadResultData(id)
-    //     })
-    // )
 
     // // CODE LENS
     // const codeLensProvider = new CodeLensProvider(context)
@@ -111,7 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
     //     )
     // )
 
-    // // REFRESH TREE VIEW COMMAND
+    // // REFRESH FILE MAPPING TREE VIEW
     // context.subscriptions.push(
     //     vscode.commands.registerCommand(
     //         Commands.refreshFileMapping,
@@ -155,141 +109,6 @@ export function activate(context: vscode.ExtensionContext) {
     //     )
     // )
 
-    // // EXECUTE CU GEN
-    // context.subscriptions.push(
-    //     vscode.commands.registerCommand(Commands.executeCUGen, async () => {
-    //         codeLensProvider.hideCodeLenses()
-    //         vscode.window.withProgress(
-    //             {
-    //                 location: vscode.ProgressLocation.Notification,
-    //                 cancellable: false,
-    //                 title: 'Generating Computational Units',
-    //             },
-    //             async (progress) => {
-    //                 progress.report({ increment: 0 })
-
-    //                 const cugenRunner = new CUGen(context)
-    //                 const files = treeDataProvider.getExecutableFiles()
-    //                 if (!files || !files?.length) {
-    //                     vscode.window.showInformationMessage(
-    //                         'Please select at least one file before executing a task!'
-    //                     )
-    //                 }
-    //                 cugenRunner.setFiles(files)
-    //                 await cugenRunner.executeDefault()
-
-    //                 progress.report({ increment: 100 })
-    //             }
-    //         )
-    //     })
-    // )
-
-    // // EXECUTE DEP PROF
-    // context.subscriptions.push(
-    //     vscode.commands.registerCommand(Commands.executeDepProf, async () => {
-    //         codeLensProvider.hideCodeLenses()
-    //         vscode.window.withProgress(
-    //             {
-    //                 location: vscode.ProgressLocation.Notification,
-    //                 cancellable: false,
-    //                 title: 'Profiling Data Dependencies',
-    //             },
-    //             async (progress) => {
-    //                 progress.report({ increment: 0 })
-
-    //                 const depprofRunner = new DepProfiling(context)
-
-    //                 const files = treeDataProvider.getExecutableFiles()
-    //                 if (!files || !files?.length) {
-    //                     vscode.window.showInformationMessage(
-    //                         'Please select at least one file before executing a task!'
-    //                     )
-    //                 }
-    //                 depprofRunner.setFiles(files)
-    //                 await depprofRunner.executeDefault()
-    //                 await depprofRunner.executeLinking()
-    //                 await depprofRunner.executeDpRun()
-
-    //                 progress.report({ increment: 100 })
-    //             }
-    //         )
-    //     })
-    // )
-
-    // // EXECUTE RED OP
-    // context.subscriptions.push(
-    //     vscode.commands.registerCommand(Commands.executeRedOp, async () => {
-    //         codeLensProvider.hideCodeLenses()
-    //         vscode.window.withProgress(
-    //             {
-    //                 location: vscode.ProgressLocation.Notification,
-    //                 cancellable: false,
-    //                 title: 'Detecting Reduction Patterns',
-    //             },
-    //             async (progress) => {
-    //                 progress.report({ increment: 0 })
-
-    //                 const redopRunner = new RedOp(context)
-
-    //                 const files = treeDataProvider.getExecutableFiles()
-    //                 if (!files || !files?.length) {
-    //                     vscode.window.showInformationMessage(
-    //                         'Please select at least one file before executing a task!'
-    //                     )
-    //                 }
-    //                 redopRunner.setFiles(files)
-    //                 await redopRunner.executeDefault()
-    //                 await redopRunner.linkInstrumentedLoops()
-    //                 await redopRunner.executeDpRunRed()
-
-    //                 progress.report({ increment: 100 })
-    //             }
-    //         )
-    //     })
-    // )
-
-    // // EXECUTE PATTERN ID
-    // context.subscriptions.push(
-    //     vscode.commands.registerCommand(Commands.executePatternId, async () => {
-    //         vscode.window.withProgress(
-    //             {
-    //                 location: vscode.ProgressLocation.Notification,
-    //                 cancellable: false,
-    //                 title: 'Identifying Parallel Patterns',
-    //             },
-    //             async (progress) => {
-    //                 progress.report({ increment: 0 })
-
-    //                 const patternidRunner = new PatternIdentification(context)
-    //                 await patternidRunner.executeDefault()
-
-    //                 vscode.commands.executeCommand(
-    //                     Commands.applyResultsToTreeView
-    //                 )
-
-    //                 codeLensProvider.unhideCodeLenses()
-    //                 codeLensProvider._onDidChangeCodeLenses.fire()
-
-    //                 progress.report({ increment: 100 })
-    //             }
-    //         )
-    //     })
-    // )
-
-    // // APPLY RESULTS TO TREE VIEW
-    // context.subscriptions.push(
-    //     vscode.commands.registerCommand(
-    //         Commands.applyResultsToTreeView,
-    //         async () => {
-    //             detailViewProvider.clearView()
-
-    //             const parser = new DiscoPoPParser(context, treeDataProvider)
-
-    //             await parser.parseResultString()
-    //         }
-    //     )
-    // )
-
     // // JUST PARSE RESULTS
     // context.subscriptions.push(
     //     vscode.commands.registerCommand(Commands.parseResults, async () => {
@@ -306,88 +125,68 @@ export function activate(context: vscode.ExtensionContext) {
     //     })
     // )
 
-    // // EXECUTE BY SCRIPT
-    // context.subscriptions.push(
-    //     vscode.commands.registerCommand(Commands.executeByScript, async () => {
-    //         detailViewProvider.clearView()
+    context.subscriptions.push(
+        vscode.commands.registerCommand(Commands.addProject, async () => {
+            // query the user for all the necessary information
+            const steps = 6
+            const projectName = await UIPrompts.genericInputBoxQuery(
+                'Create Project',
+                'Please enter the project name',
+                1,
+                steps,
+                false
+            )
+            const projectPath = await UIPrompts.genericOpenDialogQuery(
+                'Create Project',
+                'Please select the project path',
+                2,
+                steps
+            )
+            const executableName = await UIPrompts.genericInputBoxQuery(
+                'Create Project',
+                'Please enter the executable name',
+                3,
+                steps,
+                false
+            )
+            const executableArguments = await UIPrompts.genericInputBoxQuery(
+                'Create Project',
+                'Please enter the executable arguments',
+                4,
+                steps,
+                true
+            )
+            const buildDirectory = await UIPrompts.genericOpenDialogQuery(
+                'Create Project',
+                'Please enter the build directory',
+                5,
+                steps
+            )
+            const cmakeArguments = await UIPrompts.genericInputBoxQuery(
+                'Create Project',
+                'Please enter the CMake arguments',
+                6,
+                steps,
+                true
+            )
 
-    //         const scriptPath = await Utils.handleScriptPath(context)
+            // create and add the project to the project manager
+            const project = new Project(
+                projectName,
+                projectPath,
+                executableName,
+                executableArguments,
+                buildDirectory,
+                cmakeArguments
+            )
+            ProjectManager.getInstance(context).addProject(project)
+        })
+    )
 
-    //         if (scriptPath?.length) {
-    //             await new Promise<void>((resolve, reject) => {
-    //                 exec(
-    //                     scriptPath,
-    //                     { cwd: Utils.getWorkspacePath() },
-    //                     (err, stdout, stderr) => {
-    //                         if (err) {
-    //                             console.log(`error: ${err.message}`)
-    //                             vscode.window.showErrorMessage(
-    //                                 `Script execution failed with error message ${err.message}`
-    //                             )
-    //                             reject()
-    //                             return
-    //                         }
-    //                         resolve()
-    //                     }
-    //                 )
-    //             })
-    //         }
-
-    //         // Refresh file mapping here to apply results correctly to the tree view
-    //         vscode.commands.executeCommand(Commands.refreshFileMapping)
-
-    //         // Can't build codelenses without paths retrieved by treeDataProvider
-    //         vscode.commands.executeCommand(Commands.applyResultsToTreeView)
-
-    //         codeLensProvider.unhideCodeLenses()
-    //         codeLensProvider._onDidChangeCodeLenses.fire()
-    //     })
-    // )
-
-    // // EXECUTE ALL
-    // context.subscriptions.push(
-    //     vscode.commands.registerCommand(Commands.executeAll, async () => {
-    //         // CUGEN
-    //         const cugenRunner = new CUGen(context)
-    //         const files = treeDataProvider.getExecutableFiles()
-    //         if (!files || !files?.length) {
-    //             vscode.window.showInformationMessage(
-    //                 'Please select at least one file before executing a task!'
-    //             )
-    //         }
-    //         cugenRunner.setFiles(files)
-    //         await cugenRunner.executeDefault()
-
-    //         // DEP PROF
-    //         const depprofRunner = new DepProfiling(context)
-    //         depprofRunner.setFiles(files)
-    //         await depprofRunner.executeDefault()
-    //         await depprofRunner.executeLinking()
-    //         await depprofRunner.executeDpRun()
-
-    //         const redopRunner = new RedOp(context)
-    //         // RED OP
-    //         redopRunner.setFiles(files)
-    //         await redopRunner.executeDefault()
-    //         await redopRunner.linkInstrumentedLoops()
-    //         await redopRunner.executeDpRunRed()
-
-    //         const patternidRunner = new PatternIdentification(context)
-    //         await patternidRunner.executeDefault()
-
-    //         vscode.commands.executeCommand(Commands.applyResultsToTreeView)
-
-    //         codeLensProvider.unhideCodeLenses()
-    //         codeLensProvider._onDidChangeCodeLenses.fire()
-    //     })
-    // )
-
-    // CREATE CONFIGURATION
-    // TODO check that it is possible to skip steps
     context.subscriptions.push(
         vscode.commands.registerCommand(
-            Commands.createConfiguration,
-            async (): Promise<Configuration> => {
+            Commands.addConfiguration,
+            async (project: Project) => {
                 const totalSteps = 6
 
                 // let the user specify the name of the configuration
@@ -449,87 +248,10 @@ export function activate(context: vscode.ExtensionContext) {
                     buildDirectory,
                     cmakeArguments
                 )
-                return configuration
-            }
-        )
-    )
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand(Commands.createProject, async () => {
-            // query the user for all the necessary information
-            const steps = 6
-            const projectName = await UIPrompts.genericInputBoxQuery(
-                'Create Project',
-                'Please enter the project name',
-                1,
-                steps
-            )
-            const projectPath = await UIPrompts.genericOpenDialogQuery(
-                'Create Project',
-                'Please select the project path',
-                2,
-                steps
-            )
-            const executableName = await UIPrompts.genericInputBoxQuery(
-                'Create Project',
-                'Please enter the executable name',
-                3,
-                steps
-            )
-            const executableArguments = await UIPrompts.genericInputBoxQuery(
-                'Create Project',
-                'Please enter the executable arguments',
-                4,
-                steps
-            )
-            const buildDirectory = await UIPrompts.genericOpenDialogQuery(
-                'Create Project',
-                'Please enter the build directory',
-                5,
-                steps
-            )
-            const cmakeArguments = await UIPrompts.genericInputBoxQuery(
-                'Create Project',
-                'Please enter the CMake arguments',
-                6,
-                steps
-            )
-
-            // create and add the project to the project manager
-            const project = new Project(
-                projectName,
-                projectPath,
-                executableName,
-                executableArguments,
-                buildDirectory,
-                cmakeArguments
-            )
-            ProjectManager.getInstance(context).addProject(project)
-        })
-    )
-
-    // TODO make this more consistent
-    context.subscriptions.push(
-        vscode.commands.registerCommand(
-            Commands.addConfiguration,
-            async (project: Project) => {
-                // let the user create another configuration
-                const configuration: Configuration =
-                    await vscode.commands.executeCommand(
-                        Commands.createConfiguration
-                    )
+                // add the configuration to the project
                 project.addConfiguration(configuration)
                 projectManager.refresh()
-            }
-        )
-    )
-
-    // TODO we do not need a command to add a project, we can just call projectTreeDataProvider.addProject(project) directly
-    context.subscriptions.push(
-        vscode.commands.registerCommand(
-            Commands.addProject,
-            async (project: Project) => {
-                projectManager.addProject(project)
             }
         )
     )

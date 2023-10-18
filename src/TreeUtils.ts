@@ -1,11 +1,9 @@
-import * as path from 'path'
 import * as vscode from 'vscode'
 import { Command } from 'vscode'
 import { Config } from './Config'
-import { TreeItem } from './Provider/TreeDataProvider'
 
 export class TreeUtils {
-    public static getChildById(root: TreeItem, id: string) {
+    public static getChildById(root: any /*TreeItem*/, id: string) {
         if (root.id === id) {
             return root
         }
@@ -22,7 +20,11 @@ export class TreeUtils {
         }
     }
 
-    public static getPathById(tree: TreeItem[], id: string, path: string) {
+    public static getPathById(
+        tree: any[] /*TreeItem[]*/,
+        id: string,
+        path: string
+    ) {
         const idx = tree.findIndex((node) => {
             return node.id === id
         })
@@ -43,7 +45,7 @@ export class TreeUtils {
         }
     }
 
-    public static toggleAllChilds(root: TreeItem, active: boolean) {
+    public static toggleAllChilds(root: any /*TreeItem*/, active: boolean) {
         root.active = active
 
         root.children.map((child) => this.toggleAllChilds(child, active))

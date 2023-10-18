@@ -11,11 +11,14 @@ import {
 } from 'vscode'
 import { Commands } from '../Commands'
 import { Config } from '../Config'
-import { IDoAll, IReduction } from '../misc/DiscoPoPParser'
+import {
+    IDoAll,
+    IReduction,
+    ResultStatus,
+    ResultType,
+} from '../misc/DiscoPoPParser'
 import SnippetBuilder from '../misc/SnippetBuilder'
 import { StateManager } from '../misc/StateManager'
-import { ResultStatus } from '../ResultStatus'
-import { ResultType } from '../ResultType'
 
 export default class CodeLensProvider implements vscode.CodeLensProvider {
     context: vscode.ExtensionContext
@@ -149,9 +152,9 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
         const stateManager = new StateManager(this.context)
         stateManager.save(recommendation.id, JSON.stringify(recommendation))
 
-        vscode.commands.executeCommand(Commands.sendToDetail, [
-            recommendation.id,
-        ])
+        // vscode.commands.executeCommand(Commands.sendToDetail, [
+        //     recommendation.id,
+        // ])
     }
 
     private moveOtherRecommendations = (removedRecommendation) => {
