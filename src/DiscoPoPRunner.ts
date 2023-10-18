@@ -195,6 +195,25 @@ export class DiscoPoPRunner {
             return
         }
 
+        // parse the filemapping file
+        const fileMappingFileContent = fs.readFileSync(
+            `${fullConfiguration.getBuildDirectory()}/FileMapping.txt`,
+            'utf-8'
+        )
+        console.log(fileMappingFileContent)
+        const fileMapping = fileMappingFileContent
+            .split('\n')
+            .map((line) => line.trim()) // trim whitespace
+            .filter((line) => line.length > 0) // remove empty lines
+            .map((line) => line.split('\t')) // split into columns
+            .map((line) => [parseInt(line[0]), line[1]] as [number, string]) // convert first column to int
+            .reduce((map, entry) => {
+                map.set(entry[0], entry[1])
+                return map
+            }, new Map<number, string>())
+
+        console.log(fileMapping)
+
         // parse the json file
         const patternsJson = fs.readFileSync(
             `${fullConfiguration.getBuildDirectory()}/patterns.json`,
@@ -204,7 +223,7 @@ export class DiscoPoPRunner {
         console.log(patterns)
 
         // show the results in a tree view (all patterns, grouped by their type: reduction, doall, ...)
-        SuggestionTreeDataProvider.getInstance(patterns)
+        SuggestionTreeDataProvider.getInstance(patterns, fileMapping)
     }
 
     private static async _combineConfigurationWithDefaultConfigurationToGetExecutableConfiguration(

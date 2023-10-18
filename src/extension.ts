@@ -23,11 +23,11 @@ import { Project } from './ProjectManager/Project'
 import { Configuration } from './ProjectManager/Configuration'
 import { UIPrompts } from './UIPrompts'
 import { ConfigurationItem } from './ProjectManager/ConfigurationItem'
+import { Suggestion } from './SuggestionTreeView/SuggestionTreeDataProvider'
+import { NewDetailViewProvider } from './NewDetailViewProvider'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-
-let disposables: vscode.Disposable[] = []
 
 export function activate(context: vscode.ExtensionContext) {
     // TODO temporary
@@ -55,49 +55,23 @@ export function activate(context: vscode.ExtensionContext) {
         )
     }
 
-    // DETAIL VIEW
-    const detailViewProvider = new DetailViewProvider(context)
-    context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(
-            'detail-view',
-            detailViewProvider
-        )
-    )
-
-    // send to detail view
-    context.subscriptions.push(
-        vscode.commands.registerCommand(Commands.sendToDetail, (id) => {
-            detailViewProvider.loadResultData(id)
-        })
-    )
-
-    // TREE VIEW
-    //const treeDataProvider = new TreeDataProvider(context, '')
-    //context.subscriptions.push(
-    //    vscode.window.registerTreeDataProvider('explorerId', treeDataProvider)
-    //)
-
-    // TOGGLE TREE VIEW FILE
+    // // DETAIL VIEW
+    // const detailViewProvider = new DetailViewProvider(context)
     // context.subscriptions.push(
-    //     vscode.commands.registerCommand(
-    //         Commands.toggleEntry,
-    //         (entry: TreeItem) => {
-    //             treeDataProvider.toggleEntry(entry)
-    //         }
+    //     vscode.window.registerWebviewViewProvider(
+    //         'detail-view',
+    //         detailViewProvider
     //     )
     // )
 
-    // TOGGLE TREE VIEW FOLDER
+    // // send to detail view
     // context.subscriptions.push(
-    //     vscode.commands.registerCommand(
-    //         Commands.toggleFolder,
-    //         (entry: TreeItem) => {
-    //             treeDataProvider.toggleFolder(entry)
-    //         }
-    //     )
+    //     vscode.commands.registerCommand(Commands.sendToDetail, (id) => {
+    //         detailViewProvider.loadResultData(id)
+    //     })
     // )
 
-    // CODE LENS
+    // // CODE LENS
     // const codeLensProvider = new CodeLensProvider(context)
     // context.subscriptions.push(
     //     vscode.languages.registerCodeLensProvider(
@@ -127,17 +101,17 @@ export function activate(context: vscode.ExtensionContext) {
     //         'discopop.codelensAction',
     //         (recommendationId, fileId, startLine, resultType) => {
     //             codeLensProvider.insertRecommendation(recommendationId)
-    //             treeDataProvider.moveOtherRecommendations(
-    //                 recommendationId,
-    //                 fileId,
-    //                 startLine,
-    //                 resultType
-    //             )
+    //             // treeDataProvider.moveOtherRecommendations(
+    //             //     recommendationId,
+    //             //     fileId,
+    //             //     startLine,
+    //             //     resultType
+    //             // )
     //         }
     //     )
     // )
 
-    // REFRESH TREE VIEW COMMAND
+    // // REFRESH TREE VIEW COMMAND
     // context.subscriptions.push(
     //     vscode.commands.registerCommand(
     //         Commands.refreshFileMapping,
@@ -181,7 +155,7 @@ export function activate(context: vscode.ExtensionContext) {
     //     )
     // )
 
-    // EXECUTE CU GEN
+    // // EXECUTE CU GEN
     // context.subscriptions.push(
     //     vscode.commands.registerCommand(Commands.executeCUGen, async () => {
     //         codeLensProvider.hideCodeLenses()
@@ -210,7 +184,7 @@ export function activate(context: vscode.ExtensionContext) {
     //     })
     // )
 
-    // EXECUTE DEP PROF
+    // // EXECUTE DEP PROF
     // context.subscriptions.push(
     //     vscode.commands.registerCommand(Commands.executeDepProf, async () => {
     //         codeLensProvider.hideCodeLenses()
@@ -242,7 +216,7 @@ export function activate(context: vscode.ExtensionContext) {
     //     })
     // )
 
-    // EXECUTE RED OP
+    // // EXECUTE RED OP
     // context.subscriptions.push(
     //     vscode.commands.registerCommand(Commands.executeRedOp, async () => {
     //         codeLensProvider.hideCodeLenses()
@@ -274,7 +248,7 @@ export function activate(context: vscode.ExtensionContext) {
     //     })
     // )
 
-    // EXECUTE PATTERN ID
+    // // EXECUTE PATTERN ID
     // context.subscriptions.push(
     //     vscode.commands.registerCommand(Commands.executePatternId, async () => {
     //         vscode.window.withProgress(
@@ -302,7 +276,7 @@ export function activate(context: vscode.ExtensionContext) {
     //     })
     // )
 
-    // APPLY RESULTS TO TREE VIEW
+    // // APPLY RESULTS TO TREE VIEW
     // context.subscriptions.push(
     //     vscode.commands.registerCommand(
     //         Commands.applyResultsToTreeView,
@@ -316,7 +290,7 @@ export function activate(context: vscode.ExtensionContext) {
     //     )
     // )
 
-    // JUST PARSE RESULTS
+    // // JUST PARSE RESULTS
     // context.subscriptions.push(
     //     vscode.commands.registerCommand(Commands.parseResults, async () => {
     //         detailViewProvider.clearView()
@@ -332,7 +306,7 @@ export function activate(context: vscode.ExtensionContext) {
     //     })
     // )
 
-    // EXECUTE BY SCRIPT
+    // // EXECUTE BY SCRIPT
     // context.subscriptions.push(
     //     vscode.commands.registerCommand(Commands.executeByScript, async () => {
     //         detailViewProvider.clearView()
@@ -370,7 +344,7 @@ export function activate(context: vscode.ExtensionContext) {
     //     })
     // )
 
-    // EXECUTE ALL
+    // // EXECUTE ALL
     // context.subscriptions.push(
     //     vscode.commands.registerCommand(Commands.executeAll, async () => {
     //         // CUGEN
@@ -677,12 +651,16 @@ export function activate(context: vscode.ExtensionContext) {
             }
         )
     )
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            Commands.showSuggestionDetails,
+            async (suggestion: Suggestion) => {
+                NewDetailViewProvider.getInstance(context, suggestion)
+            }
+        )
+    )
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {
-    if (disposables) {
-        disposables.forEach((item) => item.dispose())
-    }
-    disposables = []
-}
+export function deactivate() {}
