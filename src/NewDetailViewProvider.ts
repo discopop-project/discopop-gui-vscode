@@ -6,48 +6,35 @@ export class NewDetailViewProvider implements vscode.WebviewViewProvider {
     private suggestion: Suggestion
     private webView: vscode.Webview | undefined
 
-    // singleton
+    // singleton pattern
     private static instance: NewDetailViewProvider | undefined
 
     public static getInstance(
         context: vscode.ExtensionContext,
         suggestion: Suggestion
     ): NewDetailViewProvider {
+        NewDetailViewProvider.context = context
         if (!NewDetailViewProvider.instance) {
             NewDetailViewProvider.instance = new NewDetailViewProvider(
-                context,
                 suggestion
             )
             vscode.window.registerWebviewViewProvider(
                 'detail-view',
-                this.instance
+                NewDetailViewProvider.instance
             )
         } else {
-            NewDetailViewProvider.instance.updateWebView(context, suggestion)
+            NewDetailViewProvider.instance.setOrReplaceSuggestion(suggestion)
         }
         return NewDetailViewProvider.instance
     }
 
-    private constructor(
-        context: vscode.ExtensionContext,
-        suggestion: Suggestion
-    ) {
-        this.updateWebView(context, suggestion)
+    private constructor(suggestion: Suggestion) {
+        this.setOrReplaceSuggestion(suggestion)
     }
 
-    private updateWebView(
-        context: vscode.ExtensionContext,
-        suggestion: Suggestion
-    ) {
-        NewDetailViewProvider.context = context
+    private setOrReplaceSuggestion(suggestion: Suggestion) {
         this.suggestion = suggestion
-        if (this.webView) {
-            this.webView.html = this._getHTML(this.suggestion)
-        } else {
-            console.error(
-                'Webview not initialized, cannot show suggestion details'
-            )
-        }
+        this.updateContents()
     }
 
     resolveWebviewView(
@@ -56,13 +43,17 @@ export class NewDetailViewProvider implements vscode.WebviewViewProvider {
         token: vscode.CancellationToken
     ): void | Thenable<void> {
         this.webView = webviewView.webview // save the webview for later updates
-        this.updateWebView(NewDetailViewProvider.context, this.suggestion)
+        this.updateContents()
     }
 
-    private _getHTML(suggestion: Suggestion): string {
-        // stringify the suggestion
-        const suggestionString = JSON.stringify(this.suggestion, undefined, 4)
-        // return the HTML string
-        return `<pre>${suggestionString}</pre>`
+    private updateContents(): void {
+        if (this.webView) {
+            const suggestionString = JSON.stringify(
+                this.suggestion,
+                undefined,
+                4
+            )
+            this.webView.html = `<pre>${suggestionString}</pre>`
+        }
     }
 }

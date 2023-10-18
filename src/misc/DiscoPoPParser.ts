@@ -1,16 +1,14 @@
-import { StateManager } from './StateManager'
 import * as vscode from 'vscode'
-import { StorageManager } from './StorageManager'
-import { ItemType } from '../ItemType'
-import { ResultType } from '../ResultType'
-import { TreeDataProvider, TreeItem } from '../Provider/TreeDataProvider'
-import { TreeItemCollapsibleState } from 'vscode'
-import { ObjectID } from 'bson'
-import { Commands } from '../Commands'
-import { TreeUtils } from '../TreeUtils'
-import { Config } from '../Config'
-import { ResultStatus } from '../ResultStatus'
-import Utils from '../Utils'
+
+export enum ResultType {
+    DoAll = 'doall',
+    Reduction = 'reduction',
+}
+
+export enum ResultStatus {
+    Applied = 'applied',
+    New = 'new',
+}
 
 interface IBaseResult {
     id: string
@@ -49,13 +47,13 @@ export interface IDoAll extends IBaseResult {
 
 export default class DiscoPoPParser {
     context: vscode.ExtensionContext
-    treeDataProvider: TreeDataProvider
-    treeRoot: TreeItem
+    treeDataProvider: any //TreeDataProvider
+    treeRoot: any // TreeItem
     results
 
     constructor(
         context: vscode.ExtensionContext,
-        treeDataProvider: TreeDataProvider
+        treeDataProvider: any // TreeDataProvider
     ) {
         this.context = context
         this.treeDataProvider = treeDataProvider
@@ -65,35 +63,29 @@ export default class DiscoPoPParser {
     parseResultString = async () => {
         // parse discoPoP result from state manager and apply it to existing treeView
         // the application to the treeview is made through appending them as result nodes
-
         // fetch patterns.json as string (from state manager or from file)
-        let resultString = ''
-        if (Config.scriptModeEnabled) {
-            const storageManager = new StorageManager(this.context, true)
-            resultString = (await storageManager.readFile(
-                '.discopop/patterns.json',
-                true
-            )) as string
-        } else {
-            const stateManager = new StateManager(this.context)
-            resultString = stateManager.read('explorerResult')
-        }
-
+        // let resultString = ''
+        // if (Config.scriptModeEnabled) {
+        //     const storageManager = new StorageManager(this.context, true)
+        //     resultString = (await storageManager.readFile(
+        //         '.discopop/patterns.json',
+        //         true
+        //     )) as string
+        // } else {
+        //     const stateManager = new StateManager(this.context)
+        //     resultString = stateManager.read('explorerResult')
+        // }
         // const reductionRegex = new RegExp('Reduction at')
         // const doAllRegex = new RegExp('Do-all at')
-
         // resultString.split('\n').map((element, index, arr) => {
         //     if (reductionRegex.test(element.toString())) {
         //         this.parseReduction(arr, index)
         //     }
-
         //     if (doAllRegex.test(element.toString())) {
         //         this.parseDoAll(arr, index)
         //     }
-
         //     return
         // })
-
         // this.treeRoot = this.treeDataProvider.getCurrentTree()
         // this.appendResultsToTree(this.treeRoot)
         // this.treeDataProvider.forceTreeState(this.treeRoot)
