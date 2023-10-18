@@ -38,6 +38,9 @@ export class Commands {
     public static editConfigurationItem: string =
         'discopop.editConfigurationItem'
 
+    public static showSuggestionDetails: string =
+        'discopop.showSuggestionDetails'
+
     public static executeByScript: string = 'discopop.executeByScript'
 
     public static parseResults: string = 'discopop.parseResults'

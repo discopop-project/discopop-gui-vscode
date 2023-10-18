@@ -1,4 +1,5 @@
 import * as vscode from 'vscode'
+import { Commands } from '../Commands'
 
 export class SuggestionTreeItem extends vscode.TreeItem {
     constructor(
@@ -10,12 +11,18 @@ export class SuggestionTreeItem extends vscode.TreeItem {
     }
 }
 
-export interface Patterns {
-    do_all: any[]
-    geometric_decomposition: any[]
-    pipeline: any[]
-    reduction: any[]
-    simple_gpu: any[]
+export interface Suggestion {
+    node_id: string
+    start_line: string
+    // additional fields are currently not used and can only be viewed in the detail view
+}
+
+export interface PatternsJsonFile {
+    do_all: Suggestion[]
+    geometric_decomposition: Suggestion[]
+    pipeline: Suggestion[]
+    reduction: Suggestion[]
+    simple_gpu: Suggestion[]
 }
 
 export class SuggestionTreeDataProvider
@@ -23,28 +30,43 @@ export class SuggestionTreeDataProvider
 {
     private static instance: SuggestionTreeDataProvider | undefined
 
-    private parsedPatterns: Patterns
+    private parsedPatterns: PatternsJsonFile
+    private fileMapping: Map<number, string>
 
-    private constructor(parsedPatterns: Patterns) {
-        this.parsedPatterns = parsedPatterns
+    private constructor(
+        parsedPatterns: PatternsJsonFile,
+        fileMapping: Map<number, string>
+    ) {
+        this.replacePatterns(parsedPatterns, fileMapping)
     }
 
-    static getInstance(patterns: Patterns): SuggestionTreeDataProvider {
+    static getInstance(
+        patterns: PatternsJsonFile,
+        fileMapping: Map<number, string>
+    ): SuggestionTreeDataProvider {
         if (!SuggestionTreeDataProvider.instance) {
             SuggestionTreeDataProvider.instance =
-                new SuggestionTreeDataProvider(patterns)
+                new SuggestionTreeDataProvider(patterns, fileMapping)
             vscode.window.registerTreeDataProvider(
                 'sidebar-suggestions-view',
                 SuggestionTreeDataProvider.instance
             )
+        } else {
+            SuggestionTreeDataProvider.instance.replacePatterns(
+                patterns,
+                fileMapping
+            )
         }
-        SuggestionTreeDataProvider.instance.replacePatterns(patterns)
         return SuggestionTreeDataProvider.instance
     }
 
-    replacePatterns(patterns: Patterns) {
+    private replacePatterns(
+        patterns: PatternsJsonFile,
+        fileMapping: Map<number, string>
+    ) {
         this.parsedPatterns = patterns
-        // TODO refresh the tree view
+        this.fileMapping = fileMapping
+        this._onDidChangeTreeData.fire()
     }
 
     // TreeDataProvider implementation:
@@ -70,14 +92,35 @@ export class SuggestionTreeDataProvider
                 )
             })
         } else {
-            return this.parsedPatterns[element.label as keyof Patterns].map(
-                (pattern) => {
-                    return new SuggestionTreeItem(JSON.stringify(pattern))
+            return this.parsedPatterns[
+                element.label as keyof PatternsJsonFile
+            ].map((pattern) => {
+                const fileName = this.fileMapping.get(
+                    parseInt(pattern.start_line.split(':')[0])
+                )
+                const lineNr = parseInt(pattern.start_line.split(':')[1])
+                const item = new SuggestionTreeItem(pattern.node_id)
+                item.description = fileName
+                item.iconPath = new vscode.ThemeIcon('lightbulb')
+                item.contextValue = 'suggestion'
+                item.command = {
+                    command: Commands.showSuggestionDetails,
+                    title: 'Show Suggestion Details',
+                    arguments: [pattern],
                 }
-            )
+                return item
+            })
         }
-        throw new Error('Method not implemented.')
     }
+
+    private _onDidChangeTreeData: vscode.EventEmitter<
+        SuggestionTreeItem | undefined | null | void
+    > = new vscode.EventEmitter<SuggestionTreeItem | undefined | null | void>()
+
+    readonly onDidChangeTreeData: vscode.Event<
+        SuggestionTreeItem | undefined | null | void
+    > = this._onDidChangeTreeData.event
+
     // onDidChangeTreeData?: vscode.Event<void | SuggestionTreeItem | SuggestionTreeItem[]>;
     // getParent?(element: PatternTreeItem): vscode.ProviderResult<PatternTreeItem> {
     //     throw new Error('Method not implemented.');
