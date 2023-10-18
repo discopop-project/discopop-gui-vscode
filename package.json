@@ -34,7 +34,12 @@
                 {
                     "type": "tree",
                     "id": "sidebar-projects-view",
-                    "name": "Projects"
+                    "name": "PROJECTS"
+                },
+                {
+                    "type:": "tree",
+                    "id": "sidebar-suggestions-view",
+                    "name": "SUGGESTIONS"
                 },
                 {
                     "type": "webview",
@@ -47,6 +52,10 @@
             {
                 "view": "sidebar-projects-view",
                 "contents": "No projects configured. Please add a project to get started.\n[Add Project](command:discopop.createProject)"
+            },
+            {
+                "view": "sidebar-suggestions-view",
+                "contents": "No suggestions available. Please run a project configuration to get started."
             }
         ],
         "configuration": {
