@@ -1,7 +1,9 @@
-import { IDoAll, IReduction } from './DiscoPoPParser'
+import { DoAllSuggestion, ReductionSuggestion } from './DiscoPoPParser'
 
 export default class SnippetBuilder {
-    public static buildSnippet(recommendation: IDoAll | IReduction): string {
+    public static buildSnippet(
+        recommendation: DoAllSuggestion | ReductionSuggestion
+    ): string {
         let result = recommendation.pragma
 
         result = SnippetBuilder.appendPrivate(result, recommendation.priv)

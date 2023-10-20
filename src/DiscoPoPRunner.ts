@@ -7,7 +7,8 @@ import {
     DefaultConfiguration,
 } from './ProjectManager/Configuration'
 import { UIPrompts } from './UIPrompts'
-import { SuggestionTreeDataProvider } from './SuggestionTreeView/SuggestionTreeDataProvider'
+import { SuggestionTreeDataProvider } from './SuggestionTreeDataProvider'
+import { FileMapping } from './misc/DiscoPoPParser'
 
 // TODO use withProgress to show progress of the execution
 
@@ -195,24 +196,9 @@ export class DiscoPoPRunner {
             return
         }
 
-        // parse the filemapping file
-        const fileMappingFileContent = fs.readFileSync(
-            `${fullConfiguration.getBuildDirectory()}/FileMapping.txt`,
-            'utf-8'
+        const fileMapping = FileMapping.parseFile(
+            `${fullConfiguration.getBuildDirectory()}/FileMapping.txt`
         )
-        console.log(fileMappingFileContent)
-        const fileMapping = fileMappingFileContent
-            .split('\n')
-            .map((line) => line.trim()) // trim whitespace
-            .filter((line) => line.length > 0) // remove empty lines
-            .map((line) => line.split('\t')) // split into columns
-            .map((line) => [parseInt(line[0]), line[1]] as [number, string]) // convert first column to int
-            .reduce((map, entry) => {
-                map.set(entry[0], entry[1])
-                return map
-            }, new Map<number, string>())
-
-        console.log(fileMapping)
 
         // parse the json file
         const patternsJson = fs.readFileSync(
@@ -220,7 +206,6 @@ export class DiscoPoPRunner {
             'utf-8'
         )
         const patterns = JSON.parse(patternsJson)
-        console.log(patterns)
 
         // show the results in a tree view (all patterns, grouped by their type: reduction, doall, ...)
         SuggestionTreeDataProvider.getInstance(patterns, fileMapping)

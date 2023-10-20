@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
-import { Suggestion } from './SuggestionTreeView/SuggestionTreeDataProvider'
+import { ParsedSuggestion } from './SuggestionTreeDataProvider'
 
 export class NewDetailViewProvider implements vscode.WebviewViewProvider {
     private static context: vscode.ExtensionContext
-    private suggestion: Suggestion
+    private suggestion: ParsedSuggestion
     private webView: vscode.Webview | undefined
 
     // singleton pattern
@@ -11,7 +11,7 @@ export class NewDetailViewProvider implements vscode.WebviewViewProvider {
 
     public static getInstance(
         context: vscode.ExtensionContext,
-        suggestion: Suggestion
+        suggestion: ParsedSuggestion
     ): NewDetailViewProvider {
         NewDetailViewProvider.context = context
         if (!NewDetailViewProvider.instance) {
@@ -28,11 +28,11 @@ export class NewDetailViewProvider implements vscode.WebviewViewProvider {
         return NewDetailViewProvider.instance
     }
 
-    private constructor(suggestion: Suggestion) {
+    private constructor(suggestion: ParsedSuggestion) {
         this.setOrReplaceSuggestion(suggestion)
     }
 
-    private setOrReplaceSuggestion(suggestion: Suggestion) {
+    private setOrReplaceSuggestion(suggestion: ParsedSuggestion) {
         this.suggestion = suggestion
         this.updateContents()
     }

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
-import { Commands } from '../Commands'
+import { Commands } from './Commands'
+import { FileMapping } from './misc/DiscoPoPParser'
 
 export class SuggestionTreeItem extends vscode.TreeItem {
     constructor(
@@ -11,18 +12,20 @@ export class SuggestionTreeItem extends vscode.TreeItem {
     }
 }
 
-export interface Suggestion {
+export interface ParsedSuggestion {
     node_id: string
     start_line: string
+    end_line: string
+
     // additional fields are currently not used and can only be viewed in the detail view
 }
 
 export interface PatternsJsonFile {
-    do_all: Suggestion[]
-    geometric_decomposition: Suggestion[]
-    pipeline: Suggestion[]
-    reduction: Suggestion[]
-    simple_gpu: Suggestion[]
+    do_all: ParsedSuggestion[]
+    geometric_decomposition: ParsedSuggestion[]
+    pipeline: ParsedSuggestion[]
+    reduction: ParsedSuggestion[]
+    simple_gpu: ParsedSuggestion[]
 }
 
 export class SuggestionTreeDataProvider
@@ -31,18 +34,18 @@ export class SuggestionTreeDataProvider
     private static instance: SuggestionTreeDataProvider | undefined
 
     private parsedPatterns: PatternsJsonFile
-    private fileMapping: Map<number, string>
+    private fileMapping: FileMapping
 
     private constructor(
         parsedPatterns: PatternsJsonFile,
-        fileMapping: Map<number, string>
+        fileMapping: FileMapping
     ) {
         this.replacePatterns(parsedPatterns, fileMapping)
     }
 
     static getInstance(
         patterns: PatternsJsonFile,
-        fileMapping: Map<number, string>
+        fileMapping: FileMapping
     ): SuggestionTreeDataProvider {
         if (!SuggestionTreeDataProvider.instance) {
             SuggestionTreeDataProvider.instance =
@@ -62,7 +65,7 @@ export class SuggestionTreeDataProvider
 
     private replacePatterns(
         patterns: PatternsJsonFile,
-        fileMapping: Map<number, string>
+        fileMapping: FileMapping
     ) {
         this.parsedPatterns = patterns
         this.fileMapping = fileMapping
@@ -95,7 +98,7 @@ export class SuggestionTreeDataProvider
             return this.parsedPatterns[
                 element.label as keyof PatternsJsonFile
             ].map((pattern) => {
-                const fileName = this.fileMapping.get(
+                const fileName = this.fileMapping.getFilePath(
                     parseInt(pattern.start_line.split(':')[0])
                 )
                 const lineNr = parseInt(pattern.start_line.split(':')[1])
