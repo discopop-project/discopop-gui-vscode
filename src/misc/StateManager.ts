@@ -1,19 +1,15 @@
-import * as vscode from 'vscode'
+import { ExtensionContext } from 'vscode'
 
-export class StateManager {
-    // StateManager working with Memento API for workspacewide state
-
-    context: vscode.ExtensionContext
-
-    constructor(context: vscode.ExtensionContext) {
-        this.context = context
+export abstract class StateManager {
+    private constructor() {
+        throw new Error('This class should not be instantiated')
     }
 
-    save(entry: string, value: any) {
-        return this.context.workspaceState.update(entry, value)
+    public static save(context: ExtensionContext, entry: string, value: any) {
+        return context.workspaceState.update(entry, value)
     }
 
-    read(entry: string): any {
-        return this.context.workspaceState.get(entry)
+    public static read(context: ExtensionContext, entry: string): any {
+        return context.workspaceState.get(entry)
     }
 }
