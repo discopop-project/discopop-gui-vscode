@@ -1,31 +1,29 @@
 import * as vscode from 'vscode'
-import { Suggestion } from './SuggestionTreeView/SuggestionTreeDataProvider'
+import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
 
-export class NewDetailViewProvider implements vscode.WebviewViewProvider {
+export class DetailViewProvider implements vscode.WebviewViewProvider {
     private static context: vscode.ExtensionContext
     private suggestion: Suggestion
     private webView: vscode.Webview | undefined
 
     // singleton pattern
-    private static instance: NewDetailViewProvider | undefined
+    private static instance: DetailViewProvider | undefined
 
     public static getInstance(
         context: vscode.ExtensionContext,
         suggestion: Suggestion
-    ): NewDetailViewProvider {
-        NewDetailViewProvider.context = context
-        if (!NewDetailViewProvider.instance) {
-            NewDetailViewProvider.instance = new NewDetailViewProvider(
-                suggestion
-            )
+    ): DetailViewProvider {
+        DetailViewProvider.context = context
+        if (!DetailViewProvider.instance) {
+            DetailViewProvider.instance = new DetailViewProvider(suggestion)
             vscode.window.registerWebviewViewProvider(
                 'detail-view',
-                NewDetailViewProvider.instance
+                DetailViewProvider.instance
             )
         } else {
-            NewDetailViewProvider.instance.setOrReplaceSuggestion(suggestion)
+            DetailViewProvider.instance.setOrReplaceSuggestion(suggestion)
         }
-        return NewDetailViewProvider.instance
+        return DetailViewProvider.instance
     }
 
     private constructor(suggestion: Suggestion) {
@@ -49,7 +47,7 @@ export class NewDetailViewProvider implements vscode.WebviewViewProvider {
     private updateContents(): void {
         if (this.webView) {
             const suggestionString = JSON.stringify(
-                this.suggestion,
+                this.suggestion.pureJSONData,
                 undefined,
                 4
             )

@@ -3,20 +3,13 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import { Commands } from './Commands'
-import { StorageManager } from './misc/StorageManager'
-import Utils from './Utils'
-import CodeLensProvider from './Provider/CodeLensProvider'
-import { StateManager } from './misc/StateManager'
-import DiscoPoPParser from './misc/DiscoPoPParser'
-import { Config } from './Config'
-import { exec } from 'child_process'
 import { ProjectManager } from './ProjectManager/ProjectManager'
 import { Project } from './ProjectManager/Project'
 import { Configuration } from './ProjectManager/Configuration'
 import { UIPrompts } from './UIPrompts'
 import { ConfigurationItem } from './ProjectManager/ConfigurationItem'
-import { Suggestion } from './SuggestionTreeView/SuggestionTreeDataProvider'
-import { NewDetailViewProvider } from './NewDetailViewProvider'
+import { DetailViewProvider } from './DetailViewProvider'
+import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -26,7 +19,10 @@ export function activate(context: vscode.ExtensionContext) {
     const projectManager = ProjectManager.getInstance(context)
 
     // // CODE LENS
-    // const codeLensProvider = new CodeLensProvider(context)
+    // const codeLensProvider = new CodeLensProvider(
+    //     new FileMapping(new Map<number, string>()),
+    //     []
+    // )
     // context.subscriptions.push(
     //     vscode.languages.registerCodeLensProvider(
     //         '*', //wildcard all for now
@@ -378,7 +374,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             Commands.showSuggestionDetails,
             async (suggestion: Suggestion) => {
-                NewDetailViewProvider.getInstance(context, suggestion)
+                DetailViewProvider.getInstance(context, suggestion)
             }
         )
     )

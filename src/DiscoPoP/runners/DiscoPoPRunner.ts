@@ -1,28 +1,29 @@
 import * as vscode from 'vscode'
-import { Config } from './Config'
+import { Config } from '../../Config'
 import * as fs from 'fs'
 import { exec } from 'child_process'
 import {
     Configuration,
     DefaultConfiguration,
-} from './ProjectManager/Configuration'
-import { UIPrompts } from './UIPrompts'
-import { SuggestionTreeDataProvider } from './SuggestionTreeView/SuggestionTreeDataProvider'
+} from '../../ProjectManager/Configuration'
+import { UIPrompts } from '../../UIPrompts'
+import { SuggestionTree } from '../../SuggestionTree'
+import CodeLensProvider from '../../CodeLensProvider'
+import { FileMapping } from '../classes/FileMapping'
+import { DoAllSuggestion } from '../classes/Suggestion/DoAllSuggestion'
+import { FileMappingParser } from '../parsers/FileMappingParser'
+import { SuggestionParser } from '../parsers/SuggestionParser'
 
 // TODO use withProgress to show progress of the execution
 
 export class DiscoPoPRunner {
     static async runConfiguration(configuration: Configuration) {
-        let fullConfiguration: DefaultConfiguration
-        if (configuration instanceof DefaultConfiguration) {
-            fullConfiguration = configuration
-        } else {
-            fullConfiguration =
-                await this._combineConfigurationWithDefaultConfigurationToGetExecutableConfiguration(
-                    configuration
-                )
-        }
+        // the configuration can be either a DefaultConfiguration or a Configuration
+        // if it is a Configuration, we need to combine it with the default configuration to get a "full" configuration
+        const fullConfiguration: DefaultConfiguration =
+            await this._getFullConfiguration(configuration)
 
+        // show info
         vscode.window.showInformationMessage(
             'Running DiscoPoP on project ' +
                 fullConfiguration.getProjectPath() +
@@ -178,6 +179,7 @@ export class DiscoPoPRunner {
             )
         })
 
+        // show info
         vscode.window.showInformationMessage(
             'DiscoPoP finished running. Results are stored in ' +
                 fullConfiguration.getBuildDirectory()
@@ -195,40 +197,50 @@ export class DiscoPoPRunner {
             return
         }
 
-        // parse the filemapping file
-        const fileMappingFileContent = fs.readFileSync(
-            `${fullConfiguration.getBuildDirectory()}/FileMapping.txt`,
-            'utf-8'
+        // parse the FileMapping.txt file
+        const fileMapping = FileMappingParser.parseFile(
+            `${fullConfiguration.getBuildDirectory()}/FileMapping.txt`
         )
-        console.log(fileMappingFileContent)
-        const fileMapping = fileMappingFileContent
-            .split('\n')
-            .map((line) => line.trim()) // trim whitespace
-            .filter((line) => line.length > 0) // remove empty lines
-            .map((line) => line.split('\t')) // split into columns
-            .map((line) => [parseInt(line[0]), line[1]] as [number, string]) // convert first column to int
-            .reduce((map, entry) => {
-                map.set(entry[0], entry[1])
-                return map
-            }, new Map<number, string>())
 
-        console.log(fileMapping)
-
-        // parse the json file
-        const patternsJson = fs.readFileSync(
-            `${fullConfiguration.getBuildDirectory()}/patterns.json`,
-            'utf-8'
+        // parse the patterns.json file
+        const discoPoPResults = SuggestionParser.parseFile(
+            `${fullConfiguration.getBuildDirectory()}/patterns.json`
         )
-        const patterns = JSON.parse(patternsJson)
-        console.log(patterns)
 
         // show the results in a tree view (all patterns, grouped by their type: reduction, doall, ...)
-        SuggestionTreeDataProvider.getInstance(patterns, fileMapping)
+        const suggestionTree = new SuggestionTree(fileMapping, discoPoPResults)
+        vscode.window.registerTreeDataProvider(
+            'sidebar-suggestions-view',
+            suggestionTree
+        )
+        // TODO rerunning should kill the old SuggestionTree and create a new one
+
+        // enable code lenses for all suggestions
+        const codeLensProvider = new CodeLensProvider(
+            fileMapping,
+            discoPoPResults.getAllSuggestions()
+        )
+        const codeLensProviderDisposable =
+            vscode.languages.registerCodeLensProvider(
+                { scheme: 'file', language: 'cpp' },
+                codeLensProvider
+            )
+        // TODO rerunning should kill the old CodeLensProvider and create a new one
     }
 
-    private static async _combineConfigurationWithDefaultConfigurationToGetExecutableConfiguration(
+    /**
+     * Returns a full (runnable) configuration, i.e. a DefaultConfiguration,
+     * by combining the given configuration with its default configuration.
+     *
+     * If the provided configuration is already a DefaultConfiguration, it is returned as is.
+     */
+    private static async _getFullConfiguration(
         configuration: Configuration
     ): Promise<DefaultConfiguration> {
+        if (configuration instanceof DefaultConfiguration) {
+            return configuration
+        }
+
         const defaults = configuration.getParent().getDefaultConfiguration()
         const combined = new DefaultConfiguration(
             configuration.getProjectPath() ?? defaults.getProjectPath(),
@@ -239,7 +251,7 @@ export class DiscoPoPRunner {
             configuration.getName() ?? defaults.getName()
         )
 
-        combined.setName(configuration.getName() ?? defaults.getName())
+        combined.setName(configuration.getName())
 
         return combined
     }
