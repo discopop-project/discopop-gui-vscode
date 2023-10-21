@@ -7,8 +7,12 @@ import {
     DefaultConfiguration,
 } from './ProjectManager/Configuration'
 import { UIPrompts } from './UIPrompts'
-import { SuggestionTreeDataProvider } from './SuggestionTreeDataProvider'
-import { FileMapping } from './misc/DiscoPoPParser'
+import {
+    PatternsJsonFile,
+    SuggestionTreeDataProvider,
+} from './SuggestionTreeDataProvider'
+import { DoAllSuggestion, FileMapping, Suggestion } from './misc/DiscoPoPParser'
+import CodeLensProvider from './CodeLensProvider'
 
 // TODO use withProgress to show progress of the execution
 
@@ -205,10 +209,32 @@ export class DiscoPoPRunner {
             `${fullConfiguration.getBuildDirectory()}/patterns.json`,
             'utf-8'
         )
-        const patterns = JSON.parse(patternsJson)
+        const patterns = JSON.parse(patternsJson) as PatternsJsonFile
+        // TODO check if the parsed json is valid
+
+        // convert the json objects to Suggestion objects
+        // TODO
+        // for now I tried with some hardcoded stuff
+        const doallSuggestions = [
+            new DoAllSuggestion('some ID', 1, 1, 2, 1, '#pragma omp i am here'),
+        ]
 
         // show the results in a tree view (all patterns, grouped by their type: reduction, doall, ...)
-        SuggestionTreeDataProvider.getInstance(patterns, fileMapping)
+        const suggestionTreeDataProvider =
+            SuggestionTreeDataProvider.getInstance(fileMapping, patterns)
+
+        const codeLensProvider = new CodeLensProvider(
+            fileMapping,
+            doallSuggestions
+        )
+        // register the CodeLensProvider
+        const codeLensProviderDisposable =
+            vscode.languages.registerCodeLensProvider(
+                { scheme: 'file', language: 'cpp' },
+                codeLensProvider
+            )
+
+        // TODO rerunning should kill the old CodeLensProvider and create a new one
     }
 
     private static async _combineConfigurationWithDefaultConfigurationToGetExecutableConfiguration(
@@ -224,7 +250,7 @@ export class DiscoPoPRunner {
             configuration.getName() ?? defaults.getName()
         )
 
-        combined.setName(configuration.getName() ?? defaults.getName())
+        combined.setName(configuration.getName())
 
         return combined
     }

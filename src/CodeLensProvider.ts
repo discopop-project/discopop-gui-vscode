@@ -23,8 +23,6 @@ import SnippetBuilder from './misc/SnippetBuilder'
 import { StateManager } from './misc/StateManager'
 
 export default class CodeLensProvider implements vscode.CodeLensProvider {
-    // context: vscode.ExtensionContext
-    private codeLenses: vscode.CodeLens[] = []
     public hidden: boolean = false
     private suggestions: Suggestion[] = []
     private fileMapping: FileMapping
@@ -35,12 +33,10 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
     public readonly onDidChangeCodeLenses: vscode.Event<void> =
         this._onDidChangeCodeLenses.event
 
-    constructor(fileMapping: FileMapping, patterns: Suggestion[]) {
+    constructor(fileMapping: FileMapping, suggestions: Suggestion[]) {
+        console.log('constructed codelensprovider')
         this.fileMapping = fileMapping
-        this.suggestions = patterns
-        this.codeLenses = this.suggestions.map((recommendation) =>
-            recommendation.getCodeLens()
-        )
+        this.suggestions = suggestions
 
         vscode.workspace.onDidChangeConfiguration((_) => {
             this._onDidChangeCodeLenses.fire()
@@ -52,6 +48,15 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
         token: vscode.CancellationToken
     ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
         if (Config.codeLensEnabled && !this.hidden) {
+            console.log(
+                'looking for lenses: in ' + document.fileName.toString()
+            )
+            console.log('  filemapping: ' + this.fileMapping)
+            console.log(
+                '  fmap.getFileID(): ' +
+                    this.fileMapping.getFileId(document.fileName.toString())
+            )
+            console.log('  suggestions: ' + this.suggestions)
             // const recommendationIDs = StateManager.read(this.context, document.fileName.toString())
 
             // if (!recommendationIDs) {
@@ -92,22 +97,24 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
 
             // return this.codeLenses
 
-            return (
-                this.suggestions
-                    // only suggestions for this file
-                    .filter((suggestion) => {
-                        const fileId = this.fileMapping.getFileId(
-                            document.fileName.toString()
-                        )
-                        return suggestion.fileId === fileId
-                    })
-                    // only suggestions that are not yet applied
-                    .filter((suggestion) => {
-                        return suggestion.status !== AppliedStatus.APPLIED
-                    })
-                    // get CodeLens for each suggestion
-                    .map((suggestion) => suggestion.getCodeLens())
-            )
+            const lenses = this.suggestions
+                // only suggestions for this file
+                .filter((suggestion) => {
+                    const fileId = this.fileMapping.getFileId(
+                        document.fileName.toString()
+                    )
+                    return suggestion.fileId === fileId
+                })
+                // only suggestions that are not yet applied
+                .filter((suggestion) => {
+                    return suggestion.status !== AppliedStatus.APPLIED
+                })
+                // get CodeLens for each suggestion
+                .map((suggestion) => suggestion.getCodeLens())
+
+            console.log(lenses)
+
+            return lenses
         }
         return []
     }

@@ -12,7 +12,7 @@ export enum AppliedStatus {
 }
 
 export abstract class Suggestion {
-    resultType: SuggestionType
+    resultType: SuggestionType // TODO replace with inheritance and instead of switchin on type, call abstract methods of the object
     status: AppliedStatus
 
     id: string
@@ -22,15 +22,54 @@ export abstract class Suggestion {
     endLine: number
     pragma: string
 
+    constructor(
+        id: string,
+        fileId: number,
+        line: number,
+        startLine: number,
+        endLine: number,
+        pragma: string
+    ) {
+        this.id = id
+        this.fileId = fileId
+        this.line = line
+        this.startLine = startLine
+        this.endLine = endLine
+        this.pragma = pragma
+        this.status = AppliedStatus.NEW
+    }
+
     abstract getCodeLens(): vscode.CodeLens
 }
 
 export class ReductionSuggestion extends Suggestion {
-    priv: string[]
+    priv: string[] // "private" is a reserved keyword
     shared: string[]
     firstPrivate: string[]
     reduction: string[]
     lastPrivate: string[]
+
+    constructor(
+        id: string,
+        fileId: number,
+        line: number,
+        startLine: number,
+        endLine: number,
+        pragma: string,
+        priv: string[],
+        shared: string[],
+        firstPrivate: string[],
+        reduction: string[],
+        lastPrivate: string[]
+    ) {
+        super(id, fileId, line, startLine, endLine, pragma)
+        this.resultType = SuggestionType.REDUCTION
+        this.priv = priv
+        this.shared = shared
+        this.firstPrivate = firstPrivate
+        this.reduction = reduction
+        this.lastPrivate = lastPrivate
+    }
 
     // TODO duplicate code
     getCodeLens(): vscode.CodeLens {
@@ -107,6 +146,12 @@ export class FileMapping {
 
     public getAllFileIds(): number[] {
         return Array.from(this.inverseFileMapping.values())
+    }
+
+    public toString(): string {
+        return Array.from(this.fileMapping.entries())
+            .map((entry) => `${entry[0]}\t${entry[1]}`)
+            .join('\n')
     }
 
     /**

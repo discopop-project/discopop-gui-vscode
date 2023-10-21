@@ -26,47 +26,47 @@ export function activate(context: vscode.ExtensionContext) {
     const projectManager = ProjectManager.getInstance(context)
 
     // // CODE LENS
-    const codeLensProvider = new CodeLensProvider(
-        new FileMapping(new Map<number, string>()),
-        []
-    )
-    context.subscriptions.push(
-        vscode.languages.registerCodeLensProvider(
-            '*', //wildcard all for now
-            codeLensProvider
-        )
-    )
+    // const codeLensProvider = new CodeLensProvider(
+    //     new FileMapping(new Map<number, string>()),
+    //     []
+    // )
+    // context.subscriptions.push(
+    //     vscode.languages.registerCodeLensProvider(
+    //         '*', //wildcard all for now
+    //         codeLensProvider
+    //     )
+    // )
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand('discopop.enableCodeLens', () => {
-            vscode.workspace
-                .getConfiguration('discopop')
-                .update('recommendationsCodeLens', true, true)
-        })
-    )
+    // context.subscriptions.push(
+    //     vscode.commands.registerCommand('discopop.enableCodeLens', () => {
+    //         vscode.workspace
+    //             .getConfiguration('discopop')
+    //             .update('recommendationsCodeLens', true, true)
+    //     })
+    // )
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand('discopop.disableCodeLens', () => {
-            vscode.workspace
-                .getConfiguration('discopop')
-                .update('recommendationsCodeLens', false, true)
-        })
-    )
+    // context.subscriptions.push(
+    //     vscode.commands.registerCommand('discopop.disableCodeLens', () => {
+    //         vscode.workspace
+    //             .getConfiguration('discopop')
+    //             .update('recommendationsCodeLens', false, true)
+    //     })
+    // )
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand(
-            'discopop.codelensAction',
-            (recommendationId, fileId, startLine, resultType) => {
-                codeLensProvider.insertRecommendation(recommendationId)
-                // treeDataProvider.moveOtherRecommendations(
-                //     recommendationId,
-                //     fileId,
-                //     startLine,
-                //     resultType
-                // )
-            }
-        )
-    )
+    // context.subscriptions.push(
+    //     vscode.commands.registerCommand(
+    //         'discopop.codelensAction',
+    //         (recommendationId, fileId, startLine, resultType) => {
+    //             codeLensProvider.insertRecommendation(recommendationId)
+    //             // treeDataProvider.moveOtherRecommendations(
+    //             //     recommendationId,
+    //             //     fileId,
+    //             //     startLine,
+    //             //     resultType
+    //             // )
+    //         }
+    //     )
+    // )
 
     // // REFRESH FILE MAPPING TREE VIEW
     // context.subscriptions.push(

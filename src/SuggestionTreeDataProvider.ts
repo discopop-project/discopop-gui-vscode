@@ -35,25 +35,23 @@ export class SuggestionTreeDataProvider
 
     private parsedPatterns: PatternsJsonFile
     private fileMapping: FileMapping
+    private disposable: vscode.Disposable
 
     private constructor(
         parsedPatterns: PatternsJsonFile,
         fileMapping: FileMapping
     ) {
         this.replacePatterns(parsedPatterns, fileMapping)
+        this.show()
     }
 
     static getInstance(
-        patterns: PatternsJsonFile,
-        fileMapping: FileMapping
+        fileMapping: FileMapping,
+        patterns: PatternsJsonFile
     ): SuggestionTreeDataProvider {
         if (!SuggestionTreeDataProvider.instance) {
             SuggestionTreeDataProvider.instance =
                 new SuggestionTreeDataProvider(patterns, fileMapping)
-            vscode.window.registerTreeDataProvider(
-                'sidebar-suggestions-view',
-                SuggestionTreeDataProvider.instance
-            )
         } else {
             SuggestionTreeDataProvider.instance.replacePatterns(
                 patterns,
@@ -70,6 +68,17 @@ export class SuggestionTreeDataProvider
         this.parsedPatterns = patterns
         this.fileMapping = fileMapping
         this._onDidChangeTreeData.fire()
+    }
+
+    public hide() {
+        this.disposable.dispose()
+    }
+
+    public show() {
+        this.disposable = vscode.window.registerTreeDataProvider(
+            'sidebar-suggestions-view',
+            this
+        )
     }
 
     // TreeDataProvider implementation:
@@ -124,7 +133,6 @@ export class SuggestionTreeDataProvider
         SuggestionTreeItem | undefined | null | void
     > = this._onDidChangeTreeData.event
 
-    // onDidChangeTreeData?: vscode.Event<void | SuggestionTreeItem | SuggestionTreeItem[]>;
     // getParent?(element: PatternTreeItem): vscode.ProviderResult<PatternTreeItem> {
     //     throw new Error('Method not implemented.');
     // }
