@@ -1,26 +1,11 @@
 import * as vscode from 'vscode'
-import {
-    CancellationToken,
-    CodeLens,
-    Command,
-    Position,
-    Range,
-    SnippetString,
-    TextDocument,
-    window,
-} from 'vscode'
-import { Commands } from './Commands'
+import { Position } from 'vscode'
 import { Config } from './Config'
 import {
-    Suggestion,
-    DoAllSuggestion,
-    ReductionSuggestion,
     AppliedStatus,
-    SuggestionType,
-    FileMapping,
-} from './misc/DiscoPoPParser'
-import SnippetBuilder from './misc/SnippetBuilder'
-import { StateManager } from './misc/StateManager'
+    Suggestion,
+} from './DiscoPoP/classes/Suggestion/Suggestion'
+import { FileMapping } from './DiscoPoP/classes/FileMapping'
 
 export default class CodeLensProvider implements vscode.CodeLensProvider {
     public hidden: boolean = false
@@ -129,11 +114,7 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
         return null
     }
 
-    public insertRecommendation = async (recommendationId) => {
-        const recommendation = this.suggestions?.find(
-            (elem) => elem.id === recommendationId
-        )
-
+    public insertRecommendation = async (recommendation: Suggestion) => {
         if (!recommendation) {
             return
         }
@@ -150,9 +131,10 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
     }
 
     private _moveOtherRecommendations = (
-        removedRecommendation,
+        removedRecommendation: Suggestion,
         offset: number = 1
     ) => {
+        // TODO also shift recommendatin.endLine
         this.suggestions.map((recommendation) => {
             if (recommendation.id === removedRecommendation.id) {
                 return
@@ -161,8 +143,8 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
                 if (recommendation.startLine) {
                     recommendation.startLine += offset
                 }
-                if (recommendation.line) {
-                    recommendation.line += offset
+                if (recommendation.startLine) {
+                    recommendation.startLine += offset
                 }
                 if (recommendation.endLine) {
                     recommendation.endLine += offset
@@ -177,22 +159,15 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
         this._onDidChangeCodeLenses.fire()
     }
 
-    private _insertSnippet = (result) => {
-        if (
-            result.resultType !== SuggestionType.DOALL ||
-            result.resultType !== SuggestionType.REDUCTION
-        ) {
-            throw new Error(
-                'This pattern type is not yet implemented: ' + result.resultType
-            )
-        }
+    private _insertSnippet(result: Suggestion) {
         const editor = vscode.window.activeTextEditor
 
         if (editor) {
             editor.edit((editBuilder) => {
                 editBuilder.insert(
                     new Position(result.startLine - 1, 0),
-                    SnippetBuilder.buildSnippet(result)
+                    result.pragma
+                    // TODO indentation
                 )
             })
         }

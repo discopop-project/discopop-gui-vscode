@@ -1,9 +1,7 @@
 import { ExtensionContext } from 'vscode'
 
 export abstract class StateManager {
-    // StateManager working with Memento API for workspacewide state
-
-    private constructor(context: ExtensionContext) {
+    private constructor() {
         throw new Error('This class should not be instantiated')
     }
 

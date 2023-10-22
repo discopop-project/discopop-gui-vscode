@@ -2,7 +2,7 @@ import * as vscode from 'vscode'
 import { ConfigurationItem } from './ConfigurationItem'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Project } from './Project'
-import { DiscoPoPRunner } from '../DiscoPoPRunner'
+import { DiscoPoPRunner } from '../DiscoPoP/runners/DiscoPoPRunner'
 import { ProjectManager } from './ProjectManager'
 
 export class Configuration extends ProjectManagerTreeItem {

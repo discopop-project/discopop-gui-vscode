@@ -3,20 +3,13 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import { Commands } from './Commands'
-import { StorageManager } from './misc/StorageManager'
-import Utils from './Utils'
-import CodeLensProvider from './CodeLensProvider'
-import { StateManager } from './misc/StateManager'
-import { Config } from './Config'
-import { exec } from 'child_process'
 import { ProjectManager } from './ProjectManager/ProjectManager'
 import { Project } from './ProjectManager/Project'
 import { Configuration } from './ProjectManager/Configuration'
 import { UIPrompts } from './UIPrompts'
 import { ConfigurationItem } from './ProjectManager/ConfigurationItem'
-import { ParsedSuggestion } from './SuggestionTreeDataProvider'
-import { NewDetailViewProvider } from './NewDetailViewProvider'
-import { FileMapping } from './misc/DiscoPoPParser'
+import { DetailViewProvider } from './DetailViewProvider'
+import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -380,8 +373,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand(
             Commands.showSuggestionDetails,
-            async (suggestion: ParsedSuggestion) => {
-                NewDetailViewProvider.getInstance(context, suggestion)
+            async (suggestion: Suggestion) => {
+                DetailViewProvider.getInstance(context, suggestion)
             }
         )
     )

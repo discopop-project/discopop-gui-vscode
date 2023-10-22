@@ -1,33 +1,29 @@
 import * as vscode from 'vscode'
-import { Config } from './Config'
+import { Config } from '../../Config'
 import * as fs from 'fs'
 import { exec } from 'child_process'
 import {
     Configuration,
     DefaultConfiguration,
-} from './ProjectManager/Configuration'
-import { UIPrompts } from './UIPrompts'
-import {
-    PatternsJsonFile,
-    SuggestionTreeDataProvider,
-} from './SuggestionTreeDataProvider'
-import { DoAllSuggestion, FileMapping, Suggestion } from './misc/DiscoPoPParser'
-import CodeLensProvider from './CodeLensProvider'
+} from '../../ProjectManager/Configuration'
+import { UIPrompts } from '../../UIPrompts'
+import { SuggestionTree } from '../../SuggestionTree'
+import CodeLensProvider from '../../CodeLensProvider'
+import { FileMapping } from '../classes/FileMapping'
+import { DoAllSuggestion } from '../classes/Suggestion/DoAllSuggestion'
+import { FileMappingParser } from '../parsers/FileMappingParser'
+import { SuggestionParser } from '../parsers/SuggestionParser'
 
 // TODO use withProgress to show progress of the execution
 
 export class DiscoPoPRunner {
     static async runConfiguration(configuration: Configuration) {
-        let fullConfiguration: DefaultConfiguration
-        if (configuration instanceof DefaultConfiguration) {
-            fullConfiguration = configuration
-        } else {
-            fullConfiguration =
-                await this._combineConfigurationWithDefaultConfigurationToGetExecutableConfiguration(
-                    configuration
-                )
-        }
+        // the configuration can be either a DefaultConfiguration or a Configuration
+        // if it is a Configuration, we need to combine it with the default configuration to get a "full" configuration
+        const fullConfiguration: DefaultConfiguration =
+            await this._getFullConfiguration(configuration)
 
+        // show info
         vscode.window.showInformationMessage(
             'Running DiscoPoP on project ' +
                 fullConfiguration.getProjectPath() +
@@ -183,6 +179,7 @@ export class DiscoPoPRunner {
             )
         })
 
+        // show info
         vscode.window.showInformationMessage(
             'DiscoPoP finished running. Results are stored in ' +
                 fullConfiguration.getBuildDirectory()
@@ -200,46 +197,50 @@ export class DiscoPoPRunner {
             return
         }
 
-        const fileMapping = FileMapping.parseFile(
+        // parse the FileMapping.txt file
+        const fileMapping = FileMappingParser.parseFile(
             `${fullConfiguration.getBuildDirectory()}/FileMapping.txt`
         )
 
-        // parse the json file
-        const patternsJson = fs.readFileSync(
-            `${fullConfiguration.getBuildDirectory()}/patterns.json`,
-            'utf-8'
+        // parse the patterns.json file
+        const discoPoPResults = SuggestionParser.parseFile(
+            `${fullConfiguration.getBuildDirectory()}/patterns.json`
         )
-        const patterns = JSON.parse(patternsJson) as PatternsJsonFile
-        // TODO check if the parsed json is valid
-
-        // convert the json objects to Suggestion objects
-        // TODO
-        // for now I tried with some hardcoded stuff
-        const doallSuggestions = [
-            new DoAllSuggestion('some ID', 1, 1, 2, 1, '#pragma omp i am here'),
-        ]
 
         // show the results in a tree view (all patterns, grouped by their type: reduction, doall, ...)
-        const suggestionTreeDataProvider =
-            SuggestionTreeDataProvider.getInstance(fileMapping, patterns)
+        const suggestionTree = new SuggestionTree(fileMapping, discoPoPResults)
+        vscode.window.registerTreeDataProvider(
+            'sidebar-suggestions-view',
+            suggestionTree
+        )
+        // TODO rerunning should kill the old SuggestionTree and create a new one
 
+        // enable code lenses for all suggestions
         const codeLensProvider = new CodeLensProvider(
             fileMapping,
-            doallSuggestions
+            discoPoPResults.getAllSuggestions()
         )
-        // register the CodeLensProvider
         const codeLensProviderDisposable =
             vscode.languages.registerCodeLensProvider(
                 { scheme: 'file', language: 'cpp' },
                 codeLensProvider
             )
-
         // TODO rerunning should kill the old CodeLensProvider and create a new one
     }
 
-    private static async _combineConfigurationWithDefaultConfigurationToGetExecutableConfiguration(
+    /**
+     * Returns a full (runnable) configuration, i.e. a DefaultConfiguration,
+     * by combining the given configuration with its default configuration.
+     *
+     * If the provided configuration is already a DefaultConfiguration, it is returned as is.
+     */
+    private static async _getFullConfiguration(
         configuration: Configuration
     ): Promise<DefaultConfiguration> {
+        if (configuration instanceof DefaultConfiguration) {
+            return configuration
+        }
+
         const defaults = configuration.getParent().getDefaultConfiguration()
         const combined = new DefaultConfiguration(
             configuration.getProjectPath() ?? defaults.getProjectPath(),
