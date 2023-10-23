@@ -1,12 +1,10 @@
 import * as vscode from 'vscode'
 import { Suggestion } from './Suggestion'
+import { DiscoPoPCodeLens } from '../../../CodeLensProvider'
+import { Commands } from '../../../Commands'
 
 export class ReductionSuggestion extends Suggestion {
-    // priv: string[]; // "private" is a reserved keyword
-    // shared: string[];
-    // firstPrivate: string[];
-    // reduction: string[];
-    // lastPrivate: string[];
+    // TODO we might want to parse other fields from the patterns.json file and add them here
 
     public constructor(
         id: string,
@@ -15,31 +13,12 @@ export class ReductionSuggestion extends Suggestion {
         endLine: number,
         pragma: string,
         pureJSONData: any
-        // priv: string[],
-        // shared: string[],
-        // firstPrivate: string[],
-        // reduction: string[],
-        // lastPrivate: string[]
     ) {
         super(id, fileId, startLine, endLine, pragma, pureJSONData)
-        // this.priv = priv;
-        // this.shared = shared;
-        // this.firstPrivate = firstPrivate;
-        // this.reduction = reduction;
-        // this.lastPrivate = lastPrivate;
     }
 
     // TODO duplicate code (see DoAllSuggestion)
-    getCodeLens(): vscode.CodeLens {
-        const codeLens = new vscode.CodeLens(
-            new vscode.Range(this.startLine - 1, 0, this.startLine - 1, 0),
-            {
-                title: `REDUCTION recommended with pragma: ${this.pragma}. Click to insert.`,
-                command: 'discopop.codelensAction',
-                arguments: [this],
-            }
-        )
-
-        return codeLens
+    getCodeLens(): DiscoPoPCodeLens {
+        return new DiscoPoPCodeLens(this)
     }
 }
