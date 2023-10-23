@@ -69,7 +69,7 @@ class SuggestionNode implements SuggestionTreeNode {
         view.command = {
             command: Commands.showSuggestionDetails,
             title: 'Show Suggestion Details',
-            arguments: [this.suggestion],
+            arguments: [this.suggestion, fileMapping],
         }
         return view
     }
