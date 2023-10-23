@@ -161,8 +161,8 @@ export class DiscoPoPRunner {
         // TODO errors are not reliably reported --> fix in discopop_explorer!
         await new Promise<void>((resolve, reject) => {
             exec(
-                `python3 -m discopop_explorer --fmap ${fullConfiguration.getBuildDirectory()}/FileMapping.txt --path ${fullConfiguration.getBuildDirectory()} --dep-file ${fullConfiguration.getBuildDirectory()}/${fullConfiguration.getExecutableName()}_dep.txt --json patterns.json`,
-                { cwd: fullConfiguration.getBuildDirectory() },
+                `python3 -m discopop_explorer`, //--fmap ${fullConfiguration.getBuildDirectory()}/FileMapping.txt --path ${fullConfiguration.getBuildDirectory()} --dep-file ${fullConfiguration.getBuildDirectory()}/${fullConfiguration.getExecutableName()}_dep.txt --json patterns.json`,
+                { cwd: `${fullConfiguration.getBuildDirectory()}/.discopop`},
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
@@ -188,7 +188,7 @@ export class DiscoPoPRunner {
         // ensure that patterns.json exists (located in the build directory)
         if (
             !fs.existsSync(
-                `${fullConfiguration.getBuildDirectory()}/patterns.json`
+                `${fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
             )
         ) {
             vscode.window.showErrorMessage(
@@ -199,12 +199,12 @@ export class DiscoPoPRunner {
 
         // parse the FileMapping.txt file
         const fileMapping = FileMappingParser.parseFile(
-            `${fullConfiguration.getBuildDirectory()}/FileMapping.txt`
+            `${fullConfiguration.getBuildDirectory()}/.discopop/FileMapping.txt`
         )
 
         // parse the patterns.json file
         const discoPoPResults = SuggestionParser.parseFile(
-            `${fullConfiguration.getBuildDirectory()}/patterns.json`
+            `${fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
         )
 
         // show the results in a tree view (all patterns, grouped by their type: reduction, doall, ...)
