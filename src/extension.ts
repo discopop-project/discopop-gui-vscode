@@ -1,7 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
-import * as fs from 'fs'
 import { Commands } from './Commands'
 import { ProjectManager } from './ProjectManager/ProjectManager'
 import { Project } from './ProjectManager/Project'
@@ -10,6 +9,7 @@ import { UIPrompts } from './UIPrompts'
 import { ConfigurationItem } from './ProjectManager/ConfigurationItem'
 import { DetailViewProvider } from './DetailViewProvider'
 import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
+import { FileMapping } from './DiscoPoP/classes/FileMapping'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -373,8 +373,21 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand(
             Commands.showSuggestionDetails,
-            async (suggestion: Suggestion) => {
+            async (suggestion: Suggestion, fileMapping: FileMapping) => {
                 DetailViewProvider.getInstance(context, suggestion)
+                const filePath = fileMapping.getFilePath(suggestion.fileId)
+                const document = await vscode.workspace.openTextDocument(
+                    filePath
+                )
+                const editor = await vscode.window.showTextDocument(
+                    document,
+                    vscode.ViewColumn.Active,
+                    false
+                )
+                const line = new vscode.Position(suggestion.startLine - 1, 0)
+                editor.selections = [new vscode.Selection(line, line)]
+                const range = new vscode.Range(line, line)
+                editor.revealRange(range)
             }
         )
     )

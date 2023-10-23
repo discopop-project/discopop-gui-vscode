@@ -16,8 +16,8 @@ export abstract class SuggestionParser {
     }
 
     public static parseString(text: string): DiscoPoPResults {
-        const patterns = JSON.parse(text)
-        return SuggestionParser.parseJSON(patterns)
+        const suggestions = JSON.parse(text)
+        return SuggestionParser.parseJSON(suggestions)
     }
 
     public static parseJSON(json: any): DiscoPoPResults {
