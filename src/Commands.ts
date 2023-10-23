@@ -18,6 +18,7 @@ export class Commands {
         'discopop.showSuggestionDetails'
 
     // codeLens
-    public static enableCodeLens: string = 'discopop.enableCodeLens'
-    public static disableCodeLens: string = 'discopop.disableCodeLens'
+    public static codeLensAction: string = 'discopop.codeLensAction'
+    // public static enableCodeLens: string = 'discopop.enableCodeLens'
+    //public static disableCodeLens: string = 'discopop.disableCodeLens'
 }

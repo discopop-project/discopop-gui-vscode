@@ -1,4 +1,5 @@
 import * as vscode from 'vscode'
+import { DiscoPoPCodeLens } from '../../../CodeLensProvider'
 
 export enum AppliedStatus {
     APPLIED = 'applied',
@@ -34,6 +35,7 @@ export abstract class Suggestion {
         this.pureJSONData = pureJSONData
     }
 
-    abstract getCodeLens(): vscode.CodeLens
-    // abstract apply(otherSuggestions: Suggestion[]): void // TODO apply() ????
+    getCodeLens(): DiscoPoPCodeLens {
+        return new DiscoPoPCodeLens(this)
+    }
 }

@@ -1,15 +1,10 @@
 import * as vscode from 'vscode'
 import { Suggestion } from './Suggestion'
+import { DiscoPoPCodeLens } from '../../../CodeLensProvider'
+import { Commands } from '../../../Commands'
 
 export class DoAllSuggestion extends Suggestion {
-    iterations: number
-    instructions: number
-    workload: number
-    priv: string[]
-    shared: string[]
-    firstPrivate: string[]
-    reduction: string[]
-    lastPrivate: string[]
+    // TODO we might want to parse other fields from the patterns.json file and add them here
 
     public constructor(
         id: string,
@@ -18,30 +13,7 @@ export class DoAllSuggestion extends Suggestion {
         endLine: number,
         pragma: string,
         pureJSONData: any
-        // other fields are currently not used:
-        // iterations: number,
-        // instructions: number,
-        // workload: number,
-        // priv: string[],
-        // shared: string[],
-        // firstPrivate: string[],
-        // reduction: string[],
-        // lastPrivate: string[]
     ) {
         super(id, fileId, startLine, endLine, pragma, pureJSONData)
-    }
-
-    // TODO duplicate code (see ReductionSuggestion)
-    getCodeLens(): vscode.CodeLens {
-        const codeLens = new vscode.CodeLens(
-            new vscode.Range(this.startLine - 1, 0, this.startLine - 1, 0),
-            {
-                title: `DOALL recommended with pragma: ${this.pragma}. Click to insert.`,
-                command: 'discopop.codelensAction',
-                arguments: [this],
-            }
-        )
-
-        return codeLens
     }
 }

@@ -8,11 +8,11 @@ import {
 } from '../../ProjectManager/Configuration'
 import { UIPrompts } from '../../UIPrompts'
 import { SuggestionTree } from '../../SuggestionTree'
-import CodeLensProvider from '../../CodeLensProvider'
 import { FileMapping } from '../classes/FileMapping'
 import { DoAllSuggestion } from '../classes/Suggestion/DoAllSuggestion'
 import { FileMappingParser } from '../parsers/FileMappingParser'
 import { SuggestionParser } from '../parsers/SuggestionParser'
+import { DiscoPoPCodeLensProvider } from '../../CodeLensProvider'
 
 // TODO use withProgress to show progress of the execution
 
@@ -162,7 +162,7 @@ export class DiscoPoPRunner {
         await new Promise<void>((resolve, reject) => {
             exec(
                 `python3 -m discopop_explorer`, //--fmap ${fullConfiguration.getBuildDirectory()}/FileMapping.txt --path ${fullConfiguration.getBuildDirectory()} --dep-file ${fullConfiguration.getBuildDirectory()}/${fullConfiguration.getExecutableName()}_dep.txt --json patterns.json`,
-                { cwd: `${fullConfiguration.getBuildDirectory()}/.discopop`},
+                { cwd: `${fullConfiguration.getBuildDirectory()}/.discopop` },
                 (err, stdout, stderr) => {
                     if (err) {
                         console.log(`error: ${err.message}`)
@@ -216,7 +216,7 @@ export class DiscoPoPRunner {
         // TODO rerunning should kill the old SuggestionTree and create a new one
 
         // enable code lenses for all suggestions
-        const codeLensProvider = new CodeLensProvider(
+        const codeLensProvider = new DiscoPoPCodeLensProvider(
             fileMapping,
             discoPoPResults.getAllSuggestions()
         )

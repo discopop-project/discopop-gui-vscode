@@ -10,6 +10,8 @@ import { ConfigurationItem } from './ProjectManager/ConfigurationItem'
 import { DetailViewProvider } from './DetailViewProvider'
 import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
 import { FileMapping } from './DiscoPoP/classes/FileMapping'
+import { DiscoPoPCodeLens } from './CodeLensProvider'
+import { SuggestionTree } from './SuggestionTree'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -388,6 +390,18 @@ export function activate(context: vscode.ExtensionContext) {
                 editor.selections = [new vscode.Selection(line, line)]
                 const range = new vscode.Range(line, line)
                 editor.revealRange(range)
+            }
+        )
+    )
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            Commands.codeLensAction,
+            async (codeLens: DiscoPoPCodeLens) => {
+                codeLens.responsibleProvider.insertRecommendation(
+                    codeLens.suggestion
+                )
+                // TODO it would be nice to also show the suggestion as applied in the tree view
             }
         )
     )

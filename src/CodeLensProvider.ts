@@ -6,8 +6,41 @@ import {
     Suggestion,
 } from './DiscoPoP/classes/Suggestion/Suggestion'
 import { FileMapping } from './DiscoPoP/classes/FileMapping'
+import { Commands } from './Commands'
 
-export default class CodeLensProvider implements vscode.CodeLensProvider {
+export class DiscoPoPCodeLens extends vscode.CodeLens {
+    /**
+     * The provider that is responsible for this CodeLens.
+     *
+     * MUST be set by the provider before returning the CodeLens.
+     * This is required so we can apply the suggestion when the CodeLens is clicked (in order to move other codeLenses).
+     */
+    public responsibleProvider: DiscoPoPCodeLensProvider
+
+    /** The suggestion represented by this CodeLens */
+    public suggestion: Suggestion
+
+    public constructor(suggestion: Suggestion) {
+        super(
+            new vscode.Range(
+                suggestion.startLine - 1,
+                0,
+                suggestion.startLine - 1,
+                0
+            )
+        )
+        this.suggestion = suggestion
+        this.command = {
+            title: `discovered potential parallelism: ${suggestion.pragma}. Click to insert.`,
+            command: Commands.codeLensAction,
+            arguments: [this],
+        }
+    }
+}
+
+export class DiscoPoPCodeLensProvider
+    implements vscode.CodeLensProvider<DiscoPoPCodeLens>
+{
     public hidden: boolean = false
     private suggestions: Suggestion[] = []
     private fileMapping: FileMapping
@@ -23,6 +56,7 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
         this.fileMapping = fileMapping
         this.suggestions = suggestions
 
+        // update lenses when settings change (codeLenses visibility might have changed)
         vscode.workspace.onDidChangeConfiguration((_) => {
             this._onDidChangeCodeLenses.fire()
         })
@@ -30,8 +64,8 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
 
     public provideCodeLenses(
         document: vscode.TextDocument,
-        token: vscode.CancellationToken
-    ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
+        _token: vscode.CancellationToken
+    ): DiscoPoPCodeLens[] | Thenable<DiscoPoPCodeLens[]> {
         if (Config.codeLensEnabled && !this.hidden) {
             console.log(
                 'looking for lenses: in ' + document.fileName.toString()
@@ -42,45 +76,6 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
                     this.fileMapping.getFileId(document.fileName.toString())
             )
             console.log('  suggestions: ' + this.suggestions)
-            // const recommendationIDs = StateManager.read(this.context, document.fileName.toString())
-
-            // if (!recommendationIDs) {
-            //     return []
-            // }
-
-            // const parsedRecommendationIds = JSON.parse(recommendationIDs)
-            // if (!parsedRecommendationIds && !parsedRecommendationIds.length) {
-            //     return []
-            // }
-
-            // this.suggestions = parsedRecommendationIds.map((recommendationID) => {
-            //     // get recommendation from state
-            //     let recommendationJSON = StateManager.read(this.context, recommendationID)
-            //     if (recommendationJSON) {
-            //         let recommendation: Suggestion = JSON.parse(recommendationJSON)
-            //         if (
-            //             recommendation &&
-            //             recommendation.status !== AppliedStatus.APPLIED
-            //         ) {
-            //             return recommendation
-            //         }
-            //     }
-            //     return
-            // })
-
-            // if (!this.suggestions) {
-            //     return []
-            // }
-
-            // this.suggestions = this.suggestions.filter(
-            //     (elem) => elem?.id
-            // )
-
-            // this.codeLenses = this.suggestions.map((recommendation) =>
-            //     recommendation.getCodeLens()
-            // )
-
-            // return this.codeLenses
 
             const lenses = this.suggestions
                 // only suggestions for this file
@@ -97,7 +92,9 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
                 // get CodeLens for each suggestion
                 .map((suggestion) => suggestion.getCodeLens())
 
-            console.log(lenses)
+            lenses.forEach((lens) => {
+                lens.responsibleProvider = this
+            })
 
             return lenses
         }
@@ -105,7 +102,7 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
     }
 
     public resolveCodeLens(
-        codeLens: vscode.CodeLens,
+        codeLens: DiscoPoPCodeLens,
         token: vscode.CancellationToken
     ) {
         if (Config.codeLensEnabled) {
@@ -114,40 +111,27 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
         return null
     }
 
-    public insertRecommendation = async (recommendation: Suggestion) => {
-        if (!recommendation) {
-            return
-        }
-
-        this._insertSnippet(recommendation)
-        this._moveOtherRecommendations(recommendation)
-        recommendation.status = AppliedStatus.APPLIED
-
+    public insertRecommendation(suggestion: Suggestion) {
+        suggestion.status = AppliedStatus.APPLIED
+        this._insertSnippet(suggestion)
+        this._moveOtherRecommendations(suggestion)
         // StateManager.save(this.context, recommendation.id, recommendation)
-
-        // vscode.commands.executeCommand(Commands.sendToDetail, [
-        //     recommendation.id,
-        // ])
     }
 
     private _moveOtherRecommendations = (
-        removedRecommendation: Suggestion,
+        removedSuggestion: Suggestion,
         offset: number = 1
     ) => {
-        // TODO also shift recommendatin.endLine
-        this.suggestions.map((recommendation) => {
-            if (recommendation.id === removedRecommendation.id) {
+        this.suggestions.map((suggestion) => {
+            if (suggestion.id === removedSuggestion.id) {
                 return
             }
-            if (recommendation.startLine > removedRecommendation.startLine) {
-                if (recommendation.startLine) {
-                    recommendation.startLine += offset
+            if (suggestion.startLine > removedSuggestion.startLine) {
+                if (suggestion.startLine) {
+                    suggestion.startLine += offset
                 }
-                if (recommendation.startLine) {
-                    recommendation.startLine += offset
-                }
-                if (recommendation.endLine) {
-                    recommendation.endLine += offset
+                if (suggestion.endLine) {
+                    suggestion.endLine += offset
                 }
                 // StateManager.save(
                 //     this.context,
@@ -159,17 +143,20 @@ export default class CodeLensProvider implements vscode.CodeLensProvider {
         this._onDidChangeCodeLenses.fire()
     }
 
-    private _insertSnippet(result: Suggestion) {
+    private _insertSnippet(suggestion: Suggestion) {
         const editor = vscode.window.activeTextEditor
 
-        if (editor) {
-            editor.edit((editBuilder) => {
-                editBuilder.insert(
-                    new Position(result.startLine - 1, 0),
-                    result.pragma
-                    // TODO indentation
-                )
-            })
-        }
+        // get indentation of line where the suggestion is inserted
+        // by matching any whitespace at the beginning of the line
+        const indentation = editor.document
+            .lineAt(suggestion.startLine - 1)
+            .text.match(/^\s*/)[0]
+
+        editor.edit((editBuilder) => {
+            editBuilder.insert(
+                new Position(suggestion.startLine - 1, 0),
+                indentation + suggestion.pragma + '\n'
+            )
+        })
     }
 }
