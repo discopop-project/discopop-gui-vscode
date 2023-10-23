@@ -51,7 +51,7 @@
         "viewsWelcome": [
             {
                 "view": "sidebar-projects-view",
-                "contents": "No projects configured. Please add a project to get started.\n[Add Project](command:discopop.createProject)"
+                "contents": "No projects configured. Please add a project to get started.\n[Add Project](command:discopop.addProject)"
             },
             {
                 "view": "sidebar-suggestions-view",
@@ -95,7 +95,7 @@
         "commands": [
             {
                 "title": "Add Project",
-                "command": "discopop.createProject",
+                "command": "discopop.addProject",
                 "category": "DiscoPoP",
                 "icon": "$(new-folder)"
             },
@@ -227,7 +227,7 @@
         "menus": {
             "view/title": [
                 {
-                    "command": "discopop.createProject",
+                    "command": "discopop.addProject",
                     "when": "view == sidebar-projects-view",
                     "group": "navigation"
                 }
