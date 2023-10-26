@@ -84,8 +84,7 @@ export class UIPrompts {
         const answer = await vscode.window.showWarningMessage(
             prompt,
             { modal: true },
-            'Yes',
-            'No'
+            'Yes'
         )
         return answer === 'Yes'
     }
