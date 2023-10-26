@@ -13,6 +13,7 @@ import { DiscoPoPCodeLens } from './CodeLensProvider'
 // your extension is activated the very first time the command is executed
 
 export function activate(context: vscode.ExtensionContext) {
+    // TODO disable unused views until they are needed
     // // EXAMPLE ON HOW TO SHOW OR HIDE VIEWS:
     // // 1) set context variable to true or false (or a value)
     // vscode.commands.executeCommand("setContext", "discopop:enable_detail_view", false)

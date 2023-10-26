@@ -28,7 +28,7 @@ export class DiscoPoPCodeLens extends vscode.CodeLens {
         )
         this.suggestion = suggestion
         this.command = {
-            title: `discovered potential parallelism: ${suggestion.pragma}. Click to insert.`,
+            title: `click to discover potential parallelism: ${suggestion.pragma}`,
             command: Commands.codeLensAction,
             arguments: [this],
         }
@@ -49,7 +49,6 @@ export class DiscoPoPCodeLensProvider
         this._onDidChangeCodeLenses.event
 
     constructor(fileMapping: FileMapping, suggestions: Suggestion[]) {
-        console.log('constructed codelensprovider')
         this.fileMapping = fileMapping
         this.suggestions = suggestions
 
@@ -64,16 +63,6 @@ export class DiscoPoPCodeLensProvider
         _token: vscode.CancellationToken
     ): DiscoPoPCodeLens[] | Thenable<DiscoPoPCodeLens[]> {
         if (Config.codeLensEnabled && !this.hidden) {
-            console.log(
-                'looking for lenses: in ' + document.fileName.toString()
-            )
-            console.log('  filemapping: ' + this.fileMapping)
-            console.log(
-                '  fmap.getFileID(): ' +
-                    this.fileMapping.getFileId(document.fileName.toString())
-            )
-            console.log('  suggestions: ' + this.suggestions)
-
             const lenses = this.suggestions
                 // only suggestions for this file
                 .filter((suggestion) => {
@@ -112,7 +101,6 @@ export class DiscoPoPCodeLensProvider
         suggestion.applied = true
         this._insertSnippet(suggestion)
         this._moveOtherRecommendations(suggestion)
-        // StateManager.save(this.context, recommendation.id, recommendation)
     }
 
     private _moveOtherRecommendations = (
@@ -130,11 +118,6 @@ export class DiscoPoPCodeLensProvider
                 if (suggestion.endLine) {
                     suggestion.endLine += offset
                 }
-                // StateManager.save(
-                //     this.context,
-                //     recommendation.id,
-                //     recommendation
-                // )
             }
         })
         this._onDidChangeCodeLenses.fire()
