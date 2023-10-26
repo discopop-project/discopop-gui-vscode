@@ -12,6 +12,8 @@ import { SuggestionTree, SuggestionTreeNode } from '../../SuggestionTree'
 import { FileMappingParser } from '../parsers/FileMappingParser'
 import { SuggestionParser } from '../parsers/SuggestionParser'
 import { DiscoPoPCodeLensProvider } from '../../CodeLensProvider'
+import { FileMapping } from '../classes/FileMapping'
+import { DiscoPoPResults } from '../classes/DiscoPoPResults'
 
 export abstract class DiscoPoPRunner {
     private constructor() {
@@ -23,7 +25,12 @@ export abstract class DiscoPoPRunner {
         | vscode.TreeView<SuggestionTreeNode>
         | undefined
 
-    static async runConfiguration(configuration: Configuration) {
+    /**
+     * Run DiscoPoP with the given configuration.
+     * Will also present the results in the GUI.
+     * @param configuration
+     */
+    public static async runConfiguration(configuration: Configuration) {
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
@@ -35,91 +42,96 @@ export abstract class DiscoPoPRunner {
                 // maybe it is sufficient to just have the steps reject their promises with a decent error message
                 // then try-catch the whole thing here and show the error message
 
-                // STEP 1: collect full configuration info
-                progress.report({
-                    increment: 5,
-                    message: 'Collecting configuration info...',
-                }) // 5% done
-                const fullConfiguration = await this._getFullConfiguration(
-                    configuration
-                )
-
-                // STEP 2: create build directory
-                progress.report({
-                    increment: 5,
-                    message: 'Creating build directory...',
-                }) // 10% done
-                await this._createBuildDirectory(fullConfiguration)
-
-                // STEP 3: run cmake
-                progress.report({ increment: 15, message: 'Running CMAKE...' }) // 25% done
-                await this._runCMake(fullConfiguration)
-
-                // STEP 4: run make
-                progress.report({ increment: 15, message: 'Running MAKE...' }) // 40% done
-                await this._runMake(fullConfiguration)
-
-                // STEP 5: run the executable
-                progress.report({
-                    increment: 20,
-                    message: 'Running executable...',
-                }) // 60% done
-                await this._runExecutable(fullConfiguration)
-
-                // STEP 6: run discopop_explorer
-                progress.report({
-                    increment: 30,
-                    message: 'Running discopop_explorer...',
-                }) // 90% done
-                await this._runDiscopopExplorer(fullConfiguration)
-
-                // STEP 7a : parse the results (FileMapping)
-                progress.report({ increment: 3, message: 'Parsing results...' }) // 93% done
-                const fileMapping = FileMappingParser.parseFile(
-                    `${fullConfiguration.getBuildDirectory()}/.discopop/FileMapping.txt`
-                )
-
-                // STEP 7b: parse the results (patterns.json
-                progress.report({ increment: 3, message: 'Parsing results...' }) // 96% done
-                const discoPoPResults = SuggestionParser.parseFile(
-                    `${fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
-                )
-
-                // STEP 8: show the results
-                progress.report({
-                    increment: 3,
-                    message: 'Preparing views and code hints...',
-                }) // 99% done
-
-                // show the suggestions in the sidebar
-                const suggestionTree = new SuggestionTree(
-                    fileMapping,
-                    discoPoPResults
-                )
-                await DiscoPoPRunner.suggestionTreeDisposable?.dispose()
-                DiscoPoPRunner.suggestionTreeDisposable =
-                    vscode.window.createTreeView('sidebar-suggestions-view', {
-                        treeDataProvider: suggestionTree,
-                        showCollapseAll: false,
-                        canSelectMany: false,
-                    })
-
-                // enable code lenses for all suggestions
-                const codeLensProvider = new DiscoPoPCodeLensProvider(
-                    fileMapping,
-                    discoPoPResults.getAllSuggestions()
-                )
-                await DiscoPoPRunner.codeLensProviderDisposable?.dispose()
-                DiscoPoPRunner.codeLensProviderDisposable =
-                    vscode.languages.registerCodeLensProvider(
-                        { scheme: 'file', language: 'cpp' },
-                        codeLensProvider
+                try {
+                    // STEP 1: collect full configuration info
+                    progress.report({
+                        increment: 5,
+                        message: 'Collecting configuration info...',
+                    }) // 5% done
+                    const fullConfiguration = await this._getFullConfiguration(
+                        configuration
                     )
 
-                // DONE
-                progress.report({ increment: 1, message: 'Done!' }) // 100% done
-                // keep the notification open for 1 second
-                await new Promise((resolve) => setTimeout(resolve, 1000))
+                    // STEP 2: create build directory
+                    progress.report({
+                        increment: 5,
+                        message: 'Creating build directory...',
+                    }) // 10% done
+                    await this._createBuildDirectory(fullConfiguration)
+
+                    // STEP 3: run cmake
+                    progress.report({
+                        increment: 15,
+                        message: 'Running CMAKE...',
+                    }) // 25% done
+                    await this._runCMake(fullConfiguration)
+
+                    // STEP 4: run make
+                    progress.report({
+                        increment: 15,
+                        message: 'Running MAKE...',
+                    }) // 40% done
+                    await this._runMake(fullConfiguration)
+
+                    // STEP 5: run the executable
+                    progress.report({
+                        increment: 20,
+                        message: 'Running executable...',
+                    }) // 60% done
+                    await this._runExecutable(fullConfiguration)
+
+                    // STEP 6: run discopop_explorer
+                    progress.report({
+                        increment: 30,
+                        message: 'Running discopop_explorer...',
+                    }) // 90% done
+                    await this._runDiscopopExplorer(fullConfiguration)
+
+                    // STEP 7a : parse the results (FileMapping)
+                    progress.report({
+                        increment: 3,
+                        message: 'Parsing results...',
+                    }) // 93% done
+                    const fileMapping = FileMappingParser.parseFile(
+                        `${fullConfiguration.getBuildDirectory()}/.discopop/FileMapping.txt`
+                    )
+
+                    // STEP 7b: parse the results (patterns.json
+                    progress.report({
+                        increment: 3,
+                        message: 'Parsing results...',
+                    }) // 96% done
+                    const discoPoPResults = SuggestionParser.parseFile(
+                        `${fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
+                    )
+
+                    // STEP 8: present the results
+                    progress.report({
+                        increment: 3,
+                        message: 'Preparing views and code hints...',
+                    }) // 99% done
+                    await this._presentResults(fileMapping, discoPoPResults)
+
+                    // DONE
+                    progress.report({ increment: 1, message: 'Done!' }) // 100% done
+                    // keep the notification open for 1 second
+                    await new Promise((resolve) => setTimeout(resolve, 1000))
+                } catch (error: unknown) {
+                    console.log('DiscoPoP execution stopped:')
+                    if (error instanceof Error) {
+                        console.log(error.message)
+                        console.log(error.stack)
+                        vscode.window.showErrorMessage(
+                            `DiscoPoP execution stopped: ` + error.message
+                        )
+                    } else {
+                        console.log(error)
+                        vscode.window.showErrorMessage(
+                            `DiscoPoP execution stopped with unknown error`
+                        )
+                    }
+                    // TODO should we do some cleanup? but then again, the user might want to inspect the results
+                }
             }
         )
     }
@@ -171,8 +183,7 @@ export abstract class DiscoPoPRunner {
                 })
                 fs.mkdirSync(configuration.getBuildDirectory())
             } else {
-                vscode.window.showInformationMessage('Aborting...')
-                return
+                throw new Error('Operation cancelled by user')
             }
         }
     }
@@ -190,14 +201,14 @@ export abstract class DiscoPoPRunner {
                 { cwd: configuration.getBuildDirectory() },
                 (err, stdout, stderr) => {
                     if (err) {
-                        console.log(`error: ${err.message}`)
-                        vscode.window.showErrorMessage(
-                            `CMAKE wrapper script failed with error message ${err.message}`
+                        reject(
+                            new Error(
+                                'CMAKE failed: ' + err.message + '\n' + stderr
+                            )
                         )
-                        reject()
-                        return
+                    } else {
+                        resolve()
                     }
-                    resolve()
                 }
             )
         })
@@ -215,14 +226,14 @@ export abstract class DiscoPoPRunner {
                 { cwd: configuration.getBuildDirectory() },
                 (err, stdout, stderr) => {
                     if (err) {
-                        console.log(`error: ${err.message}`)
-                        vscode.window.showErrorMessage(
-                            `Make failed with error message ${err.message}`
+                        reject(
+                            new Error(
+                                'MAKE failed: ' + err.message + '\n' + stderr
+                            )
                         )
-                        reject()
-                        return
+                    } else {
+                        resolve()
                     }
-                    resolve()
                 }
             )
         })
@@ -258,14 +269,18 @@ export abstract class DiscoPoPRunner {
                 { cwd: configuration.getBuildDirectory() },
                 (err, stdout, stderr) => {
                     if (err) {
-                        console.log(`error: ${err.message}`)
-                        vscode.window.showErrorMessage(
-                            `Executable failed with error message ${err.message}`
+                        reject(
+                            new Error(
+                                'Executable failed: ' +
+                                    err.message +
+                                    '\n' +
+                                    stderr
+                            )
                         )
-                        reject()
-                        return
+                        // TODO maybe it is acceptable for the executable to fail?
+                    } else {
+                        resolve()
                     }
-                    resolve()
                 }
             )
         })
@@ -283,26 +298,64 @@ export abstract class DiscoPoPRunner {
                 { cwd: `${configuration.getBuildDirectory()}/.discopop` },
                 (err, stdout, stderr) => {
                     if (err) {
-                        console.log(`error: ${err.message}`)
-                        console.log(`stdout: ${stdout}`)
-                        console.log(`stderr: ${stderr}`)
-                        vscode.window.showErrorMessage(
-                            `Discopop_explorer failed with error message ${err.message}`
+                        reject(
+                            new Error(
+                                'discopop_explorer failed: ' +
+                                    err.message +
+                                    '\n' +
+                                    stderr
+                            )
                         )
-                        reject()
                     }
                     // TODO errors are not reliably reported? --> fix in discopop_explorer!
                     // for now: ensure that patterns.json was created
-                    if (
+                    else if (
                         !fs.existsSync(
                             `${configuration.getBuildDirectory()}/.discopop/explorer/patterns.json`
                         )
                     ) {
-                        reject()
+                        reject(
+                            new Error(
+                                'discopop_explorer failed: patterns.json was not created'
+                            )
+                        )
+                    } else {
+                        resolve()
                     }
-                    resolve()
                 }
             )
         })
+    }
+
+    /**
+     * Presents the results.
+     */
+    private static async _presentResults(
+        fileMapping: FileMapping,
+        discoPoPResults: DiscoPoPResults
+    ): Promise<void> {
+        // show the suggestions in the sidebar
+        const suggestionTree = new SuggestionTree(fileMapping, discoPoPResults)
+        await DiscoPoPRunner.suggestionTreeDisposable?.dispose()
+        DiscoPoPRunner.suggestionTreeDisposable = vscode.window.createTreeView(
+            'sidebar-suggestions-view',
+            {
+                treeDataProvider: suggestionTree,
+                showCollapseAll: false,
+                canSelectMany: false,
+            }
+        )
+
+        // enable code lenses for all suggestions
+        const codeLensProvider = new DiscoPoPCodeLensProvider(
+            fileMapping,
+            discoPoPResults.getAllSuggestions()
+        )
+        await DiscoPoPRunner.codeLensProviderDisposable?.dispose()
+        DiscoPoPRunner.codeLensProviderDisposable =
+            vscode.languages.registerCodeLensProvider(
+                { scheme: 'file', language: 'cpp' },
+                codeLensProvider
+            )
     }
 }
