@@ -190,7 +190,7 @@ export abstract class DiscoPoPRunner {
     private static async _runCMake(
         configuration: DefaultConfiguration
     ): Promise<void> {
-        const cmakeWrapperScript = `${Config.discopopRoot}/build/scripts/CMAKE_wrapper.sh`
+        const cmakeWrapperScript = `${Config.discopopBuild}/scripts/CMAKE_wrapper.sh`
         return new Promise<void>((resolve, reject) => {
             exec(
                 `${cmakeWrapperScript} ${configuration.getProjectPath()}`,

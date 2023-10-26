@@ -66,29 +66,9 @@
                     "default": "",
                     "description": "The path to your DiscoPoP installation. Please be sure the build and scripts folders exist. For more information regarding DiscoPoP please visit the [docs](https://github.com/discopop-project/discopop)."
                 },
-                "discopop.clang": {
-                    "type": "string",
-                    "default": "",
-                    "description": "The path to clang."
-                },
-                "discopop.clangPP": {
-                    "type": "string",
-                    "default": "",
-                    "description": "The path to clang++."
-                },
                 "discopop.recommendationsCodeLens": {
                     "type": "boolean",
                     "default": false
-                },
-                "discopop.scriptModeEnabled": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "If this option is enabled, the extension expects the results of the DiscoPoP execution in your project to be in a .discopop folder"
-                },
-                "discopop.cwdWorkspace": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "If enabled .discopop inside the workspace will be the working directory"
                 }
             }
         },

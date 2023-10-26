@@ -1,24 +1,24 @@
 import * as vscode from 'vscode'
 
 export class Config {
-    public static getWorkspacePath = (): string => {
-        if (vscode.workspace.workspaceFolders) {
-            return vscode.workspace.workspaceFolders[0].uri.fsPath
-        }
-        return ''
-    }
-
-    public static getRootLabel = () => {
-        const workspacePath = this.getWorkspacePath()
-
-        const pathParts = workspacePath.split('/')
-
-        if (!pathParts.length) {
-            return ''
-        }
-
-        return pathParts[pathParts.length - 1]
-    }
+    // // TODO should we add and call this method to ensure that these config values are always up to date?
+    // // or should we just turn the strings into functions?
+    // // or is it fine as it is?
+    // public static registerConfigChangeListener() {
+    //     vscode.workspace.onDidChangeConfiguration((event) => {
+    //         if (event.affectsConfiguration('discopop')) {
+    //             Config.discopopRoot = vscode.workspace
+    //                 .getConfiguration('discopop')
+    //                 ?.get('discopopRoot')
+    //             Config.discopopBuild =
+    //                 vscode.workspace.getConfiguration('discopop').get('discopopRoot') +
+    //                 '/build'
+    //             Config.codeLensEnabled = vscode.workspace
+    //                 .getConfiguration('discopop')
+    //                 .get('recommendationsCodeLens', true)
+    //         }
+    //     })
+    // }
 
     public static discopopRoot: string = vscode.workspace
         .getConfiguration('discopop')
@@ -28,27 +28,7 @@ export class Config {
         vscode.workspace.getConfiguration('discopop').get('discopopRoot') +
         '/build'
 
-    public static discopopFileMapper: string =
-        vscode.workspace.getConfiguration('discopop').get('discopopRoot') +
-        '/build/scripts/dp-fmap'
-
-    public static clang: string = vscode.workspace
-        .getConfiguration('discopop')
-        .get('clang')
-
-    public static clangPP: string = vscode.workspace
-        .getConfiguration('discopop')
-        .get('clangPP')
-
     public static codeLensEnabled: boolean = vscode.workspace
         .getConfiguration('discopop')
         .get('recommendationsCodeLens', true)
-
-    public static scriptModeEnabled: boolean = vscode.workspace
-        .getConfiguration('discopop')
-        .get('scriptModeEnabled', true)
-
-    public static cwdWorkspace: boolean = vscode.workspace
-        .getConfiguration('discopop')
-        .get('cwdWorkspace', true)
 }

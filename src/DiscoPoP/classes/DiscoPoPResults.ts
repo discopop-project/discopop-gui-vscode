@@ -1,6 +1,4 @@
 import { Suggestion } from './Suggestion/Suggestion'
-import { DoAllSuggestion } from './Suggestion/DoAllSuggestion'
-import { ReductionSuggestion } from './Suggestion/ReductionSuggestion'
 
 export class DiscoPoPResults {
     // maps type --> [suggestion1, suggestion2, ...]
