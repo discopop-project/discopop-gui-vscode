@@ -1,7 +1,6 @@
 import * as vscode from 'vscode'
 import { Configuration, DefaultConfiguration } from './Configuration'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
-import { Commands } from '../Commands'
 
 // TODO: make it abstract and create subclasses for different project types (Makefile, CMake, Manual, Script, ...)
 /**

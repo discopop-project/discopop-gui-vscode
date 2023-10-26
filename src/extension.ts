@@ -3,15 +3,11 @@
 import * as vscode from 'vscode'
 import { Commands } from './Commands'
 import { ProjectManager } from './ProjectManager/ProjectManager'
-import { Project } from './ProjectManager/Project'
 import { Configuration } from './ProjectManager/Configuration'
-import { UIPrompts } from './UIPrompts'
-import { ConfigurationItem } from './ProjectManager/ConfigurationItem'
 import { DetailViewProvider } from './DetailViewProvider'
 import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
 import { FileMapping } from './DiscoPoP/classes/FileMapping'
 import { DiscoPoPCodeLens } from './CodeLensProvider'
-import { SuggestionTree } from './SuggestionTree'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed

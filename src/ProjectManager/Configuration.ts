@@ -83,8 +83,12 @@ export class Configuration extends ProjectManagerTreeItem {
         return this.parent
     }
 
-    run() {
-        DiscoPoPRunner.runConfiguration(this)
+    async run() {
+        this.iconPath = new vscode.ThemeIcon('gear~spin')
+        ProjectManager.refresh()
+        await DiscoPoPRunner.runConfiguration(this)
+        this.iconPath = new vscode.ThemeIcon('gear')
+        ProjectManager.refresh()
     }
 
     // getters and setters for the configuration items (and name)

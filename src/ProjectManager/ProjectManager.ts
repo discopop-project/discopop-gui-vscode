@@ -1,8 +1,6 @@
 import * as vscode from 'vscode'
 import { Project } from './Project'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
-import { StorageManager } from '../misc/StorageManager'
-import { StateManager } from '../misc/StateManager'
 import { Commands } from '../Commands'
 import { UIPrompts } from '../UIPrompts'
 import { Configuration } from './Configuration'
@@ -11,7 +9,7 @@ import { ConfigurationItem } from './ConfigurationItem'
 export class ProjectManager
     implements vscode.TreeDataProvider<ProjectManagerTreeItem>
 {
-    private static instance: ProjectManager
+    private static instance: ProjectManager | undefined
 
     private context: vscode.ExtensionContext
     private projectViewer: vscode.TreeView<ProjectManagerTreeItem> | undefined
@@ -27,7 +25,7 @@ export class ProjectManager
         if (!ProjectManager.instance) {
             ProjectManager.instance = new ProjectManager(context)
         }
-        ProjectManager.instance.refresh()
+        ProjectManager.refresh()
         return ProjectManager.instance
     }
 
@@ -43,6 +41,10 @@ export class ProjectManager
 
     getProjects(): Project[] {
         return this.projects
+    }
+
+    static refresh() {
+        ProjectManager.instance?.refresh()
     }
 
     refresh(): void {
