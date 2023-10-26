@@ -234,7 +234,7 @@ export class ProjectManager
                             5,
                             totalSteps
                         ) // TODO the openDialog only allows to open existing directories, we need to be able to create new directories too
-                    // TODO default to projectPath/.discopop
+                    // TODO default to projectPath/build
 
                     // let the user specify the cmake arguments
                     const cmakeArguments = await UIPrompts.genericInputBoxQuery(
@@ -365,7 +365,7 @@ export class ProjectManager
                         configurationItem.setValue(value)
                         this.refresh()
                     }
-                    // TODO deal with the case where the user cancels the input box --> set undefined after requesting confirmation (DO NOT ALLOW THIS FOR DEFAULT CONFIGURATION)
+                    // TODO deal with the cancellation
                 }
             )
         )
@@ -375,9 +375,3 @@ export class ProjectManager
     //    throw new Error("Method not implemented.")
     //}
 }
-
-// NOTES TO SELF:
-// TODO
-// https://code.visualstudio.com/api/extension-guides/tree-view
-// https://github.com/microsoft/vscode-extension-samples/blob/main/tree-view-sample/src/ftpExplorer.ts
-// https://code.visualstudio.com/api/extension-guides/command

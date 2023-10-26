@@ -35,12 +35,9 @@ export abstract class SuggestionParser {
                     suggestion.start_line as string
                 ).split(':') // fileID:lineNr
                 const [_, endLine] = (suggestion.end_line as string).split(':') // fileID:lineNr
-                let pragma: string = '#pragma omp I AM NOT IMPLEMENTED YET' // TODO discopop should output the pragma string
+                const pragma: string = '#pragma omp ...'
 
                 if (type === 'do_all') {
-                    // TODO parse additional doall properties
-                    pragma =
-                        '#pragma omp parallel for [PLEASE ADD CLAUSES HERE]'
                     suggestionList.push(
                         new DoAllSuggestion(
                             node_id,
@@ -49,12 +46,10 @@ export abstract class SuggestionParser {
                             Number(endLine.split(':')[1]),
                             pragma,
                             suggestion
+                            // we can parse more fields from the patterns.json file and use them, if we need to
                         )
                     )
                 } else if (type === 'reduction') {
-                    // TODO parse additional reduction properties
-                    pragma =
-                        '#pragma omp parallel for [PLEASE ADD CLAUSES HERE, reduction(+:variable)]'
                     suggestionList.push(
                         new ReductionSuggestion(
                             node_id,
@@ -63,6 +58,7 @@ export abstract class SuggestionParser {
                             Number(endLine.split(':')[1]),
                             pragma,
                             suggestion
+                            // we can parse more fields from the patterns.json file and use them, if we need to
                         )
                     )
                 } else {
