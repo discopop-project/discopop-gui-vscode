@@ -26,7 +26,7 @@ class SuggestionGroup implements SuggestionTreeNode {
 
     public getView(_fileMapping: FileMapping): vscode.TreeItem {
         const view = new vscode.TreeItem(
-            this.label,
+            this.label + ' (' + this.children.length + ')',
             vscode.TreeItemCollapsibleState.Collapsed
         )
         view.contextValue = 'suggestion_group'
