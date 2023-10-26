@@ -17,6 +17,22 @@ import { SuggestionTree } from './SuggestionTree'
 // your extension is activated the very first time the command is executed
 
 export function activate(context: vscode.ExtensionContext) {
+    // // EXAMPLE ON HOW TO SHOW OR HIDE VIEWS:
+    // // 1) set context variable to true or false (or a value)
+    // vscode.commands.executeCommand("setContext", "discopop:enable_detail_view", false)
+
+    // setTimeout(() => { // after a 5 second timeout the detail view is enabled
+    //     vscode.commands.executeCommand("setContext", "discopop:enable_detail_view", true)
+    // }, 5000)
+
+    // // 2) edit the package.json view to contain a when clause that checks the context variable:
+    // // {
+    // //     "type": "webview",
+    // //     "id": "detail-view",
+    // //     "name": "RECOMMENDATION DETAIL",
+    // //     "when": "discopop:enable_detail_view"
+    // // }
+
     // Projects Sidebar
     const projectManager = ProjectManager.getInstance(context)
 
