@@ -73,6 +73,10 @@ export function activate(context: vscode.ExtensionContext) {
                     codeLens.suggestion
                 )
                 // TODO it would be nice to also show the suggestion as applied in the tree view
+                // TODO before inserting, preview the changes and request confirmation
+                // --> we could peek the patch https://github.com/microsoft/vscode/blob/8434c86e5665341c753b00c10425a01db4fb8580/src/vs/editor/contrib/gotoSymbol/goToCommands.ts#L760
+                // --> we should also set the detail view to the suggestion that is being applied
+                // --> if hotspot results are available for the loop/function, we should also show them in the detail view
             }
         )
     )
