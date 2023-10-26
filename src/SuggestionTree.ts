@@ -4,7 +4,7 @@ import { FileMapping } from './DiscoPoP/classes/FileMapping'
 import { DiscoPoPResults } from './DiscoPoP/classes/DiscoPoPResults'
 import { Commands } from './Commands'
 
-interface SuggestionTreeNode {
+export interface SuggestionTreeNode {
     /** Returns the view for this tree node */
     getView(fileMapping: FileMapping): vscode.TreeItem
     getChildren(): SuggestionTreeNode[] | undefined
