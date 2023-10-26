@@ -24,21 +24,6 @@ export class UIPrompts {
         inputBox.show()
         return new Promise((resolve, reject) => {
             inputBox.onDidAccept(() => {
-                // TODO can we differentiate between abort and empty string?
-                // issue: onDidAccept is not called during abort?
-                // this seems nice: https://github.com/microsoft/vscode-extension-samples/blob/main/quickinput-sample/preview.gif
-                // if(inputBox.value === undefined){
-                //     console.log("generic input box value was undefined")
-                // }
-                // else if(inputBox.value === null){
-                //     console.log("generic input box value was null")
-                // }
-                // else if(inputBox.value === ""){
-                //     console.log("generic input box value was empty string")
-                // }
-                // else{
-                //     console.log("generic input box value was: " + inputBox.value)
-                // }
                 if (inputBox.value === undefined) {
                     reject(undefined)
                 }

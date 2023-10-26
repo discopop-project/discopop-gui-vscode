@@ -2,7 +2,6 @@ import * as vscode from 'vscode'
 import { Configuration, DefaultConfiguration } from './Configuration'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 
-// TODO: make it abstract and create subclasses for different project types (Makefile, CMake, Manual, Script, ...)
 /**
  * Represents a project in the project manager tree view.
  * Each project has a name and a runnable default configuration.

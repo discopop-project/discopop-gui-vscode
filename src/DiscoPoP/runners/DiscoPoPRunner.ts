@@ -38,10 +38,6 @@ export abstract class DiscoPoPRunner {
                 cancellable: false, // TODO we want to be able to cancel the process
             },
             async (progress, token) => {
-                // TODO abort and show error if any of the steps fails
-                // maybe it is sufficient to just have the steps reject their promises with a decent error message
-                // then try-catch the whole thing here and show the error message
-
                 try {
                     // STEP 1: collect full configuration info
                     progress.report({

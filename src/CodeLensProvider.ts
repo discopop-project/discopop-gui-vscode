@@ -1,10 +1,7 @@
 import * as vscode from 'vscode'
 import { Position } from 'vscode'
 import { Config } from './Config'
-import {
-    AppliedStatus,
-    Suggestion,
-} from './DiscoPoP/classes/Suggestion/Suggestion'
+import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
 import { FileMapping } from './DiscoPoP/classes/FileMapping'
 import { Commands } from './Commands'
 
@@ -87,7 +84,7 @@ export class DiscoPoPCodeLensProvider
                 })
                 // only suggestions that are not yet applied
                 .filter((suggestion) => {
-                    return suggestion.status !== AppliedStatus.APPLIED
+                    return !suggestion.applied
                 })
                 // get CodeLens for each suggestion
                 .map((suggestion) => suggestion.getCodeLens())
@@ -112,7 +109,7 @@ export class DiscoPoPCodeLensProvider
     }
 
     public insertRecommendation(suggestion: Suggestion) {
-        suggestion.status = AppliedStatus.APPLIED
+        suggestion.applied = true
         this._insertSnippet(suggestion)
         this._moveOtherRecommendations(suggestion)
         // StateManager.save(this.context, recommendation.id, recommendation)
