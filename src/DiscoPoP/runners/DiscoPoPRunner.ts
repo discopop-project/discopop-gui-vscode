@@ -14,218 +14,222 @@ import { FileMappingParser } from '../parsers/FileMappingParser'
 import { SuggestionParser } from '../parsers/SuggestionParser'
 import { DiscoPoPCodeLensProvider } from '../../CodeLensProvider'
 
-// TODO use withProgress to show progress of the execution
+export abstract class DiscoPoPRunner {
+    private constructor() {
+        throw new Error('This class cannot be instantiated.')
+    }
 
-export class DiscoPoPRunner {
     static async runConfiguration(configuration: Configuration) {
         // the configuration can be either a DefaultConfiguration or a Configuration
         // if it is a Configuration, we need to combine it with the default configuration to get a "full" configuration
-        const fullConfiguration: DefaultConfiguration =
-            await this._getFullConfiguration(configuration)
 
-        // show info
-        vscode.window.showInformationMessage(
-            'Running DiscoPoP on project ' +
-                fullConfiguration.getProjectPath() +
-                ' with executable ' +
-                fullConfiguration.getExecutableName() +
-                ' and arguments ' +
-                fullConfiguration.getExecutableArguments() +
-                '. Results will be stored in ' +
-                fullConfiguration.getBuildDirectory()
-        )
-
-        // run filemapping in the selected directory
-        const fileMappingScript = `${Config.discopopRoot}/build/scripts/dp-fmap`
-        await new Promise<void>((resolve, reject) => {
-            exec(
-                fileMappingScript,
-                { cwd: fullConfiguration.getProjectPath() },
-                (err, stdout, stderr) => {
-                    if (err) {
-                        console.log(`error: ${err.message}`)
-                        vscode.window.showErrorMessage(
-                            `Filemapping failed with error message ${err.message}`
-                        )
-                        reject()
-                        return
-                    }
-                    resolve()
-                }
-            )
-        })
-
-        // create a build directory
-        if (!fs.existsSync(fullConfiguration.getBuildDirectory())) {
-            fs.mkdirSync(fullConfiguration.getBuildDirectory())
-        } else {
-            if (
-                await UIPrompts.actionConfirmed(
-                    'The build directory already exists. Do you want to overwrite it?'
+        // use the withProgress API to indicate how much progress was made
+        await vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.Notification,
+                title: 'Running DiscoPoP',
+                cancellable: false, // TODO true
+            },
+            async (progress, token) => {
+                // STEP 1: collect info
+                progress.report({
+                    increment: 5,
+                    message: 'Collecting configuration info...',
+                }) // 5% progress
+                const fullConfiguration = await this._getFullConfiguration(
+                    configuration
                 )
-            ) {
-                fs.rmSync(fullConfiguration.getBuildDirectory(), {
-                    recursive: true,
+
+                // STEP 2: create build directory
+                progress.report({
+                    increment: 5,
+                    message: 'Creating build directory...',
+                }) // 10% progress
+                if (!fs.existsSync(fullConfiguration.getBuildDirectory())) {
+                    fs.mkdirSync(fullConfiguration.getBuildDirectory())
+                } else {
+                    if (
+                        await UIPrompts.actionConfirmed(
+                            'The build directory already exists. Do you want to overwrite it?'
+                        )
+                    ) {
+                        fs.rmSync(fullConfiguration.getBuildDirectory(), {
+                            recursive: true,
+                        })
+                        fs.mkdirSync(fullConfiguration.getBuildDirectory())
+                    } else {
+                        vscode.window.showInformationMessage('Aborting...')
+                        return
+                    }
+                }
+
+                // STEP 3: run cmake
+                progress.report({ increment: 15, message: 'Running CMAKE...' }) // 25% progress
+                const cmakeWrapperScript = `${Config.discopopRoot}/build/scripts/CMAKE_wrapper.sh`
+                await new Promise<void>((resolve, reject) => {
+                    exec(
+                        `${cmakeWrapperScript} ${fullConfiguration.getProjectPath()}`,
+                        { cwd: fullConfiguration.getBuildDirectory() },
+                        (err, stdout, stderr) => {
+                            if (err) {
+                                console.log(`error: ${err.message}`)
+                                vscode.window.showErrorMessage(
+                                    `CMAKE wrapper script failed with error message ${err.message}`
+                                )
+                                reject()
+                                return
+                            }
+                            resolve()
+                        }
+                    )
                 })
-                fs.mkdirSync(fullConfiguration.getBuildDirectory())
-            } else {
-                vscode.window.showInformationMessage('Aborting...')
-                return
+
+                // STEP 4: run make
+                progress.report({ increment: 15, message: 'Running MAKE...' }) // 40% progress
+                await new Promise<void>((resolve, reject) => {
+                    exec(
+                        `DP_FM_PATH=${fullConfiguration.getProjectPath()}/FileMapping.txt make > make.log 2>&1`,
+                        { cwd: fullConfiguration.getBuildDirectory() },
+                        (err, stdout, stderr) => {
+                            if (err) {
+                                console.log(`error: ${err.message}`)
+                                vscode.window.showErrorMessage(
+                                    `Make failed with error message ${err.message}`
+                                )
+                                reject()
+                                return
+                            }
+                            resolve()
+                        }
+                    )
+                })
+
+                // // NOTE: this is a possible approach on how to automatically detect the executable name: parse the make log and look for "Linking CXX executable"
+                // let autoDetectedExecutableName: string | undefined
+                // const makeLog = fs.readFileSync(`${fullConfiguration.getBuildDirectory()}/make.log`, 'utf-8')
+                // const regex = /Linking CXX executable ([a-zA-Z0-9_]+)/
+                // const match = makeLog.match(regex)
+                // if (match) {
+                //    vscode.window.showInformationMessage("Executable name detected: " + match[1])
+                //    autoDetectedExecutableName = match[1]
+                // }
+                // else {
+                //    vscode.window.showErrorMessage("Could not automatically detect executable name. Please specify it manually.")
+                //    return
+                // }
+
+                // STEP 5: run the executable
+                progress.report({
+                    increment: 20,
+                    message: 'Running executable...',
+                }) // 60% progress
+                await new Promise<void>((resolve, reject) => {
+                    exec(
+                        `${fullConfiguration.getBuildDirectory()}/${fullConfiguration.getExecutableName()} ${
+                            fullConfiguration.getExecutableArguments()
+                                ? fullConfiguration.getExecutableArguments()
+                                : ''
+                        }`,
+                        { cwd: fullConfiguration.getBuildDirectory() },
+                        (err, stdout, stderr) => {
+                            if (err) {
+                                console.log(`error: ${err.message}`)
+                                vscode.window.showErrorMessage(
+                                    `Executable failed with error message ${err.message}`
+                                )
+                                reject()
+                                return
+                            }
+                            resolve()
+                        }
+                    )
+                })
+
+                // STEP 6: run discopop_explorer
+                progress.report({
+                    increment: 30,
+                    message: 'Running discopop_explorer...',
+                }) // 90% progress
+                // TODO errors are not reliably reported? --> fix in discopop_explorer!
+                await new Promise<void>((resolve, reject) => {
+                    exec(
+                        `python3 -m discopop_explorer`, //--fmap ${fullConfiguration.getBuildDirectory()}/FileMapping.txt --path ${fullConfiguration.getBuildDirectory()} --dep-file ${fullConfiguration.getBuildDirectory()}/${fullConfiguration.getExecutableName()}_dep.txt --json patterns.json`,
+                        {
+                            cwd: `${fullConfiguration.getBuildDirectory()}/.discopop`,
+                        },
+                        (err, stdout, stderr) => {
+                            if (err) {
+                                console.log(`error: ${err.message}`)
+                                console.log(`stdout: ${stdout}`)
+                                console.log(`stderr: ${stderr}`)
+                                vscode.window.showErrorMessage(
+                                    `Discopop_explorer failed with error message ${err.message}`
+                                )
+                                reject()
+                                return
+                            }
+                            resolve()
+                        }
+                    )
+                })
+
+                // ensure that patterns.json was created
+                if (
+                    !fs.existsSync(
+                        `${fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
+                    )
+                ) {
+                    vscode.window.showErrorMessage(
+                        'Could not find patterns.json in the build directory. Aborting...'
+                    )
+                    return
+                }
+
+                // STEP 7: parse the results
+                progress.report({ increment: 5, message: 'Parsing results...' }) // 95% progress
+                // parse the FileMapping.txt file
+                const fileMapping = FileMappingParser.parseFile(
+                    `${fullConfiguration.getBuildDirectory()}/.discopop/FileMapping.txt`
+                )
+
+                // parse the patterns.json file
+                const discoPoPResults = SuggestionParser.parseFile(
+                    `${fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
+                )
+
+                // STEP 8: show the results
+                progress.report({
+                    increment: 4,
+                    message: 'Preparing result view...',
+                }) // 99% progress
+                const suggestionTree = new SuggestionTree(
+                    fileMapping,
+                    discoPoPResults
+                )
+                const suggestionTreeDisposable =
+                    vscode.window.registerTreeDataProvider(
+                        'sidebar-suggestions-view',
+                        suggestionTree
+                    )
+
+                // enable code lenses for all suggestions
+                const codeLensProvider = new DiscoPoPCodeLensProvider(
+                    fileMapping,
+                    discoPoPResults.getAllSuggestions()
+                )
+                const codeLensProviderDisposable =
+                    vscode.languages.registerCodeLensProvider(
+                        { scheme: 'file', language: 'cpp' },
+                        codeLensProvider
+                    )
+
+                // DONE
+                progress.report({ increment: 1, message: 'Done!' }) // 100% progress
+
+                // TODO rerunning should kill the old SuggestionTree and create a new one
+                // TODO rerunning should kill the old CodeLensProvider and create a new one
             }
-        }
-
-        // run the cmake wrapper script in the build directory, providing the projectDirectoryPath as an argument
-        const cmakeWrapperScript = `${Config.discopopRoot}/build/scripts/CMAKE_wrapper.sh`
-        await new Promise<void>((resolve, reject) => {
-            exec(
-                `${cmakeWrapperScript} ${fullConfiguration.getProjectPath()}`,
-                { cwd: fullConfiguration.getBuildDirectory() },
-                (err, stdout, stderr) => {
-                    if (err) {
-                        console.log(`error: ${err.message}`)
-                        vscode.window.showErrorMessage(
-                            `CMAKE wrapper script failed with error message ${err.message}`
-                        )
-                        reject()
-                        return
-                    }
-                    resolve()
-                }
-            )
-        })
-
-        // run make in the build directory (providing projectDirectoryPath/FileMapping.txt as an environment variable DP_FM_PATH)
-        await new Promise<void>((resolve, reject) => {
-            exec(
-                `DP_FM_PATH=${fullConfiguration.getProjectPath()}/FileMapping.txt make > make.log 2>&1`,
-                { cwd: fullConfiguration.getBuildDirectory() },
-                (err, stdout, stderr) => {
-                    if (err) {
-                        console.log(`error: ${err.message}`)
-                        vscode.window.showErrorMessage(
-                            `Make failed with error message ${err.message}`
-                        )
-                        reject()
-                        return
-                    }
-                    resolve()
-                }
-            )
-        })
-
-        // approach on how to automatically detect the executable name: parse the make log and look for "Linking CXX executable"
-        //let autoDetectedExecutableName: string | undefined
-        //const makeLog = fs.readFileSync(`${fullConfiguration.getBuildDirectory()}/make.log`, 'utf-8')
-        //const regex = /Linking CXX executable ([a-zA-Z0-9_]+)/
-        //const match = makeLog.match(regex)
-        //if (match) {
-        //    vscode.window.showInformationMessage("Executable name detected: " + match[1])
-        //    autoDetectedExecutableName = match[1]
-        //}
-        //else {
-        //    vscode.window.showErrorMessage("Could not automatically detect executable name. Please specify it manually.")
-        //    return
-        //}
-
-        // run the executable with the arguments
-        await new Promise<void>((resolve, reject) => {
-            exec(
-                `${fullConfiguration.getBuildDirectory()}/${fullConfiguration.getExecutableName()} ${
-                    fullConfiguration.getExecutableArguments()
-                        ? fullConfiguration.getExecutableArguments()
-                        : ''
-                }`,
-                { cwd: fullConfiguration.getBuildDirectory() },
-                (err, stdout, stderr) => {
-                    if (err) {
-                        console.log(`error: ${err.message}`)
-                        vscode.window.showErrorMessage(
-                            `Executable failed with error message ${err.message}`
-                        )
-                        reject()
-                        return
-                    }
-                    resolve()
-                }
-            )
-        })
-
-        // move the FileMapping.txt file to the build directory
-        fs.copyFileSync(
-            `${fullConfiguration.getProjectPath()}/FileMapping.txt`,
-            `${fullConfiguration.getBuildDirectory()}/FileMapping.txt`
         )
-        fs.rmSync(`${fullConfiguration.getProjectPath()}/FileMapping.txt`)
-
-        // run discopop_explorer in the build directory
-        // TODO errors are not reliably reported --> fix in discopop_explorer!
-        await new Promise<void>((resolve, reject) => {
-            exec(
-                `python3 -m discopop_explorer`, //--fmap ${fullConfiguration.getBuildDirectory()}/FileMapping.txt --path ${fullConfiguration.getBuildDirectory()} --dep-file ${fullConfiguration.getBuildDirectory()}/${fullConfiguration.getExecutableName()}_dep.txt --json patterns.json`,
-                { cwd: `${fullConfiguration.getBuildDirectory()}/.discopop` },
-                (err, stdout, stderr) => {
-                    if (err) {
-                        console.log(`error: ${err.message}`)
-                        console.log(`stdout: ${stdout}`)
-                        console.log(`stderr: ${stderr}`)
-                        vscode.window.showErrorMessage(
-                            `Discopop_explorer failed with error message ${err.message}`
-                        )
-                        reject()
-                        return
-                    }
-                    resolve()
-                }
-            )
-        })
-
-        // show info
-        vscode.window.showInformationMessage(
-            'DiscoPoP finished running. Results are stored in ' +
-                fullConfiguration.getBuildDirectory()
-        )
-
-        // ensure that patterns.json exists (located in the build directory)
-        if (
-            !fs.existsSync(
-                `${fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
-            )
-        ) {
-            vscode.window.showErrorMessage(
-                'Could not find patterns.json in the build directory. Aborting...'
-            )
-            return
-        }
-
-        // parse the FileMapping.txt file
-        const fileMapping = FileMappingParser.parseFile(
-            `${fullConfiguration.getBuildDirectory()}/.discopop/FileMapping.txt`
-        )
-
-        // parse the patterns.json file
-        const discoPoPResults = SuggestionParser.parseFile(
-            `${fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
-        )
-
-        // show the results in a tree view (all patterns, grouped by their type: reduction, doall, ...)
-        const suggestionTree = new SuggestionTree(fileMapping, discoPoPResults)
-        vscode.window.registerTreeDataProvider(
-            'sidebar-suggestions-view',
-            suggestionTree
-        )
-        // TODO rerunning should kill the old SuggestionTree and create a new one
-
-        // enable code lenses for all suggestions
-        const codeLensProvider = new DiscoPoPCodeLensProvider(
-            fileMapping,
-            discoPoPResults.getAllSuggestions()
-        )
-        const codeLensProviderDisposable =
-            vscode.languages.registerCodeLensProvider(
-                { scheme: 'file', language: 'cpp' },
-                codeLensProvider
-            )
-        // TODO rerunning should kill the old CodeLensProvider and create a new one
     }
 
     /**
