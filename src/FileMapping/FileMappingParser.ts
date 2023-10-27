@@ -1,4 +1,4 @@
-import { FileMapping } from '../classes/FileMapping'
+import { FileMapping } from './FileMapping'
 import * as fs from 'fs'
 
 /**

@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
 import { Position } from 'vscode'
-import { Config } from './Config'
-import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
-import { FileMapping } from './DiscoPoP/classes/FileMapping'
-import { Commands } from './Commands'
+import { Config } from '../Utils/Config'
+import { Suggestion } from './classes/Suggestion/Suggestion'
+import { FileMapping } from '../FileMapping/FileMapping'
+import { Commands } from '../Utils/Commands'
 
 export class DiscoPoPCodeLens extends vscode.CodeLens {
     /**

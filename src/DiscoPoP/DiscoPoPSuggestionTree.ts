@@ -1,13 +1,17 @@
 import * as vscode from 'vscode'
-import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
-import { FileMapping } from './DiscoPoP/classes/FileMapping'
-import { DiscoPoPResults } from './DiscoPoP/classes/DiscoPoPResults'
-import { Commands } from './Commands'
+import { Suggestion } from './classes/Suggestion/Suggestion'
+import { FileMapping } from '../FileMapping/FileMapping'
+import { DiscoPoPResults } from './classes/DiscoPoPResults'
+import { Commands } from '../Utils/Commands'
 
-export interface SuggestionTreeNode {
+export interface DiscoPoPSuggestionTreeNode {
     /** Returns the view for this tree node */
     getView(fileMapping: FileMapping): vscode.TreeItem
-    getChildren(): SuggestionTreeNode[] | undefined
+
+    /** Returns the children of the node.
+     * @returns array of children nodes (empty if there are none) or undefined if node is a leaf node.
+     */
+    getChildren(): DiscoPoPSuggestionTreeNode[] | undefined
 }
 
 /**
@@ -15,13 +19,15 @@ export interface SuggestionTreeNode {
  * (an inner node of the tree)
  * In the future we might also want to group suggestions by file.
  */
-class SuggestionGroup implements SuggestionTreeNode {
+class DiscoPoPSuggestionGroup implements DiscoPoPSuggestionTreeNode {
     label: string
-    children: SuggestionGroup[] | SuggestionNode[]
+    children: DiscoPoPSuggestionGroup[] | DiscoPoPSuggestionNode[]
 
     public constructor(label: string, children: Suggestion[]) {
         this.label = label
-        this.children = children.map((child) => new SuggestionNode(child))
+        this.children = children.map(
+            (child) => new DiscoPoPSuggestionNode(child)
+        )
     }
 
     public getView(_fileMapping: FileMapping): vscode.TreeItem {
@@ -33,7 +39,7 @@ class SuggestionGroup implements SuggestionTreeNode {
         return view
     }
 
-    public getChildren(): SuggestionTreeNode[] | undefined {
+    public getChildren(): DiscoPoPSuggestionTreeNode[] | undefined {
         return this.children
     }
 }
@@ -42,12 +48,8 @@ class SuggestionGroup implements SuggestionTreeNode {
  * A suggestion node represents a single suggestion.
  * (a leaf node of the tree)
  */
-class SuggestionNode implements SuggestionTreeNode {
-    suggestion: Suggestion
-
-    public constructor(suggestion: Suggestion) {
-        this.suggestion = suggestion
-    }
+class DiscoPoPSuggestionNode implements DiscoPoPSuggestionTreeNode {
+    public constructor(public suggestion: Suggestion) {}
 
     public getView(fileMapping: FileMapping): vscode.TreeItem {
         const view = new vscode.TreeItem(
@@ -74,16 +76,16 @@ class SuggestionNode implements SuggestionTreeNode {
         return view
     }
 
-    public getChildren(): SuggestionTreeNode[] | undefined {
+    public getChildren(): DiscoPoPSuggestionTreeNode[] | undefined {
         return undefined
     }
 }
 
 export class SuggestionTree
-    implements vscode.TreeDataProvider<SuggestionTreeNode>
+    implements vscode.TreeDataProvider<DiscoPoPSuggestionTreeNode>
 {
     private fileMapping: FileMapping
-    private nodes: SuggestionGroup[] = []
+    private nodes: DiscoPoPSuggestionGroup[] = []
 
     public constructor(
         fileMapping: FileMapping,
@@ -92,28 +94,30 @@ export class SuggestionTree
         this.fileMapping = fileMapping
         Array.from(discoPoPResults.suggestionsByType.entries()).forEach(
             ([type, suggestions]) => {
-                this.nodes.push(new SuggestionGroup(type, suggestions))
+                this.nodes.push(new DiscoPoPSuggestionGroup(type, suggestions))
             }
         )
     }
 
     // TreeDataProvider implementation
     private _onDidChangeTreeData: vscode.EventEmitter<
-        SuggestionTreeNode | undefined | null | void
-    > = new vscode.EventEmitter<SuggestionTreeNode | undefined | null | void>()
+        DiscoPoPSuggestionTreeNode | undefined | null | void
+    > = new vscode.EventEmitter<
+        DiscoPoPSuggestionTreeNode | undefined | null | void
+    >()
     readonly onDidChangeTreeData: vscode.Event<
-        void | SuggestionTreeNode | SuggestionTreeNode[]
+        void | DiscoPoPSuggestionTreeNode | DiscoPoPSuggestionTreeNode[]
     > = this._onDidChangeTreeData.event
 
     getTreeItem(
-        element: SuggestionTreeNode
+        element: DiscoPoPSuggestionTreeNode
     ): vscode.TreeItem | Thenable<vscode.TreeItem> {
         return element.getView(this.fileMapping)
     }
 
     getChildren(
-        element?: SuggestionTreeNode
-    ): vscode.ProviderResult<SuggestionTreeNode[]> {
+        element?: DiscoPoPSuggestionTreeNode
+    ): vscode.ProviderResult<DiscoPoPSuggestionTreeNode[]> {
         if (!element) {
             return this.nodes
         } else {

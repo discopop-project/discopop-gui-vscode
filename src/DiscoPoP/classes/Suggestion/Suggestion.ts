@@ -1,4 +1,4 @@
-import { DiscoPoPCodeLens } from '../../../CodeLensProvider'
+import { DiscoPoPCodeLens } from '../../DiscoPoPCodeLensProvider'
 
 export abstract class Suggestion {
     applied: boolean = false
