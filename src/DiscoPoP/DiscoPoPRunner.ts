@@ -17,6 +17,8 @@ import { SuggestionParser } from './SuggestionParser'
 import { DiscoPoPCodeLensProvider } from './DiscoPoPCodeLensProvider'
 import { FileMapping } from '../FileMapping/FileMapping'
 import { DiscoPoPResults } from './classes/DiscoPoPResults'
+import { WithProgressRunner } from '../Utils/WithProgressRunner'
+import { getDefaultErrorHandler } from '../Utils/ErrorHandler'
 
 export abstract class DiscoPoPRunner {
     private constructor() {
@@ -34,133 +36,111 @@ export abstract class DiscoPoPRunner {
      * @param configuration
      */
     public static async runConfiguration(configuration: Configuration) {
-        await vscode.window.withProgress(
-            {
-                location: vscode.ProgressLocation.Notification,
-                title: 'Running DiscoPoP',
-                cancellable: false, // TODO we want to be able to cancel the process
-            },
-            async (progress, token) => {
-                try {
-                    // STEP 1: collect full configuration info
-                    progress.report({
-                        increment: 5,
-                        message: 'Collecting configuration info...',
-                    }) // 5% done
-                    const fullConfiguration = await this._getFullConfiguration(
-                        configuration
-                    )
-
-                    // STEP 2: create build directory
-                    progress.report({
-                        increment: 5,
-                        message: 'Creating build directory...',
-                    }) // 10% done
-                    await this._createBuildDirectory(fullConfiguration)
-
-                    // STEP 3: run cmake
-                    progress.report({
-                        increment: 15,
-                        message: 'Running CMAKE...',
-                    }) // 25% done
-                    await this._runCMake(fullConfiguration)
-
-                    // STEP 4: run make
-                    progress.report({
-                        increment: 15,
-                        message: 'Running MAKE...',
-                    }) // 40% done
-                    await this._runMake(fullConfiguration)
-
-                    // STEP 5: run the executable
-                    progress.report({
-                        increment: 20,
-                        message: 'Running executable...',
-                    }) // 60% done
-                    await this._runExecutable(fullConfiguration)
-
-                    // STEP 6: run discopop_explorer
-                    progress.report({
-                        increment: 30,
-                        message: 'Running discopop_explorer...',
-                    }) // 90% done
-                    await this._runDiscopopExplorer(fullConfiguration)
-
-                    // STEP 7a : parse the results (FileMapping)
-                    progress.report({
-                        increment: 3,
-                        message: 'Parsing results...',
-                    }) // 93% done
-                    const fileMapping = FileMappingParser.parseFile(
-                        `${fullConfiguration.getBuildDirectory()}/.discopop/FileMapping.txt`
-                    )
-
-                    // STEP 7b: parse the results (patterns.json
-                    progress.report({
-                        increment: 3,
-                        message: 'Parsing results...',
-                    }) // 96% done
-                    const discoPoPResults = SuggestionParser.parseFile(
-                        `${fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
-                    )
-
-                    // STEP 8: present the results
-                    progress.report({
-                        increment: 3,
-                        message: 'Preparing views and code hints...',
-                    }) // 99% done
-                    await this._presentResults(fileMapping, discoPoPResults)
-
-                    // DONE
-                    progress.report({ increment: 1, message: 'Done!' }) // 100% done
-                    // keep the notification open for 1 second
-                    await new Promise((resolve) => setTimeout(resolve, 1000))
-                } catch (error: unknown) {
-                    console.log('DiscoPoP execution stopped:')
-                    if (error instanceof Error) {
-                        console.log(error.message)
-                        console.log(error.stack)
-                        vscode.window.showErrorMessage(
-                            `DiscoPoP execution stopped: ` + error.message
-                        )
-                    } else {
-                        console.log(error)
-                        vscode.window.showErrorMessage(
-                            `DiscoPoP execution stopped with unknown error`
-                        )
-                    }
-                    // TODO should we do some cleanup? but then again, the user might want to inspect the results
-                }
-            }
-        )
-    }
-
-    /**
-     * Returns a full (runnable) configuration, i.e. a DefaultConfiguration,
-     * by combining the given configuration with its default configuration.
-     *
-     * If the provided configuration is already a DefaultConfiguration, it is returned as is.
-     */
-    private static async _getFullConfiguration(
-        configuration: Configuration
-    ): Promise<DefaultConfiguration> {
-        if (configuration instanceof DefaultConfiguration) {
-            return configuration
+        const state = {
+            configuration: configuration,
+            fullConfiguration: undefined,
+            fileMapping: undefined,
+            discoPoPResults: undefined,
         }
 
-        const defaults = configuration.getParent().getDefaultConfiguration()
-        const combined = new DefaultConfiguration(
-            configuration.getProjectPath() ?? defaults.getProjectPath(),
-            configuration.getExecutableName() ?? defaults.getExecutableName(),
-            configuration.getExecutableArguments() ??
-                defaults.getExecutableArguments(),
-            configuration.getBuildDirectory() ?? defaults.getBuildDirectory(),
-            configuration.getName() ?? defaults.getName()
+        const step1 = {
+            message: 'Collecting configuration info...',
+            increment: 5,
+            operation: async (state) => {
+                state.fullConfiguration = configuration.getFullConfiguration()
+                return state
+            },
+        }
+
+        const step2 = {
+            message: 'Preparing build directory...',
+            increment: 5,
+            operation: async (state) => {
+                await this._createBuildDirectory(state.fullConfiguration)
+                return state
+            },
+        }
+
+        const step3 = {
+            message: 'Running CMAKE...',
+            increment: 10,
+            operation: async (state) => {
+                await this._runCMake(state.fullConfiguration)
+                return state
+            },
+        }
+
+        const step4 = {
+            message: 'Running MAKE...',
+            increment: 10,
+            operation: async (state) => {
+                await this._runMake(state.fullConfiguration)
+                return state
+            },
+        }
+
+        const step5 = {
+            message: 'Running executable...',
+            increment: 10,
+            operation: async (state) => {
+                await this._runExecutable(state.fullConfiguration)
+                return state
+            },
+        }
+
+        const step6 = {
+            message: 'Running discopop_explorer...',
+            increment: 50,
+            operation: async (state) => {
+                await this._runDiscopopExplorer(state.fullConfiguration)
+                return state
+            },
+        }
+
+        const step7 = {
+            message: 'Parsing results (FileMapping)...',
+            increment: 3,
+            operation: async (state) => {
+                state.fileMapping = FileMappingParser.parseFile(
+                    `${state.fullConfiguration.getBuildDirectory()}/.discopop/FileMapping.txt`
+                )
+                return state
+            },
+        }
+
+        const step8 = {
+            message: 'Parsing results (Suggestions)...',
+            increment: 3,
+            operation: async (state) => {
+                state.discoPoPResults = SuggestionParser.parseFile(
+                    `${state.fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
+                )
+                return state
+            },
+        }
+
+        const step9 = {
+            message: 'Preparing views and code hints...',
+            increment: 4,
+            operation: async (state) => {
+                await this._presentResults(
+                    state.fileMapping,
+                    state.discoPoPResults
+                )
+                return state
+            },
+        }
+
+        const withProgressRunner = new WithProgressRunner<typeof state>(
+            'Running DiscoPoP...',
+            vscode.ProgressLocation.Notification,
+            false,
+            [step1, step2, step3, step4, step5, step6, step7, step8, step9],
+            state,
+            getDefaultErrorHandler('DiscoPoP failed. ')
         )
 
-        combined.setName(configuration.getName())
-
-        return combined
+        await withProgressRunner.run()
     }
 
     /**

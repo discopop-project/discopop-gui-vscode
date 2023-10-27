@@ -4,6 +4,7 @@ import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Project } from './Project'
 import { DiscoPoPRunner } from '../DiscoPoP/DiscoPoPRunner'
 import { ProjectManager } from './ProjectManager'
+import { HotspotDetectionRunner } from '../HotspotDetection/HotspotDetectionRunner'
 
 export class Configuration extends ProjectManagerTreeItem {
     private name: string
@@ -71,6 +72,31 @@ export class Configuration extends ProjectManagerTreeItem {
         ]
     }
 
+    /**
+     * Returns a full (runnable) configuration, i.e. a DefaultConfiguration,
+     * by combining the given configuration with its default configuration.
+     *
+     * If the provided configuration is already a DefaultConfiguration, it is returned as is.
+     */
+    getFullConfiguration(): DefaultConfiguration {
+        if (this instanceof DefaultConfiguration) {
+            return this
+        }
+
+        const defaults = this.getParent().getDefaultConfiguration()
+        const combined = new DefaultConfiguration(
+            this.getProjectPath() ?? defaults.getProjectPath(),
+            this.getExecutableName() ?? defaults.getExecutableName(),
+            this.getExecutableArguments() ?? defaults.getExecutableArguments(),
+            this.getBuildDirectory() ?? defaults.getBuildDirectory(),
+            this.getName() ?? defaults.getName()
+        )
+
+        combined.setName(this.getName())
+
+        return combined
+    }
+
     getChildren(): ProjectManagerTreeItem[] {
         return this.getConfigurationItems()
     }
@@ -86,7 +112,10 @@ export class Configuration extends ProjectManagerTreeItem {
     async run() {
         this.iconPath = new vscode.ThemeIcon('gear~spin')
         ProjectManager.refresh()
+
         await DiscoPoPRunner.runConfiguration(this)
+        await HotspotDetectionRunner.runConfiguration(this)
+
         this.iconPath = new vscode.ThemeIcon('gear')
         ProjectManager.refresh()
     }
