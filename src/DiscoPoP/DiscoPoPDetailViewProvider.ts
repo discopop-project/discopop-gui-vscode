@@ -1,29 +1,32 @@
 import * as vscode from 'vscode'
-import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
+import { Suggestion } from './classes/Suggestion/Suggestion'
 
-export class DetailViewProvider implements vscode.WebviewViewProvider {
+export class DiscoPoPDetailViewProvider implements vscode.WebviewViewProvider {
     private static context: vscode.ExtensionContext
     private suggestion: Suggestion
     private webView: vscode.Webview | undefined
 
     // singleton pattern
-    private static instance: DetailViewProvider | undefined
+    private static instance: DiscoPoPDetailViewProvider | undefined
 
     public static getInstance(
         context: vscode.ExtensionContext,
         suggestion: Suggestion
-    ): DetailViewProvider {
-        DetailViewProvider.context = context
-        if (!DetailViewProvider.instance) {
-            DetailViewProvider.instance = new DetailViewProvider(suggestion)
+    ): DiscoPoPDetailViewProvider {
+        DiscoPoPDetailViewProvider.context = context
+        if (!DiscoPoPDetailViewProvider.instance) {
+            DiscoPoPDetailViewProvider.instance =
+                new DiscoPoPDetailViewProvider(suggestion)
             vscode.window.registerWebviewViewProvider(
                 'detail-view',
-                DetailViewProvider.instance
+                DiscoPoPDetailViewProvider.instance
             )
         } else {
-            DetailViewProvider.instance.setOrReplaceSuggestion(suggestion)
+            DiscoPoPDetailViewProvider.instance.setOrReplaceSuggestion(
+                suggestion
+            )
         }
-        return DetailViewProvider.instance
+        return DiscoPoPDetailViewProvider.instance
     }
 
     private constructor(suggestion: Suggestion) {

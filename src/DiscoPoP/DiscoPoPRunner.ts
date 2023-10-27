@@ -2,18 +2,21 @@ import * as vscode from 'vscode'
 import * as fs from 'fs'
 import { exec } from 'child_process'
 
-import { Config } from '../../Config'
+import { Config } from '../Utils/Config'
 import {
     Configuration,
     DefaultConfiguration,
-} from '../../ProjectManager/Configuration'
-import { UIPrompts } from '../../UIPrompts'
-import { SuggestionTree, SuggestionTreeNode } from '../../SuggestionTree'
-import { FileMappingParser } from '../parsers/FileMappingParser'
-import { SuggestionParser } from '../parsers/SuggestionParser'
-import { DiscoPoPCodeLensProvider } from '../../CodeLensProvider'
-import { FileMapping } from '../classes/FileMapping'
-import { DiscoPoPResults } from '../classes/DiscoPoPResults'
+} from '../ProjectManager/Configuration'
+import { UIPrompts } from '../Utils/UIPrompts'
+import {
+    SuggestionTree,
+    DiscoPoPSuggestionTreeNode,
+} from './DiscoPoPSuggestionTree'
+import { FileMappingParser } from '../FileMapping/FileMappingParser'
+import { SuggestionParser } from './SuggestionParser'
+import { DiscoPoPCodeLensProvider } from './DiscoPoPCodeLensProvider'
+import { FileMapping } from '../FileMapping/FileMapping'
+import { DiscoPoPResults } from './classes/DiscoPoPResults'
 
 export abstract class DiscoPoPRunner {
     private constructor() {
@@ -22,7 +25,7 @@ export abstract class DiscoPoPRunner {
 
     private static codeLensProviderDisposable: vscode.Disposable | undefined
     private static suggestionTreeDisposable:
-        | vscode.TreeView<SuggestionTreeNode>
+        | vscode.TreeView<DiscoPoPSuggestionTreeNode>
         | undefined
 
     /**

@@ -1,8 +1,8 @@
 import * as vscode from 'vscode'
 import { Project } from './Project'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
-import { Commands } from '../Commands'
-import { UIPrompts } from '../UIPrompts'
+import { Commands } from '../Utils/Commands'
+import { UIPrompts } from '../Utils/UIPrompts'
 import { Configuration } from './Configuration'
 import { ConfigurationItem } from './ConfigurationItem'
 

@@ -1,9 +1,9 @@
 import * as fs from 'fs'
-import { DiscoPoPResults } from '../classes/DiscoPoPResults'
-import { Suggestion } from '../classes/Suggestion/Suggestion'
-import { DoAllSuggestion } from '../classes/Suggestion/DoAllSuggestion'
-import { ReductionSuggestion } from '../classes/Suggestion/ReductionSuggestion'
-import { GenericSuggestion } from '../classes/Suggestion/GenericSuggestion'
+import { DiscoPoPResults } from './classes/DiscoPoPResults'
+import { Suggestion } from './classes/Suggestion/Suggestion'
+import { DoAllSuggestion } from './classes/Suggestion/DoAllSuggestion'
+import { ReductionSuggestion } from './classes/Suggestion/ReductionSuggestion'
+import { GenericSuggestion } from './classes/Suggestion/GenericSuggestion'
 
 export abstract class SuggestionParser {
     private constructor() {
