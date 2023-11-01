@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
-import { exec } from 'child_process'
+import { exec, spawn } from 'child_process'
 
 import { Config } from '../Utils/Config'
 import {
@@ -43,11 +43,20 @@ export abstract class DiscoPoPRunner {
             discoPoPResults: undefined,
         }
 
-        const step1 = {
+        const step1a = {
             message: 'Collecting configuration info...',
-            increment: 5,
+            increment: 0,
             operation: async (state) => {
                 state.fullConfiguration = configuration.getFullConfiguration()
+                return state
+            },
+        }
+
+        const step1b = {
+            message: 'Checking setup...',
+            increment: 0,
+            operation: async (state) => {
+                Config.checkDiscoPoPSetup()
                 return state
             },
         }
@@ -81,7 +90,7 @@ export abstract class DiscoPoPRunner {
 
         const step5 = {
             message: 'Running executable...',
-            increment: 10,
+            increment: 15,
             operation: async (state) => {
                 await this._runExecutable(state.fullConfiguration)
                 return state
@@ -135,7 +144,18 @@ export abstract class DiscoPoPRunner {
             'Running DiscoPoP...',
             vscode.ProgressLocation.Notification,
             false,
-            [step1, step2, step3, step4, step5, step6, step7, step8, step9],
+            [
+                step1a,
+                step1b,
+                step2,
+                step3,
+                step4,
+                step5,
+                step6,
+                step7,
+                step8,
+                step9,
+            ],
             state,
             getDefaultErrorHandler('DiscoPoP failed. ')
         )
@@ -173,7 +193,7 @@ export abstract class DiscoPoPRunner {
     private static async _runCMake(
         configuration: DefaultConfiguration
     ): Promise<void> {
-        const cmakeWrapperScript = `${Config.discopopBuild}/scripts/CMAKE_wrapper.sh`
+        const cmakeWrapperScript = `${Config.discopopBuild()}/scripts/CMAKE_wrapper.sh`
         return new Promise<void>((resolve, reject) => {
             exec(
                 `${cmakeWrapperScript} ${configuration.getProjectPath()}`,
@@ -273,7 +293,7 @@ export abstract class DiscoPoPRunner {
     ): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             exec(
-                `python3 -m discopop_explorer`, //--fmap ${fullConfiguration.getBuildDirectory()}/FileMapping.txt --path ${fullConfiguration.getBuildDirectory()} --dep-file ${fullConfiguration.getBuildDirectory()}/${fullConfiguration.getExecutableName()}_dep.txt --json patterns.json`,
+                `discopop_explorer`,
                 { cwd: `${configuration.getBuildDirectory()}/.discopop` },
                 (err, stdout, stderr) => {
                     if (err) {
