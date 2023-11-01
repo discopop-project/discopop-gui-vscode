@@ -97,6 +97,11 @@ export class Configuration extends ProjectManagerTreeItem {
         return combined
     }
 
+    getHotspotDetectionBuildDirectory(): string {
+        // TODO: make it configurable
+        return this.getBuildDirectory() + '_hotspotDetection'
+    }
+
     getChildren(): ProjectManagerTreeItem[] {
         return this.getConfigurationItems()
     }

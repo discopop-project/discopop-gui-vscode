@@ -66,6 +66,11 @@
                     "default": "",
                     "description": "The path to your DiscoPoP installation. Please be sure the build and scripts folders exist. For more information regarding DiscoPoP please visit the [docs](https://github.com/discopop-project/discopop)."
                 },
+                "discopop.hotspotDetectionRoot": {
+                    "type": "string",
+                    "default": "",
+                    "description": "The path to your HotspotDetection installation. Please be sure the build and scripts folders exist. For more information regarding HotspotDetection please visit the [docs](https://github.com/discopop-project/Hotspot-Detection)." 
+                },
                 "discopop.recommendationsCodeLens": {
                     "type": "boolean",
                     "default": false
