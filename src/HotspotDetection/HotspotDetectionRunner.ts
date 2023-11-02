@@ -58,26 +58,25 @@ export abstract class HotspotDetectionRunner {
                     )
                 ) {
                     fs.mkdirSync(
-                        s.configuration.getHotspotDetectionBuildDirectory()
+                        s.configuration.getHotspotDetectionBuildDirectory(),
+                        { recursive: true }
+                    )
+                } else if (
+                    Config.skipOverwriteConfirmation() ||
+                    (await UIPrompts.actionConfirmed(
+                        'The build directory already exists. Do you want to overwrite it?\n(You can disable this dialog in the extension settings)'
+                    ))
+                ) {
+                    fs.rmSync(
+                        s.configuration.getHotspotDetectionBuildDirectory(),
+                        { recursive: true }
+                    )
+                    fs.mkdirSync(
+                        s.configuration.getHotspotDetectionBuildDirectory(),
+                        { recursive: true }
                     )
                 } else {
-                    if (
-                        await UIPrompts.actionConfirmed(
-                            'The build directory already exists. Do you want to overwrite it?'
-                        )
-                    ) {
-                        fs.rmSync(
-                            s.configuration.getHotspotDetectionBuildDirectory(),
-                            {
-                                recursive: true,
-                            }
-                        )
-                        fs.mkdirSync(
-                            s.configuration.getHotspotDetectionBuildDirectory()
-                        )
-                    } else {
-                        throw new Error('Operation cancelled by user')
-                    }
+                    throw new Error('Operation cancelled by user')
                 }
                 return s
             },
@@ -281,7 +280,7 @@ export abstract class HotspotDetectionRunner {
         const withProgressRunner = new WithProgressRunner<typeof state>(
             'Simulating Hotspot Detection', // TODO
             vscode.ProgressLocation.Notification,
-            true,
+            false, // TODO true is currently NOT supported
             operations,
             state,
             getDefaultErrorHandler('Hotspot Detection failed. ')

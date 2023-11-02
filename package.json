@@ -88,6 +88,10 @@
                 "discopop.recommendationsCodeLens": {
                     "type": "boolean",
                     "default": false
+                },
+                "discopop.skipOverwriteConfirmation": {
+                    "type": "boolean",
+                    "default": false
                 }
             }
         },
