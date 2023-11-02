@@ -1,64 +1,32 @@
-import * as vscode from 'vscode'
 import { Suggestion } from './classes/Suggestion/Suggestion'
+import { JSONWebViewProvider } from '../Utils/JSONWebViewProvider'
 
-export class DiscoPoPDetailViewProvider implements vscode.WebviewViewProvider {
-    private static context: vscode.ExtensionContext
-    private suggestion: Suggestion | undefined
-    private webView: vscode.Webview | undefined
-
-    // singleton pattern
+export class DiscoPoPDetailViewProvider extends JSONWebViewProvider<any> {
     private static instance: DiscoPoPDetailViewProvider | undefined
 
-    public static load(
-        context: vscode.ExtensionContext,
-        suggestion: Suggestion | undefined
-    ): void {
-        DiscoPoPDetailViewProvider.context = context
+    private constructor(
+        suggestion: Suggestion | undefined,
+        placeholder: string
+    ) {
+        super(suggestion?.pureJSONData, placeholder)
+    }
+
+    public static load(suggestion: Suggestion | undefined) {
         if (!DiscoPoPDetailViewProvider.instance) {
+            const viewId = 'sidebar-suggestion-detail-view'
+            const placeholder = `No suggestion selected. Select a suggestion to see the details here.`
             DiscoPoPDetailViewProvider.instance =
-                new DiscoPoPDetailViewProvider(suggestion)
-            vscode.window.registerWebviewViewProvider(
-                'detail-view',
-                DiscoPoPDetailViewProvider.instance
-            )
-        } else {
-            DiscoPoPDetailViewProvider.instance._setOrReplaceSuggestion(
-                suggestion
-            )
+                new DiscoPoPDetailViewProvider(undefined, placeholder)
+            DiscoPoPDetailViewProvider.instance.register(viewId)
         }
+
+        DiscoPoPDetailViewProvider.instance.replaceContents(
+            suggestion?.pureJSONData
+        )
     }
 
-    private constructor(suggestion: Suggestion | undefined) {
-        this._setOrReplaceSuggestion(suggestion)
-    }
-
-    private _setOrReplaceSuggestion(suggestion: Suggestion | undefined) {
-        this.suggestion = suggestion
-        this._updateContents()
-    }
-
-    resolveWebviewView(
-        webviewView: vscode.WebviewView,
-        context: vscode.WebviewViewResolveContext<unknown>,
-        token: vscode.CancellationToken
-    ): void | Thenable<void> {
-        this.webView = webviewView.webview // save the webview for later updates
-        this._updateContents()
-    }
-
-    private _updateContents(): void {
-        if (this.webView) {
-            // if no suggestion is selected, provide a placeholder text
-            if (!this.suggestion) {
-                this.webView.html = `No suggestion selected. Select a suggestion to see the details here.`
-            } else {
-                const suggestionString = JSON.stringify(
-                    this.suggestion.pureJSONData,
-                    undefined,
-                    4
-                )
-                this.webView.html = `<pre>${suggestionString}</pre>`
-            }
-        }
+    public static dispose() {
+        DiscoPoPDetailViewProvider.instance?.unregister()
+        DiscoPoPDetailViewProvider.instance = undefined
     }
 }

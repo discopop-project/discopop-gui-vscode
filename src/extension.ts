@@ -8,6 +8,8 @@ import { DiscoPoPDetailViewProvider } from './DiscoPoP/DiscoPoPDetailViewProvide
 import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
 import { FileMapping } from './FileMapping/FileMapping'
 import { DiscoPoPCodeLens } from './DiscoPoP/DiscoPoPCodeLensProvider'
+import { HotspotDetailViewProvider } from './HotspotDetection/HotspotDetailViewProvider'
+import { Hotspot } from './HotspotDetection/classes/Hotspot'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -19,9 +21,16 @@ export function activate(context: vscode.ExtensionContext) {
     // SUGGESTIONS
     // in package.json a welcome message is configured that is shown until a configuration was run
 
+    // HOTSPOTS
+    // in package.json a welcome message is configured that is shown until a configuration was run
+
     // SUGGESTION DETAIL
     // an undefined suggestion results in a placeholder text being shown until a suggestion is selected
-    DiscoPoPDetailViewProvider.load(context, undefined)
+    DiscoPoPDetailViewProvider.load(undefined)
+
+    // HOTSPOT DETAIL
+    // an undefined hotspot results in a placeholder text being shown until a hotspot is selected
+    HotspotDetailViewProvider.load(undefined)
 
     // COMMANDS
     context.subscriptions.push(
@@ -37,7 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             Commands.showSuggestionDetails,
             async (suggestion: Suggestion, fileMapping: FileMapping) => {
-                DiscoPoPDetailViewProvider.load(context, suggestion)
+                DiscoPoPDetailViewProvider.load(suggestion)
                 const filePath = fileMapping.getFilePath(suggestion.fileId)
                 const document = await vscode.workspace.openTextDocument(
                     filePath
@@ -48,6 +57,28 @@ export function activate(context: vscode.ExtensionContext) {
                     false
                 )
                 const line = new vscode.Position(suggestion.startLine - 1, 0)
+                editor.selections = [new vscode.Selection(line, line)]
+                const range = new vscode.Range(line, line)
+                editor.revealRange(range)
+            }
+        )
+    )
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            Commands.showHotspotDetails,
+            async (hotspot: Hotspot, fileMapping: FileMapping) => {
+                HotspotDetailViewProvider.load(hotspot)
+                const filePath = fileMapping.getFilePath(hotspot.fid)
+                const document = await vscode.workspace.openTextDocument(
+                    filePath
+                )
+                const editor = await vscode.window.showTextDocument(
+                    document,
+                    vscode.ViewColumn.Active,
+                    false
+                )
+                const line = new vscode.Position(hotspot.lineNum - 1, 0)
                 editor.selections = [new vscode.Selection(line, line)]
                 const range = new vscode.Range(line, line)
                 editor.revealRange(range)

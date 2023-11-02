@@ -13,8 +13,10 @@ import { FileMappingParser } from '../FileMapping/FileMappingParser'
 import { FileMapping } from '../FileMapping/FileMapping'
 import { HotspotDetectionResults } from './HotspotDetectionResults'
 import { HotspotDetectionParser } from './HotspotDetectionParser'
+import { HotspotTree } from './HotspotTree'
 
 export abstract class HotspotDetectionRunner {
+    static hotspotTreeDisposable: any
     private constructor() {
         throw new Error('This class cannot be instantiated')
     }
@@ -246,7 +248,19 @@ export abstract class HotspotDetectionRunner {
             message: 'Preparing results...',
             increment: 5,
             operation: async (s: Partial<typeof state>) => {
-                await new Promise((resolve) => setTimeout(resolve, 500))
+                // show the hotspots in the sidebar
+                const hotspotTree = new HotspotTree(
+                    s.fileMapping,
+                    s.hotspotDetectionResults
+                )
+                await HotspotDetectionRunner.hotspotTreeDisposable?.dispose()
+                HotspotDetectionRunner.hotspotTreeDisposable =
+                    vscode.window.createTreeView('sidebar-hotspots-view', {
+                        treeDataProvider: hotspotTree,
+                        showCollapseAll: false,
+                        canSelectMany: false,
+                    })
+
                 return s
             },
         }
