@@ -9,7 +9,10 @@ import {
 import { getDefaultErrorHandler } from '../Utils/ErrorHandler'
 import { exec } from 'child_process'
 import { Config } from '../Utils/Config'
-import { config } from 'process'
+import { FileMappingParser } from '../FileMapping/FileMappingParser'
+import { FileMapping } from '../FileMapping/FileMapping'
+import { HotspotDetectionResults } from './HotspotDetectionResults'
+import { HotspotDetectionParser } from './HotspotDetectionParser'
 
 export abstract class HotspotDetectionRunner {
     private constructor() {
@@ -20,7 +23,9 @@ export abstract class HotspotDetectionRunner {
         configuration: Configuration
     ): Promise<void> {
         const state = {
-            configuration: configuration,
+            configuration,
+            fileMapping: undefined as FileMapping,
+            hotspotDetectionResults: undefined as HotspotDetectionResults,
         }
 
         const step0a = {
@@ -216,7 +221,10 @@ export abstract class HotspotDetectionRunner {
             message: 'Parsing results (FileMapping)...',
             increment: 5,
             operation: async (s: Partial<typeof state>) => {
-                await new Promise((resolve) => setTimeout(resolve, 500))
+                s.fileMapping = FileMappingParser.parseFile(
+                    s.configuration.getHotspotDetectionBuildDirectory() +
+                        '/.discopop/common_data/FileMapping.txt'
+                )
                 return s
             },
         }
@@ -225,7 +233,11 @@ export abstract class HotspotDetectionRunner {
             message: 'Parsing results (Hotspots)...',
             increment: 5,
             operation: async (s: Partial<typeof state>) => {
-                await new Promise((resolve) => setTimeout(resolve, 500))
+                s.hotspotDetectionResults = HotspotDetectionParser.parseFile(
+                    s.configuration.getHotspotDetectionBuildDirectory() +
+                        '/.discopop/hotspot_detection/Hotspots.json'
+                )
+                console.log(s.hotspotDetectionResults)
                 return s
             },
         }

@@ -13,7 +13,7 @@ import {
     DiscoPoPSuggestionTreeNode,
 } from './DiscoPoPSuggestionTree'
 import { FileMappingParser } from '../FileMapping/FileMappingParser'
-import { SuggestionParser } from './SuggestionParser'
+import { DiscoPoPParser } from './DiscoPoPParser'
 import { DiscoPoPCodeLensProvider } from './DiscoPoPCodeLensProvider'
 import { FileMapping } from '../FileMapping/FileMapping'
 import { DiscoPoPResults } from './classes/DiscoPoPResults'
@@ -121,7 +121,7 @@ export abstract class DiscoPoPRunner {
             message: 'Parsing results (Suggestions)...',
             increment: 3,
             operation: async (state) => {
-                state.discoPoPResults = SuggestionParser.parseFile(
+                state.discoPoPResults = DiscoPoPParser.parseFile(
                     `${state.fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
                 )
                 return state
