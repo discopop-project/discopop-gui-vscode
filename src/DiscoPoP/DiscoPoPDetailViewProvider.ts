@@ -3,16 +3,16 @@ import { Suggestion } from './classes/Suggestion/Suggestion'
 
 export class DiscoPoPDetailViewProvider implements vscode.WebviewViewProvider {
     private static context: vscode.ExtensionContext
-    private suggestion: Suggestion
+    private suggestion: Suggestion | undefined
     private webView: vscode.Webview | undefined
 
     // singleton pattern
     private static instance: DiscoPoPDetailViewProvider | undefined
 
-    public static getInstance(
+    public static load(
         context: vscode.ExtensionContext,
-        suggestion: Suggestion
-    ): DiscoPoPDetailViewProvider {
+        suggestion: Suggestion | undefined
+    ): void {
         DiscoPoPDetailViewProvider.context = context
         if (!DiscoPoPDetailViewProvider.instance) {
             DiscoPoPDetailViewProvider.instance =
@@ -22,20 +22,19 @@ export class DiscoPoPDetailViewProvider implements vscode.WebviewViewProvider {
                 DiscoPoPDetailViewProvider.instance
             )
         } else {
-            DiscoPoPDetailViewProvider.instance.setOrReplaceSuggestion(
+            DiscoPoPDetailViewProvider.instance._setOrReplaceSuggestion(
                 suggestion
             )
         }
-        return DiscoPoPDetailViewProvider.instance
     }
 
-    private constructor(suggestion: Suggestion) {
-        this.setOrReplaceSuggestion(suggestion)
+    private constructor(suggestion: Suggestion | undefined) {
+        this._setOrReplaceSuggestion(suggestion)
     }
 
-    private setOrReplaceSuggestion(suggestion: Suggestion) {
+    private _setOrReplaceSuggestion(suggestion: Suggestion | undefined) {
         this.suggestion = suggestion
-        this.updateContents()
+        this._updateContents()
     }
 
     resolveWebviewView(
@@ -44,17 +43,22 @@ export class DiscoPoPDetailViewProvider implements vscode.WebviewViewProvider {
         token: vscode.CancellationToken
     ): void | Thenable<void> {
         this.webView = webviewView.webview // save the webview for later updates
-        this.updateContents()
+        this._updateContents()
     }
 
-    private updateContents(): void {
+    private _updateContents(): void {
         if (this.webView) {
-            const suggestionString = JSON.stringify(
-                this.suggestion.pureJSONData,
-                undefined,
-                4
-            )
-            this.webView.html = `<pre>${suggestionString}</pre>`
+            // if no suggestion is selected, provide a placeholder text
+            if (!this.suggestion) {
+                this.webView.html = `No suggestion selected. Select a suggestion to see the details here.`
+            } else {
+                const suggestionString = JSON.stringify(
+                    this.suggestion.pureJSONData,
+                    undefined,
+                    4
+                )
+                this.webView.html = `<pre>${suggestionString}</pre>`
+            }
         }
     }
 }

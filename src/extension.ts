@@ -13,28 +13,17 @@ import { DiscoPoPCodeLens } from './DiscoPoP/DiscoPoPCodeLensProvider'
 // your extension is activated the very first time the command is executed
 
 export function activate(context: vscode.ExtensionContext) {
-    // TODO disable unused views until they are needed
-    // // EXAMPLE ON HOW TO SHOW OR HIDE VIEWS:
-    // // 1) set context variable to true or false (or a value)
-    // vscode.commands.executeCommand("setContext", "discopop:enable_detail_view", false)
+    // PROJECTS
+    ProjectManager.load(context)
 
-    // setTimeout(() => { // after a 5 second timeout the detail view is enabled
-    //     vscode.commands.executeCommand("setContext", "discopop:enable_detail_view", true)
-    // }, 5000)
+    // SUGGESTIONS
+    // in package.json a welcome message is configured that is shown until a configuration was run
 
-    // // 2) edit the package.json view to contain a when clause that checks the context variable:
-    // // {
-    // //     "type": "webview",
-    // //     "id": "detail-view",
-    // //     "name": "RECOMMENDATION DETAIL",
-    // //     "when": "discopop:enable_detail_view"
-    // // }
+    // SUGGESTION DETAIL
+    // an undefined suggestion results in a placeholder text being shown until a suggestion is selected
+    DiscoPoPDetailViewProvider.load(context, undefined)
 
-    // Projects Sidebar
-    const projectManager = ProjectManager.getInstance(context)
-
-    // TODO move all the command registering out of here and into the respective classes (ProjectManager, CodeLensProvider, etc.)
-
+    // COMMANDS
     context.subscriptions.push(
         vscode.commands.registerCommand(
             Commands.runConfiguration,
@@ -48,7 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             Commands.showSuggestionDetails,
             async (suggestion: Suggestion, fileMapping: FileMapping) => {
-                DiscoPoPDetailViewProvider.getInstance(context, suggestion)
+                DiscoPoPDetailViewProvider.load(context, suggestion)
                 const filePath = fileMapping.getFilePath(suggestion.fileId)
                 const document = await vscode.workspace.openTextDocument(
                     filePath
