@@ -21,12 +21,12 @@ export class ProjectManager
         this._restoreProjectsFromState()
     }
 
-    static getInstance(context: vscode.ExtensionContext): ProjectManager {
+    static load(context: vscode.ExtensionContext): void {
         if (!ProjectManager.instance) {
             ProjectManager.instance = new ProjectManager(context)
         }
         ProjectManager.refresh()
-        return ProjectManager.instance
+        // return ProjectManager.instance
     }
 
     addProject(project: Project) {
