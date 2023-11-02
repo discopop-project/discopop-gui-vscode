@@ -5,19 +5,19 @@ import { DoAllSuggestion } from './classes/Suggestion/DoAllSuggestion'
 import { ReductionSuggestion } from './classes/Suggestion/ReductionSuggestion'
 import { GenericSuggestion } from './classes/Suggestion/GenericSuggestion'
 
-export abstract class SuggestionParser {
+export abstract class DiscoPoPParser {
     private constructor() {
         throw new Error('This class should not be instantiated')
     }
 
     public static parseFile(path: string): DiscoPoPResults {
         const suggestionsString = fs.readFileSync(path, 'utf-8')
-        return SuggestionParser.parseString(suggestionsString)
+        return DiscoPoPParser.parseString(suggestionsString)
     }
 
     public static parseString(text: string): DiscoPoPResults {
         const suggestions = JSON.parse(text)
-        return SuggestionParser.parseJSON(suggestions)
+        return DiscoPoPParser.parseJSON(suggestions)
     }
 
     public static parseJSON(json: any): DiscoPoPResults {
