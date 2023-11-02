@@ -144,7 +144,7 @@ export abstract class DiscoPoPRunner {
         const withProgressRunner = new WithProgressRunner<typeof state>(
             'Running DiscoPoP...',
             vscode.ProgressLocation.Notification,
-            false,
+            false, // TODO: true is currently NOT supported
             [
                 step1a,
                 step1b,
@@ -171,20 +171,17 @@ export abstract class DiscoPoPRunner {
         configuration: DefaultConfiguration
     ): Promise<void> {
         if (!fs.existsSync(configuration.getBuildDirectory())) {
-            fs.mkdirSync(configuration.getBuildDirectory())
+            fs.mkdirSync(configuration.getBuildDirectory(), { recursive: true })
+        } else if (
+            Config.skipOverwriteConfirmation() ||
+            (await UIPrompts.actionConfirmed(
+                'The build directory already exists. Do you want to overwrite it?\n(You can disable this dialog in the extension settings)'
+            ))
+        ) {
+            fs.rmSync(configuration.getBuildDirectory(), { recursive: true })
+            fs.mkdirSync(configuration.getBuildDirectory(), { recursive: true })
         } else {
-            if (
-                await UIPrompts.actionConfirmed(
-                    'The build directory already exists. Do you want to overwrite it?'
-                )
-            ) {
-                fs.rmSync(configuration.getBuildDirectory(), {
-                    recursive: true,
-                })
-                fs.mkdirSync(configuration.getBuildDirectory())
-            } else {
-                throw new Error('Operation cancelled by user')
-            }
+            throw new Error('Operation cancelled by user')
         }
     }
 

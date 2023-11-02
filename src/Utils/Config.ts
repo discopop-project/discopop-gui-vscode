@@ -54,6 +54,12 @@ export abstract class Config {
             .get('recommendationsCodeLens', true)
     }
 
+    public static skipOverwriteConfirmation(): boolean {
+        return vscode.workspace
+            .getConfiguration('discopop')
+            .get('skipOverwriteConfirmation', false)
+    }
+
     /**
      * Throws an Error if a faulty discopop setup is detected
      */
