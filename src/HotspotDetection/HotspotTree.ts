@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { SimpleTree, SimpleTreeNode } from '../Utils/TreeViews'
+import { SimpleTree, SimpleTreeNode } from '../Utils/SimpleTree'
 import { FileMapping } from '../FileMapping/FileMapping'
 import { HotspotDetectionResults } from './HotspotDetectionResults'
 import { Hotspot } from './classes/Hotspot'
