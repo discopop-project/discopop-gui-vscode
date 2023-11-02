@@ -9,8 +9,9 @@ import {
 } from '../ProjectManager/Configuration'
 import { UIPrompts } from '../Utils/UIPrompts'
 import {
+    DiscoPoPSuggestionGroup,
+    DiscoPoPSuggestionNode,
     SuggestionTree,
-    DiscoPoPSuggestionTreeNode,
 } from './DiscoPoPSuggestionTree'
 import { FileMappingParser } from '../FileMapping/FileMappingParser'
 import { DiscoPoPParser } from './DiscoPoPParser'
@@ -27,7 +28,7 @@ export abstract class DiscoPoPRunner {
 
     private static codeLensProviderDisposable: vscode.Disposable | undefined
     private static suggestionTreeDisposable:
-        | vscode.TreeView<DiscoPoPSuggestionTreeNode>
+        | vscode.TreeView<DiscoPoPSuggestionNode | DiscoPoPSuggestionGroup>
         | undefined
 
     /**
