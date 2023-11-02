@@ -47,12 +47,10 @@ export class DiscoPoPSuggestionGroup
  * A suggestion node represents a single suggestion.
  * (a leaf node of the tree)
  */
-export class DiscoPoPSuggestionNode
-    implements SimpleTreeNode<DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode>
-{
+export class DiscoPoPSuggestionNode implements SimpleTreeNode<undefined> {
     public constructor(
-        public suggestion: Suggestion,
-        public fileMapping: FileMapping
+        public readonly suggestion: Suggestion,
+        public readonly fileMapping: FileMapping
     ) {}
 
     public getView(): vscode.TreeItem {

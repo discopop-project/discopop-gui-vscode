@@ -42,9 +42,19 @@
                     "name": "SUGGESTIONS"
                 },
                 {
+                    "type:": "tree",
+                    "id": "sidebar-hotspots-view",
+                    "name": "HOTSPOTS"
+                },
+                {
                     "type": "webview",
-                    "id": "detail-view",
-                    "name": "SUGGESTION DETAIL"
+                    "id": "sidebar-suggestion-detail-view",
+                    "name": "SUGGESTION DETAILS"
+                },
+                {
+                    "type": "webview",
+                    "id": "sidebar-hotspot-detail-view",
+                    "name": "HOTSPOT DETAILS"
                 }
             ]
         },
@@ -56,6 +66,10 @@
             {
                 "view": "sidebar-suggestions-view",
                 "contents": "No suggestions available. Please run a project configuration to get started."
+            },
+            {
+                "view": "sidebar-hotspots-view",
+                "contents": "No hotspots available. Please run a project configuration to get started."
             }
         ],
         "configuration": {

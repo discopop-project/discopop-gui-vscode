@@ -16,6 +16,7 @@ export class Commands {
         'discopop.editConfigurationItem'
     public static showSuggestionDetails: string =
         'discopop.showSuggestionDetails'
+    public static showHotspotDetails: string = 'discopop.showHotspotDetails'
 
     // codeLens
     public static codeLensAction: string = 'discopop.codeLensAction'
