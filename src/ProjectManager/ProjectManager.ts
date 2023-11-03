@@ -135,8 +135,7 @@ export class ProjectManager
                     'Create Project',
                     'Please enter the project name',
                     1,
-                    steps,
-                    false
+                    steps
                 )
                 const projectPath = await UIPrompts.genericOpenDialogQuery(
                     'Create Project',
@@ -148,16 +147,14 @@ export class ProjectManager
                     'Create Project',
                     'Please enter the executable name',
                     3,
-                    steps,
-                    false
+                    steps
                 )
                 const executableArgumentsDiscoPoP =
                     await UIPrompts.genericInputBoxQuery(
                         'Create Project',
                         'Please enter the executable arguments that should be used for the DiscoPoP instrumentation',
                         4,
-                        steps,
-                        true
+                        steps
                     )
                 const executableArgumentsHotspotDetection = []
                 executableArgumentsHotspotDetection.push(
@@ -167,8 +164,7 @@ export class ProjectManager
                             executableArgumentsHotspotDetection.length + 1
                         } of the Hotspot Detection instrumentation`,
                         5,
-                        steps,
-                        true
+                        steps
                     )
                 )
                 let wantsToContinue: boolean = true
@@ -184,8 +180,7 @@ export class ProjectManager
                                 executableArgumentsHotspotDetection.length + 1
                             } of the Hotspot Detection instrumentation`,
                             5,
-                            steps,
-                            true
+                            steps
                         )
                     )
                 }
@@ -199,8 +194,7 @@ export class ProjectManager
                     'Create Project',
                     'Please enter the CMake arguments',
                     7,
-                    steps,
-                    true
+                    steps
                 )
 
                 // create and add the project to the project manager
@@ -267,8 +261,7 @@ export class ProjectManager
                                 executableArgumentsHotspotDetection.length + 1
                             } of the Hotspot Detection instrumentation`,
                             5,
-                            totalSteps,
-                            true
+                            totalSteps
                         )
                     )
                     let wantsToContinue: boolean = true
@@ -285,8 +278,7 @@ export class ProjectManager
                                     1
                                 } of the Hotspot Detection instrumentation`,
                                 5,
-                                totalSteps,
-                                true
+                                totalSteps
                             )
                         )
                     }
@@ -424,22 +416,45 @@ export class ProjectManager
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.editConfigurationItem,
-                async (configurationItem: ConfigurationItem) => {
-                    const value = await vscode.window.showInputBox({
-                        prompt: 'Please enter the new value',
-                        value: configurationItem.getValue(),
-                    })
-                    if (value) {
-                        configurationItem.setValue(value)
-                        this.refresh()
+                async (
+                    configurationItem:
+                        | ConfigurationItem<string>
+                        | ConfigurationItem<string[]>
+                ) => {
+                    const previousValue = configurationItem.getValue()
+                    if (typeof previousValue === 'string') {
+                        const value = await vscode.window.showInputBox({
+                            prompt: 'Please enter the new value',
+                            value: previousValue,
+                        })
+                        ;(
+                            configurationItem as ConfigurationItem<string>
+                        ).setValue(value)
+                        // TODO deal with the cancellation
+                    } else {
+                        // allow the user to enter multiple values
+                        let userWantsToContinue: boolean = true
+                        const newValues: string[] = []
+                        while (
+                            (userWantsToContinue =
+                                await UIPrompts.actionConfirmed(
+                                    `Do you want to add another value?`
+                                ))
+                        ) {
+                            const value = await vscode.window.showInputBox({
+                                prompt: `Please enter the new ${
+                                    newValues.length + 1
+                                }. value`,
+                            })
+                            newValues.push(value)
+                            // TODO deal with the cancellation
+                        }
+                        ;(
+                            configurationItem as ConfigurationItem<string[]>
+                        ).setValue(newValues)
                     }
-                    // TODO deal with the cancellation
                 }
             )
         )
     }
-
-    //resolveTreeItem?(item: vscode.TreeItem, element: ProjectManagerTreeItem, token: vscode.CancellationToken): vscode.ProviderResult<vscode.TreeItem> {
-    //    throw new Error("Method not implemented.")
-    //}
 }

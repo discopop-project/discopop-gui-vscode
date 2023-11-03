@@ -8,8 +8,7 @@ export class UIPrompts {
         title: string,
         prompt: string,
         step: number,
-        totalSteps: number,
-        allowEmptyString: boolean = true
+        totalSteps: number
     ): Promise<string> {
         const inputBox: vscode.InputBox = vscode.window.createInputBox()
 
@@ -26,9 +25,6 @@ export class UIPrompts {
             inputBox.onDidAccept(() => {
                 if (inputBox.value === undefined) {
                     reject(undefined)
-                }
-                if (!allowEmptyString && inputBox.value === '') {
-                    reject('')
                 }
                 resolve(inputBox.value)
                 inputBox.hide()
