@@ -9,7 +9,12 @@ export class Commands {
     public static removeConfiguration: string = 'discopop.removeConfiguration'
     public static renameConfiguration: string = 'discopop.renameConfiguration'
     public static copyConfiguration: string = 'discopop.copyConfiguration'
-    public static runConfiguration: string = 'discopop.runConfiguration'
+
+    // runners
+    public static runDiscoPoPAndHotspotDetection: string =
+        'discopop.runDiscoPoPAndHotspotDetection'
+    public static runDiscoPoP: string = 'discopop.runDiscoPoP'
+    public static runHotspotDetection: string = 'discopop.runHotspotDetection'
 
     // configurationItem
     public static editConfigurationItem: string =

@@ -35,9 +35,27 @@ export function activate(context: vscode.ExtensionContext) {
     // COMMANDS
     context.subscriptions.push(
         vscode.commands.registerCommand(
-            Commands.runConfiguration,
+            Commands.runDiscoPoPAndHotspotDetection,
             async (configuration: Configuration) => {
-                configuration.run()
+                configuration.runDiscoPoPAndHotspotDetection()
+            }
+        )
+    )
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            Commands.runDiscoPoP,
+            async (configuration: Configuration) => {
+                configuration.runDiscoPoP()
+            }
+        )
+    )
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            Commands.runHotspotDetection,
+            async (configuration: Configuration) => {
+                configuration.runHotspotDetection()
             }
         )
     )
