@@ -103,7 +103,7 @@
                 "icon": "$(new-folder)"
             },
             {
-                "title": "Remove Project",
+                "title": "Delete Project",
                 "command": "discopop.removeProject",
                 "category": "DiscoPoP",
                 "icon": "$(trashcan)"
@@ -121,7 +121,7 @@
                 "icon": "$(add)"
             },
             {
-                "title": "Remove Configuration",
+                "title": "Delete Configuration",
                 "command": "discopop.removeConfiguration",
                 "category": "DiscoPoP",
                 "icon": "$(trashcan)"
@@ -139,10 +139,20 @@
                 "icon": "$(edit)"
             },
             {
-                "title": "Run Configuration",
-                "command": "discopop.runConfiguration",
+                "title": "Run DiscoPoP and Hotspot Detection",
+                "command": "discopop.runDiscoPoPAndHotspotDetection",
                 "category": "DiscoPoP",
+                "icon": "$(run-all)"
+            },
+            {
+                "title": "Run DiscoPoP",
+                "command": "discopop.runDiscoPoP",
                 "icon": "$(play)"
+            },
+            {
+                "title": "Run Hotspot Detection",
+                "command": "discopop.runHotspotDetection",
+                "icon": "$(play-circle)"
             },
             {
                 "title": "Edit Configuration Item",
@@ -239,12 +249,12 @@
                 {
                     "command": "discopop.removeProject",
                     "when": "view == sidebar-projects-view && viewItem==project",
-                    "group": "inline"
+                    "group": "context"
                 },
                 {
                     "command": "discopop.renameProject",
                     "when": "view == sidebar-projects-view && viewItem==project",
-                    "group": "inline"
+                    "group": "context"
                 },
                 {
                     "command": "discopop.addConfiguration",
@@ -254,27 +264,37 @@
                 {
                     "command": "discopop.removeConfiguration",
                     "when": "view == sidebar-projects-view && viewItem==configuration",
-                    "group": "inline@1"
+                    "group": "context"
                 },
                 {
                     "command": "discopop.copyConfiguration",
                     "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
-                    "group": "inline@3"
+                    "group": "context"
                 },
                 {
                     "command": "discopop.renameConfiguration",
                     "when": "view == sidebar-projects-view && viewItem==configuration",
+                    "group": "context"
+                },
+                {
+                    "command": "discopop.runDiscoPoPAndHotspotDetection",
+                    "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
+                    "group": "inline@3"
+                },
+                {
+                    "command": "discopop.runDiscoPoP",
+                    "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
                     "group": "inline@2"
                 },
                 {
-                    "command": "discopop.runConfiguration",
+                    "command": "discopop.runHotspotDetection",
                     "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
-                    "group": "inline@4"
+                    "group": "inline@1"
                 },
                 {
                     "command": "discopop.editConfigurationItem",
                     "when": "view == sidebar-projects-view && viewItem==configurationItem",
-                    "group": "inline@0"
+                    "group": "inline"
                 }
             ]
         }

@@ -114,11 +114,25 @@ export class Configuration extends ProjectManagerTreeItem {
         return this.parent
     }
 
-    async run() {
+    async runDiscoPoPAndHotspotDetection() {
+        await this.runDiscoPoP()
+        await this.runHotspotDetection()
+    }
+
+    async runDiscoPoP() {
         this.iconPath = new vscode.ThemeIcon('gear~spin')
         ProjectManager.refresh()
 
         await DiscoPoPRunner.runConfiguration(this)
+
+        this.iconPath = new vscode.ThemeIcon('gear')
+        ProjectManager.refresh()
+    }
+
+    async runHotspotDetection() {
+        this.iconPath = new vscode.ThemeIcon('gear~spin')
+        ProjectManager.refresh()
+
         await HotspotDetectionRunner.runConfiguration(this)
 
         this.iconPath = new vscode.ThemeIcon('gear')
