@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Configuration } from './Configuration'
+import { ProjectManager } from './ProjectManager'
 
 export class ConfigurationItem<
     T extends string | string[] = string
@@ -38,7 +39,12 @@ export class ConfigurationItem<
     }
 
     setValue(value: T) {
+        if (value === undefined) {
+            throw new Error('value cannot be undefined') // we are using type information later and undefined has no type
+        }
         this.value = value
+        this.description = this._getDescription(value)
+        ProjectManager.refresh()
     }
 
     getChildren(): ProjectManagerTreeItem[] {
