@@ -12,7 +12,10 @@ export class Configuration extends ProjectManagerTreeItem {
 
     private projectPath: ConfigurationItem | undefined
     private executableName: ConfigurationItem | undefined
-    private executableArguments: ConfigurationItem | undefined
+    private executableArgumentsDiscoPoP: ConfigurationItem | undefined
+    private executableArgumentsHotspotDetection:
+        | ConfigurationItem<string[]>
+        | undefined
     private buildDirectory: ConfigurationItem | undefined
     private cmakeArguments: ConfigurationItem | undefined
 
@@ -20,7 +23,8 @@ export class Configuration extends ProjectManagerTreeItem {
         name: string,
         projectPath?: string,
         executableName?: string,
-        executableArguments?: string,
+        executableArgumentsDiscoPoP?: string,
+        executableArgumentsHotspotDetection?: string[],
         buildDirectory?: string,
         cmakeArguments?: string
     ) {
@@ -48,10 +52,18 @@ export class Configuration extends ProjectManagerTreeItem {
             executableName,
             'The name of the executable'
         )
-        this.executableArguments = new ConfigurationItem(
+        this.executableArgumentsDiscoPoP = new ConfigurationItem(
             this,
-            'Executable Arguments',
-            executableArguments,
+            'Executable Arguments for DiscoPoP',
+            executableArgumentsDiscoPoP,
+            'The arguments passed to the executable'
+        )
+        this.executableArgumentsHotspotDetection = new ConfigurationItem<
+            string[]
+        >(
+            this,
+            'Executable Arguments for Hotspot Detection',
+            executableArgumentsHotspotDetection,
             'The arguments passed to the executable'
         )
         this.buildDirectory = new ConfigurationItem(
@@ -62,12 +74,16 @@ export class Configuration extends ProjectManagerTreeItem {
         )
     }
 
-    getConfigurationItems(): ConfigurationItem[] {
+    getConfigurationItems(): (
+        | ConfigurationItem<string>
+        | ConfigurationItem<string[]>
+    )[] {
         return [
             this.projectPath,
             this.cmakeArguments,
             this.executableName,
-            this.executableArguments,
+            this.executableArgumentsDiscoPoP,
+            this.executableArgumentsHotspotDetection,
             this.buildDirectory,
         ]
     }
@@ -87,7 +103,10 @@ export class Configuration extends ProjectManagerTreeItem {
         const combined = new DefaultConfiguration(
             this.getProjectPath() ?? defaults.getProjectPath(),
             this.getExecutableName() ?? defaults.getExecutableName(),
-            this.getExecutableArguments() ?? defaults.getExecutableArguments(),
+            this.getExecutableArgumentsDiscoPoP() ??
+                defaults.getExecutableArgumentsDiscoPoP(),
+            this.getExecutableArgumentsHotspotDetection() ??
+                defaults.getExecutableArgumentsHotspotDetection(),
             this.getBuildDirectory() ?? defaults.getBuildDirectory(),
             this.getName() ?? defaults.getName()
         )
@@ -166,12 +185,20 @@ export class Configuration extends ProjectManagerTreeItem {
         this.executableName?.setValue(executableName)
     }
 
-    getExecutableArguments(): string | undefined {
-        return this.executableArguments?.getValue()
+    getExecutableArgumentsDiscoPoP(): string | undefined {
+        return this.executableArgumentsDiscoPoP?.getValue()
     }
 
-    setExecutableArguments(executableArguments: string) {
-        this.executableArguments?.setValue(executableArguments)
+    setExecutableArgumentsDiscoPoP(executableArguments: string) {
+        this.executableArgumentsDiscoPoP?.setValue(executableArguments)
+    }
+
+    getExecutableArgumentsHotspotDetection(): string[] | undefined {
+        return this.executableArgumentsHotspotDetection?.getValue()
+    }
+
+    setExecutableArgumentsHotspotDetection(executableArguments: string[]) {
+        this.executableArgumentsHotspotDetection?.setValue(executableArguments)
     }
 
     getBuildDirectory(): string | undefined {
@@ -198,7 +225,10 @@ export class Configuration extends ProjectManagerTreeItem {
             name: this.name,
             projectPath: this.projectPath.getValue(),
             executableName: this.executableName.getValue(),
-            executableArguments: this.executableArguments.getValue(),
+            executableArgumentsDiscopop:
+                this.executableArgumentsDiscoPoP.getValue(),
+            executableArgumentsHotspotDetection:
+                this.executableArgumentsHotspotDetection.getValue(),
             buildDirectory: this.buildDirectory.getValue(),
             cmakeArguments: this.cmakeArguments.getValue(),
         }
@@ -209,7 +239,8 @@ export class Configuration extends ProjectManagerTreeItem {
             object.name,
             object.projectPath,
             object.executableName,
-            object.executableArguments,
+            object.executableArgumentsDiscoPoP,
+            object.executableArgumentsHotspotDetection,
             object.buildDirectory,
             object.cmakeArguments
         )
@@ -225,7 +256,8 @@ export class DefaultConfiguration extends Configuration {
     constructor(
         projectPath: string,
         executableName: string,
-        executableArguments: string,
+        executableArgumentsDiscoPoP: string,
+        executableArgumentsHotspotDetection: string[],
         buildDirectory: string,
         cmakeArguments: string
     ) {
@@ -233,7 +265,8 @@ export class DefaultConfiguration extends Configuration {
             'Default Configuration',
             projectPath,
             executableName,
-            executableArguments,
+            executableArgumentsDiscoPoP,
+            executableArgumentsHotspotDetection,
             buildDirectory,
             cmakeArguments
         )
@@ -246,7 +279,8 @@ export class DefaultConfiguration extends Configuration {
         return new DefaultConfiguration(
             configuration.getProjectPath(),
             configuration.getExecutableName(),
-            configuration.getExecutableArguments(),
+            configuration.getExecutableArgumentsDiscoPoP(),
+            configuration.getExecutableArgumentsHotspotDetection(),
             configuration.getBuildDirectory(),
             configuration.getCMakeArguments()
         )
