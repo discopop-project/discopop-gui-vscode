@@ -34,7 +34,7 @@ export abstract class DiscoPoPParser {
                 const [start_file, start_line] = (
                     suggestion.start_line as string
                 ).split(':') // fileID:lineNr
-                const [_, endLine] = (suggestion.end_line as string).split(':') // fileID:lineNr
+                const [_, end_line] = (suggestion.end_line as string).split(':') // fileID:lineNr
                 const pragma: string = '#pragma omp ...'
 
                 if (type === 'do_all') {
@@ -43,7 +43,7 @@ export abstract class DiscoPoPParser {
                             node_id,
                             Number(start_file),
                             Number(start_line),
-                            Number(endLine.split(':')[1]),
+                            Number(end_line),
                             pragma,
                             suggestion
                             // we can parse more fields from the patterns.json file and use them, if we need to
@@ -55,7 +55,7 @@ export abstract class DiscoPoPParser {
                             node_id,
                             Number(start_file),
                             Number(start_line),
-                            Number(endLine.split(':')[1]),
+                            Number(end_line),
                             pragma,
                             suggestion
                             // we can parse more fields from the patterns.json file and use them, if we need to
@@ -67,7 +67,7 @@ export abstract class DiscoPoPParser {
                             node_id,
                             Number(start_file),
                             Number(start_line),
-                            Number(endLine.split(':')[1]),
+                            Number(end_line),
                             pragma,
                             suggestion
                         )
