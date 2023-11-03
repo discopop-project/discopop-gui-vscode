@@ -127,16 +127,16 @@
                 "icon": "$(trashcan)"
             },
             {
-                "title": "Copy Configuration",
-                "command": "discopop.copyConfiguration",
-                "category": "DiscoPoP",
-                "icon": "$(copy)"
-            },
-            {
                 "title": "Rename Configuration",
                 "command": "discopop.renameConfiguration",
                 "category": "DiscoPoP",
                 "icon": "$(edit)"
+            },
+            {
+                "title": "Copy Configuration",
+                "command": "discopop.copyConfiguration",
+                "category": "DiscoPoP",
+                "icon": "$(copy)"
             },
             {
                 "title": "Run DiscoPoP and Hotspot Detection",
@@ -161,62 +161,6 @@
                 "icon": "$(edit)"
             },
             {
-                "title": "Run File Mapping",
-                "command": "discopop.refreshFileMapping",
-                "category": "DiscoPoP"
-            },
-            {
-                "title": "Generate Computational Units",
-                "command": "discopop.executeCUGen",
-                "category": "DiscoPoP"
-            },
-            {
-                "title": "Profile Data Dependencies",
-                "command": "discopop.executeDepProf",
-                "category": "DiscoPoP"
-            },
-            {
-                "title": "Detect Reduction Patterns",
-                "command": "discopop.executeRedOp",
-                "category": "DiscoPoP"
-            },
-            {
-                "title": "Identify Parallel Patterns",
-                "command": "discopop.executePatternId",
-                "category": "DiscoPoP"
-            },
-            {
-                "title": "Execute All Tasks",
-                "command": "discopop.executeAll",
-                "category": "DiscoPoP"
-            },
-            {
-                "title": "Execute All Tasks (NEW)",
-                "command": "discopop.executeAllNew",
-                "category": "DiscoPoP"
-            },
-            {
-                "title": "Apply Results to TreeView",
-                "command": "discopop.applyResultsToTreeView",
-                "category": "DiscoPoP"
-            },
-            {
-                "command": "discopop.toggleEntry",
-                "title": "Toggle File",
-                "icon": {
-                    "light": "media/toggle.svg",
-                    "dark": "media/toggle.svg"
-                }
-            },
-            {
-                "command": "discopop.toggleFolder",
-                "title": "Toggle Folder",
-                "icon": {
-                    "light": "media/toggle.svg",
-                    "dark": "media/toggle.svg"
-                }
-            },
-            {
                 "title": "Enable Recommendations CodeLens",
                 "command": "discopop.enableCodeLens",
                 "category": "DiscoPoP"
@@ -224,16 +168,6 @@
             {
                 "title": "Disable Recommendations CodeLens",
                 "command": "discopop.disableCodeLens",
-                "category": "DiscoPoP"
-            },
-            {
-                "title": "Execute By Script",
-                "command": "discopop.executeByScript",
-                "category": "DiscoPoP"
-            },
-            {
-                "title": "Parse Results",
-                "command": "discopop.parseResults",
                 "category": "DiscoPoP"
             }
         ],
