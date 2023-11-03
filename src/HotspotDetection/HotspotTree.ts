@@ -9,11 +9,21 @@ import { Commands } from '../Utils/Commands'
 export class HotspotGroup
     implements SimpleTreeNode<HotspotGroup | HotspotNode>
 {
+    public constructor(
+        public readonly type: 'YES' | 'NO' | 'MAYBE',
+        public readonly hotspots: Hotspot[],
+        public readonly fileMapping: FileMapping
+    ) {}
     getView(): vscode.TreeItem {
-        throw new Error('Method not implemented.')
+        return new vscode.TreeItem(
+            `${this.type} (${this.hotspots.length})`,
+            vscode.TreeItemCollapsibleState.Collapsed
+        )
     }
     getChildren(): (HotspotGroup | HotspotNode)[] {
-        throw new Error('Method not implemented.')
+        return this.hotspots.map(
+            (hotspot) => new HotspotNode(hotspot, this.fileMapping)
+        )
     }
 }
 
@@ -50,10 +60,24 @@ export class HotspotTree extends SimpleTree<HotspotGroup | HotspotNode> {
         fileMapping: FileMapping,
         hotspotDetectionResults: HotspotDetectionResults
     ) {
-        // TODO: group by hotness
-        const nodes = hotspotDetectionResults.hotspots
+        const groups = hotspotDetectionResults.hotspots
             .sort((a, b) => a.avr - b.avr)
-            .map((hotspot) => new HotspotNode(hotspot, fileMapping))
-        super(nodes)
+            .reduce(
+                (acc, node) => {
+                    const group = node.hotness
+                    acc[group].push(node)
+                    return acc
+                },
+                {
+                    YES: [] as Hotspot[],
+                    NO: [] as Hotspot[],
+                    MAYBE: [] as Hotspot[],
+                }
+            )
+        super([
+            new HotspotGroup('YES', groups.YES, fileMapping),
+            new HotspotGroup('NO', groups.NO, fileMapping),
+            new HotspotGroup('MAYBE', groups.MAYBE, fileMapping),
+        ])
     }
 }
