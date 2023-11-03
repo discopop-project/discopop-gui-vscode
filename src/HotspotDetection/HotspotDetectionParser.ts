@@ -27,7 +27,7 @@ export abstract class HotspotDetectionParser {
             const hotness: 'YES' | 'NO' | 'MAYBE' = hotspot.hotness
             const avr: number = hotspot.avr
 
-            hotspotList.push(new Hotspot(fid, lineNum, hotness, avr, json))
+            hotspotList.push(new Hotspot(fid, lineNum, hotness, avr, hotspot))
         }
         return new HotspotDetectionResults(hotspotList)
     }
