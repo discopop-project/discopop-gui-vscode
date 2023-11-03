@@ -295,6 +295,21 @@
                     "command": "discopop.editConfigurationItem",
                     "when": "view == sidebar-projects-view && viewItem==configurationItem",
                     "group": "inline"
+                },
+                {
+                    "command": "discopop.runDiscoPoPAndHotspotDetection",
+                    "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
+                    "group": "runners"
+                },
+                {
+                    "command": "discopop.runDiscoPoP",
+                    "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
+                    "group": "runners"
+                },
+                {
+                    "command": "discopop.runHotspotDetection",
+                    "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
+                    "group": "runners"
                 }
             ]
         }
