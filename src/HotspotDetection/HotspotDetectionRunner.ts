@@ -25,21 +25,12 @@ export abstract class HotspotDetectionRunner {
         configuration: Configuration
     ): Promise<void> {
         const state = {
-            configuration,
+            configuration: configuration.getFullConfiguration(),
             fileMapping: undefined as FileMapping,
             hotspotDetectionResults: undefined as HotspotDetectionResults,
         }
 
-        const step0a = {
-            message: 'Gathering information...',
-            increment: 0,
-            operation: async (s: Partial<typeof state>) => {
-                s.configuration = s.configuration.getFullConfiguration()
-                return s
-            },
-        }
-
-        const step0b = {
+        const step0 = {
             message: 'Checking setup...',
             increment: 0,
             operation: async (s: Partial<typeof state>) => {
@@ -143,20 +134,15 @@ export abstract class HotspotDetectionRunner {
 
         const steps4: ProgressingOperation<typeof state>[] = []
         // TODO we need to get args from the configuration
-        const hardcodedArgs = [
-            'args 1 ...',
-            'args 2 ...',
-            'args 3 ...',
-            'args 4 ...',
-            'args 5 ...',
-        ]
+        const executable_args =
+            state.configuration.getExecutableArgumentsHotspotDetection()
 
-        hardcodedArgs.forEach((args, index) => {
+        executable_args.forEach((args, index) => {
             steps4.push({
                 message: `Running Executable... (${index + 1}/${
-                    hardcodedArgs.length
+                    executable_args.length
                 })`,
-                increment: 50 / hardcodedArgs.length,
+                increment: 50 / executable_args.length,
                 operation: async (s: Partial<typeof state>) => {
                     return new Promise<Partial<typeof state>>(
                         (resolve, reject) => {
@@ -166,7 +152,6 @@ export abstract class HotspotDetectionRunner {
                                     cwd: s.configuration.getHotspotDetectionBuildDirectory(),
                                 },
                                 (err, stdout, stderr) => {
-                                    console.log(stdout)
                                     if (err) {
                                         reject(
                                             new Error(
@@ -199,7 +184,6 @@ export abstract class HotspotDetectionRunner {
                             cwd: `${configuration.getHotspotDetectionBuildDirectory()}/.discopop`,
                         },
                         (err, stdout, stderr) => {
-                            console.log(stdout)
                             if (err) {
                                 reject(
                                     new Error(
@@ -238,7 +222,6 @@ export abstract class HotspotDetectionRunner {
                     s.configuration.getHotspotDetectionBuildDirectory() +
                         '/.discopop/hotspot_detection/Hotspots.json'
                 )
-                console.log(s.hotspotDetectionResults)
                 return s
             },
         }
@@ -265,8 +248,7 @@ export abstract class HotspotDetectionRunner {
         }
 
         const operations: ProgressingOperation<typeof state>[] = [
-            step0a,
-            step0b,
+            step0,
             step1,
             step2,
             step3,
