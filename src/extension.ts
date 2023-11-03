@@ -60,6 +60,26 @@ export function activate(context: vscode.ExtensionContext) {
         )
     )
 
+    // decorations for highlighting suggestions/hotspots
+    const yesDecoration = vscode.window.createTextEditorDecorationType({
+        backgroundColor: 'rgba(255,0,0,0.5)', // strong red
+        isWholeLine: true,
+    })
+    const maybeDecoration = vscode.window.createTextEditorDecorationType({
+        backgroundColor: 'rgba(255,25,0,0.2)', // slightly transparent red
+        isWholeLine: true,
+    })
+    const noDecoration = vscode.window.createTextEditorDecorationType({
+        backgroundColor: 'rgba(255,50,0,0.05)', // very transparent red
+        isWholeLine: true,
+    })
+
+    const softHighlightDecoration =
+        vscode.window.createTextEditorDecorationType({
+            backgroundColor: 'rgba(255,255,255,0.05)', // very transparent white // TODO this will not show up well in light mode
+            isWholeLine: true,
+        })
+
     context.subscriptions.push(
         vscode.commands.registerCommand(
             Commands.showSuggestionDetails,
@@ -76,8 +96,26 @@ export function activate(context: vscode.ExtensionContext) {
                 )
                 const line = new vscode.Position(suggestion.startLine - 1, 0)
                 editor.selections = [new vscode.Selection(line, line)]
-                const range = new vscode.Range(line, line)
-                editor.revealRange(range)
+                const startLineRange = new vscode.Range(line, line)
+                editor.revealRange(startLineRange)
+
+                // highlight the respective code lines
+                // TODO this does not work well with composite suggestions (e.g. simple_gpu)
+                // TODO we should remove the hightlight at some point (currently it disappears only when selecting another suggestion or reopening the file)
+                _removeDecorations(
+                    editor,
+                    yesDecoration,
+                    maybeDecoration,
+                    noDecoration,
+                    softHighlightDecoration
+                )
+                const entireRange = new vscode.Range(
+                    new vscode.Position(suggestion.startLine - 1, 0),
+                    new vscode.Position(suggestion.endLine - 1, 0)
+                )
+                editor.setDecorations(softHighlightDecoration, [
+                    { range: entireRange },
+                ])
             }
         )
     )
@@ -100,6 +138,38 @@ export function activate(context: vscode.ExtensionContext) {
                 editor.selections = [new vscode.Selection(line, line)]
                 const range = new vscode.Range(line, line)
                 editor.revealRange(range)
+
+                // TODO: it would be nice to decorate all hotspots in the file at once and have some option to toggle them
+                // TODO: it would be nice to decorate until the end of the function/loop (but we do not know the line number of the end)
+
+                // remove all previous decorations
+                _removeDecorations(
+                    editor,
+                    yesDecoration,
+                    maybeDecoration,
+                    noDecoration,
+                    softHighlightDecoration
+                )
+
+                // highlight the hotspot
+                let decoration = softHighlightDecoration
+                switch (hotspot.hotness) {
+                    case 'YES':
+                        decoration = yesDecoration
+                        break
+                    case 'MAYBE':
+                        decoration = maybeDecoration
+                        break
+                    case 'NO':
+                        decoration = noDecoration
+                        break
+                    default:
+                        console.error(
+                            'tried to highlight hotspot with unknown hotness: ' +
+                                hotspot.hotness
+                        )
+                }
+                editor.setDecorations(decoration, [{ range }])
             }
         )
     )
@@ -120,6 +190,15 @@ export function activate(context: vscode.ExtensionContext) {
             }
         )
     )
+}
+
+function _removeDecorations(
+    editor: vscode.TextEditor,
+    ...decorations: vscode.TextEditorDecorationType[]
+) {
+    decorations.forEach((decoration) => {
+        editor.setDecorations(decoration, [])
+    })
 }
 
 // this method is called when your extension is deactivated
