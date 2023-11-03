@@ -163,15 +163,61 @@
             {
                 "title": "Enable Recommendations CodeLens",
                 "command": "discopop.enableCodeLens",
-                "category": "DiscoPoP"
+                "category": "DiscoPoP",
+                "enablement": "false",
+                "icon": "$(eye)"
             },
             {
                 "title": "Disable Recommendations CodeLens",
                 "command": "discopop.disableCodeLens",
-                "category": "DiscoPoP"
+                "category": "DiscoPoP",
+                "enablement": "false",
+                "icon": "$(eye-closed)"
             }
         ],
         "menus": {
+            "commandPalette": [
+                {
+                    "command": "discopop.renameProject",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.removeProject",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.addConfiguration",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.renameConfiguration",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.copyConfiguration",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.removeConfiguration",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.editConfigurationItem",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.runDiscoPoPAndHotspotDetection",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.runDiscoPoP",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.runHotspotDetection",
+                    "when": "false"
+                }
+            ],
             "view/title": [
                 {
                     "command": "discopop.addProject",
