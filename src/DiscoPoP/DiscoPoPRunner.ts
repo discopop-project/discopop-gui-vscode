@@ -259,8 +259,8 @@ export abstract class DiscoPoPRunner {
         return new Promise<void>((resolve, reject) => {
             exec(
                 `${configuration.getBuildDirectory()}/${configuration.getExecutableName()} ${
-                    configuration.getExecutableArguments()
-                        ? configuration.getExecutableArguments()
+                    configuration.getExecutableArgumentsDiscoPoP()
+                        ? configuration.getExecutableArgumentsDiscoPoP()
                         : ''
                 }`,
                 { cwd: configuration.getBuildDirectory() },

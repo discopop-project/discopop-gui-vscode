@@ -130,7 +130,7 @@ export class ProjectManager
         this.context.subscriptions.push(
             vscode.commands.registerCommand(Commands.addProject, async () => {
                 // query the user for all the necessary information
-                const steps = 6
+                const steps = 7
                 const projectName = await UIPrompts.genericInputBoxQuery(
                     'Create Project',
                     'Please enter the project name',
@@ -151,24 +151,54 @@ export class ProjectManager
                     steps,
                     false
                 )
-                const executableArguments =
+                const executableArgumentsDiscoPoP =
                     await UIPrompts.genericInputBoxQuery(
                         'Create Project',
-                        'Please enter the executable arguments',
+                        'Please enter the executable arguments that should be used for the DiscoPoP instrumentation',
                         4,
                         steps,
                         true
                     )
+                const executableArgumentsHotspotDetection = []
+                executableArgumentsHotspotDetection.push(
+                    await UIPrompts.genericInputBoxQuery(
+                        'Create Project',
+                        `Please enter the executable arguments that should be used for run ${
+                            executableArgumentsHotspotDetection.length + 1
+                        } of the Hotspot Detection instrumentation`,
+                        5,
+                        steps,
+                        true
+                    )
+                )
+                let wantsToContinue: boolean = true
+                while (
+                    (wantsToContinue = await UIPrompts.actionConfirmed(
+                        'Do you want to add another run of the Hotspot Detection instrumentation?'
+                    ))
+                ) {
+                    executableArgumentsHotspotDetection.push(
+                        await UIPrompts.genericInputBoxQuery(
+                            'Create Project',
+                            `Please enter the executable arguments that should be used for run ${
+                                executableArgumentsHotspotDetection.length + 1
+                            } of the Hotspot Detection instrumentation`,
+                            5,
+                            steps,
+                            true
+                        )
+                    )
+                }
                 const buildDirectory = await UIPrompts.genericOpenDialogQuery(
                     'Create Project',
                     'Please enter the build directory',
-                    5,
+                    6,
                     steps
                 )
                 const cmakeArguments = await UIPrompts.genericInputBoxQuery(
                     'Create Project',
                     'Please enter the CMake arguments',
-                    6,
+                    7,
                     steps,
                     true
                 )
@@ -178,7 +208,8 @@ export class ProjectManager
                     projectName,
                     projectPath,
                     executableName,
-                    executableArguments,
+                    executableArgumentsDiscoPoP,
+                    executableArgumentsHotspotDetection,
                     buildDirectory,
                     cmakeArguments
                 )
@@ -217,14 +248,49 @@ export class ProjectManager
                         totalSteps
                     )
 
-                    // let the user specify the arguments for the executable
-                    const executableArguments =
+                    // let the user specify the arguments for the executable (DiscoPoP)
+                    const executableArgumentsDiscoPoP =
                         await UIPrompts.genericInputBoxQuery(
                             'Create Configuration',
                             'Please enter the arguments for the executable',
                             4,
                             totalSteps
                         )
+
+                    // let the user specify the arguments for the executable (Hotspot Detection)
+                    // TODO duplicate code starts here
+                    const executableArgumentsHotspotDetection = []
+                    executableArgumentsHotspotDetection.push(
+                        await UIPrompts.genericInputBoxQuery(
+                            'Create Project',
+                            `Please enter the executable arguments that should be used for run ${
+                                executableArgumentsHotspotDetection.length + 1
+                            } of the Hotspot Detection instrumentation`,
+                            5,
+                            totalSteps,
+                            true
+                        )
+                    )
+                    let wantsToContinue: boolean = true
+                    while (
+                        (wantsToContinue = await UIPrompts.actionConfirmed(
+                            'Do you want to add another run of the Hotspot Detection instrumentation?'
+                        ))
+                    ) {
+                        executableArgumentsHotspotDetection.push(
+                            await UIPrompts.genericInputBoxQuery(
+                                'Create Project',
+                                `Please enter the executable arguments that should be used for run ${
+                                    executableArgumentsHotspotDetection.length +
+                                    1
+                                } of the Hotspot Detection instrumentation`,
+                                5,
+                                totalSteps,
+                                true
+                            )
+                        )
+                    }
+                    // TODO duplicate code ends here
 
                     // let the user specify the build directory
                     const buildDirectory =
@@ -249,7 +315,8 @@ export class ProjectManager
                         configurationName,
                         projectPath,
                         executableName,
-                        executableArguments,
+                        executableArgumentsDiscoPoP,
+                        executableArgumentsHotspotDetection,
                         buildDirectory,
                         cmakeArguments
                     )
@@ -322,7 +389,8 @@ export class ProjectManager
                             value,
                             configuration.getProjectPath(),
                             configuration.getExecutableName(),
-                            configuration.getExecutableArguments(),
+                            configuration.getExecutableArgumentsDiscoPoP(),
+                            configuration.getExecutableArgumentsHotspotDetection(),
                             configuration.getBuildDirectory(),
                             configuration.getCMakeArguments()
                         )

@@ -20,7 +20,8 @@ export class Project extends ProjectManagerTreeItem {
         name: string,
         projectPath: string,
         executableName: string,
-        executableArguments: string,
+        executableArgumentsDiscoPoP: string,
+        executableArgumentsHotspotDetection: string[],
         buildDirectory: string,
         cmakeArguments: string
     ) {
@@ -29,7 +30,8 @@ export class Project extends ProjectManagerTreeItem {
         this.defaultConfiguration = new DefaultConfiguration(
             projectPath,
             executableName,
-            executableArguments,
+            executableArgumentsDiscoPoP,
+            executableArgumentsHotspotDetection,
             buildDirectory,
             cmakeArguments
         )
@@ -90,7 +92,8 @@ export class Project extends ProjectManagerTreeItem {
             project.name,
             defaultConfiguration.getProjectPath(),
             defaultConfiguration.getExecutableName(),
-            defaultConfiguration.getExecutableArguments(),
+            defaultConfiguration.getExecutableArgumentsDiscoPoP(),
+            defaultConfiguration.getExecutableArgumentsHotspotDetection(),
             defaultConfiguration.getBuildDirectory(),
             defaultConfiguration.getCMakeArguments()
         )
