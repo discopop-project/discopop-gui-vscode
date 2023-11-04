@@ -7,14 +7,11 @@ export abstract class Suggestion {
     constructor(
         // parsed fields
         public id: number,
+        public type: string,
         public fileId: number,
         public startLine: number,
         public endLine: number,
         // complete JSON data
         public pureJSONData: any
     ) {}
-
-    getCodeLens(fullConfiguration: DefaultConfiguration): DiscoPoPCodeLens {
-        return new DiscoPoPCodeLens(this, fullConfiguration)
-    }
 }
