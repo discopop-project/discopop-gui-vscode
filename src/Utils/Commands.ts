@@ -23,8 +23,12 @@ export class Commands {
         'discopop.showSuggestionDetails'
     public static showHotspotDetails: string = 'discopop.showHotspotDetails'
 
-    // codeLens
-    public static codeLensAction: string = 'discopop.codeLensAction'
+    // suggestions
+    public static applySuggestion: string = 'discopop.applySuggestion'
+    public static rollbackSuggestion: string = 'discopop.rollbackSuggestion'
+
+    // enable/disable/change settings
+    // TODO
     // public static enableCodeLens: string = 'discopop.enableCodeLens'
     //public static disableCodeLens: string = 'discopop.disableCodeLens'
 }

@@ -35,40 +35,43 @@ export abstract class DiscoPoPParser {
                     suggestion.start_line as string
                 ).split(':') // fileID:lineNr
                 const [_, end_line] = (suggestion.end_line as string).split(':') // fileID:lineNr
-                const pragma: string = '#pragma omp ...'
 
                 if (type === 'do_all') {
+                    // parse do_all specific fields here, if needed
+                    // ...
+
                     suggestionList.push(
                         new DoAllSuggestion(
                             node_id,
                             Number(start_file),
                             Number(start_line),
                             Number(end_line),
-                            pragma,
                             suggestion
                             // we can parse more fields from the patterns.json file and use them, if we need to
                         )
                     )
                 } else if (type === 'reduction') {
+                    // parse reduction specific fields here, if needed
+                    // ...
+
                     suggestionList.push(
                         new ReductionSuggestion(
                             node_id,
                             Number(start_file),
                             Number(start_line),
                             Number(end_line),
-                            pragma,
                             suggestion
                             // we can parse more fields from the patterns.json file and use them, if we need to
                         )
                     )
                 } else {
+                    // unknown suggestion types are represented by GenericSuggestion:
                     suggestionList.push(
                         new GenericSuggestion(
                             node_id,
                             Number(start_file),
                             Number(start_line),
                             Number(end_line),
-                            pragma,
                             suggestion
                         )
                     )

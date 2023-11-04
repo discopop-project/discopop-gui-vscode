@@ -12,9 +12,8 @@ export class GenericSuggestion extends Suggestion {
         fileId: number,
         startLine: number,
         endLine: number,
-        pragma: string,
         pureJSONData: any
     ) {
-        super(id, fileId, startLine, endLine, pragma, pureJSONData)
+        super(id, fileId, startLine, endLine, pureJSONData)
     }
 }
