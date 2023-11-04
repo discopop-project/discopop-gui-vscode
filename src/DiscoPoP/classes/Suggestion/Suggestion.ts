@@ -1,6 +1,3 @@
-import { DefaultConfiguration } from '../../../ProjectManager/Configuration'
-import { DiscoPoPCodeLens } from '../../DiscoPoPCodeLensProvider'
-
 export abstract class Suggestion {
     applied: boolean = false
 
