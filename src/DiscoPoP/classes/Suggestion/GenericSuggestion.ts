@@ -8,7 +8,7 @@ import { Commands } from '../../../Utils/Commands'
  */
 export class GenericSuggestion extends Suggestion {
     constructor(
-        id: string,
+        id: number,
         fileId: number,
         startLine: number,
         endLine: number,

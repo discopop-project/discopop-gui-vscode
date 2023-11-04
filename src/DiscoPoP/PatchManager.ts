@@ -14,7 +14,7 @@ export abstract class PatchManager {
      */
     public static async applyPatch(
         dotDiscoPoP: string,
-        id: string
+        id: number
     ): Promise<void> {
         // TODO allow passing multiple ids
         return new Promise<void>((resolve, reject) => {
@@ -29,6 +29,14 @@ export abstract class PatchManager {
                                     err.message +
                                     '\n' +
                                     stderr
+                            )
+                        )
+                    }
+                    // TODO this should be indicated by the exit code in the future...
+                    else if (stdout.includes('not successful.')) {
+                        reject(
+                            new Error(
+                                'discopop_patch_applicator failed: ' + stdout
                             )
                         )
                     } else {

@@ -6,7 +6,7 @@ export abstract class Suggestion {
 
     constructor(
         // parsed fields
-        public id: string,
+        public id: number,
         public fileId: number,
         public startLine: number,
         public endLine: number,

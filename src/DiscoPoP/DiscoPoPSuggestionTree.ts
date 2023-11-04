@@ -55,7 +55,7 @@ export class DiscoPoPSuggestionNode implements SimpleTreeNode<undefined> {
 
     public getView(): vscode.TreeItem {
         const view = new vscode.TreeItem(
-            this.suggestion.id,
+            `${this.suggestion.id}`,
             vscode.TreeItemCollapsibleState.None
         )
         const filePath = this.fileMapping.getFilePath(this.suggestion.fileId)

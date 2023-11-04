@@ -30,6 +30,7 @@ export abstract class DiscoPoPParser {
             const suggestionList: Suggestion[] = []
             for (const suggestion of suggestions) {
                 // read general fields
+                const pattern_id: number = suggestion.pattern_id
                 const node_id: string = suggestion.node_id // fileID:CUID
                 const [start_file, start_line] = (
                     suggestion.start_line as string
@@ -42,7 +43,7 @@ export abstract class DiscoPoPParser {
 
                     suggestionList.push(
                         new DoAllSuggestion(
-                            node_id,
+                            pattern_id,
                             Number(start_file),
                             Number(start_line),
                             Number(end_line),
@@ -56,7 +57,7 @@ export abstract class DiscoPoPParser {
 
                     suggestionList.push(
                         new ReductionSuggestion(
-                            node_id,
+                            pattern_id,
                             Number(start_file),
                             Number(start_line),
                             Number(end_line),
@@ -68,7 +69,7 @@ export abstract class DiscoPoPParser {
                     // unknown suggestion types are represented by GenericSuggestion:
                     suggestionList.push(
                         new GenericSuggestion(
-                            node_id,
+                            pattern_id,
                             Number(start_file),
                             Number(start_line),
                             Number(end_line),

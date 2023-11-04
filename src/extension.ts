@@ -185,16 +185,25 @@ export function activate(context: vscode.ExtensionContext) {
                 suggestion: Suggestion,
                 fullConfiguration: DefaultConfiguration
             ) => {
-                console.log(
-                    'TODO run discopop_patch_applicator ${suggestion.id} in fullConfiguration.buildDirectory/.discopop'
-                )
-                console.log(suggestion)
-                console.log(fullConfiguration.getBuildDirectory())
-                await PatchManager.applyPatch(
-                    fullConfiguration.getBuildDirectory() + '/.discopop',
-                    suggestion.id
-                )
-                console.log('executed discopop_patch_applicator')
+                try {
+                    await PatchManager.applyPatch(
+                        fullConfiguration.getBuildDirectory() + '/.discopop',
+                        suggestion.id
+                    )
+                    suggestion.applied = true // TODO this should be handled by the PatchManager
+                } catch (err) {
+                    if (err instanceof Error) {
+                        vscode.window.showErrorMessage(err.message)
+                    } else {
+                        vscode.window.showErrorMessage(
+                            'Failed to apply suggestion.'
+                        )
+                    }
+                    console.error('FAILED TO APPLY PATCH:')
+                    console.error(err)
+                    console.error(suggestion)
+                    console.error(fullConfiguration)
+                }
 
                 // TODO it would be nice to also show the suggestion as applied in the tree view
                 // --> themeIcon: record/pass

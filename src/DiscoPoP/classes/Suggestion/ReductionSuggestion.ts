@@ -2,7 +2,7 @@ import { Suggestion } from './Suggestion'
 
 export class ReductionSuggestion extends Suggestion {
     public constructor(
-        id: string,
+        id: number,
         fileId: number,
         startLine: number,
         endLine: number,
