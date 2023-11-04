@@ -20,6 +20,7 @@ import { FileMapping } from '../FileMapping/FileMapping'
 import { DiscoPoPResults } from './classes/DiscoPoPResults'
 import { WithProgressRunner } from '../Utils/WithProgressRunner'
 import { getDefaultErrorHandler } from '../Utils/ErrorHandler'
+import { LineMapping } from './LineMapping'
 
 export abstract class DiscoPoPRunner {
     private constructor() {
@@ -42,6 +43,7 @@ export abstract class DiscoPoPRunner {
             fullConfiguration: undefined,
             fileMapping: undefined,
             discoPoPResults: undefined,
+            lineMapping: undefined,
         }
 
         const step1a = {
@@ -139,12 +141,23 @@ export abstract class DiscoPoPRunner {
             },
         }
 
+        const step9b = {
+            message: 'watching for line_mapping.json changes...',
+            increment: 1,
+            operation: async (state) => {
+                const lineMappingFile = `${state.fullConfiguration.getBuildDirectory()}/.discopop/line_mapping.json`
+                state.lineMapping = new LineMapping(lineMappingFile)
+                return state
+            },
+        }
+
         const step10 = {
             message: 'Preparing views and code hints...',
-            increment: 4,
+            increment: 3,
             operation: async (state) => {
                 await this._presentResults(
                     state.fileMapping,
+                    state.lineMapping,
                     state.discoPoPResults,
                     state.fullConfiguration
                 )
@@ -168,6 +181,7 @@ export abstract class DiscoPoPRunner {
                 step7,
                 step8,
                 step9,
+                step9b,
                 step10,
             ],
             state,
@@ -371,11 +385,12 @@ export abstract class DiscoPoPRunner {
      */
     private static async _presentResults(
         fileMapping: FileMapping,
+        lineMapping: LineMapping,
         discoPoPResults: DiscoPoPResults,
         fullConfiguration: DefaultConfiguration
     ): Promise<void> {
         // show the suggestions in the sidebar
-        const suggestionTree = new SuggestionTree(fileMapping, discoPoPResults)
+        const suggestionTree = new SuggestionTree(fileMapping, discoPoPResults) // TODO use lineMapping here
         await DiscoPoPRunner.suggestionTreeDisposable?.dispose()
         DiscoPoPRunner.suggestionTreeDisposable = vscode.window.createTreeView(
             'sidebar-suggestions-view',
@@ -389,8 +404,9 @@ export abstract class DiscoPoPRunner {
         // enable code lenses for all suggestions
         const codeLensProvider = new DiscoPoPCodeLensProvider(
             fileMapping,
-            discoPoPResults.getAllSuggestions(),
-            fullConfiguration
+            lineMapping,
+            fullConfiguration,
+            discoPoPResults.getAllSuggestions()
         )
         await DiscoPoPRunner.codeLensProviderDisposable?.dispose()
         DiscoPoPRunner.codeLensProviderDisposable =
