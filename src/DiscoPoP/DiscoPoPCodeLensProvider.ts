@@ -1,5 +1,4 @@
 import * as vscode from 'vscode'
-import { Position } from 'vscode'
 import { Config } from '../Utils/Config'
 import { Suggestion } from './classes/Suggestion/Suggestion'
 import { FileMapping } from '../FileMapping/FileMapping'
