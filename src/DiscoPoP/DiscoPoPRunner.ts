@@ -100,9 +100,19 @@ export abstract class DiscoPoPRunner {
 
         const step6 = {
             message: 'Running discopop_explorer...',
-            increment: 50,
+            increment: 45,
             operation: async (state) => {
                 await this._runDiscopopExplorer(state.fullConfiguration)
+                return state
+            },
+        }
+
+        const step6b = {
+            // TODO 7
+            message: 'Generating patches...',
+            increment: 5,
+            operation: async (state) => {
+                await this._generatePatches(state.fullConfiguration)
                 return state
             },
         }
@@ -153,6 +163,7 @@ export abstract class DiscoPoPRunner {
                 step4,
                 step5,
                 step6,
+                step6b,
                 step7,
                 step8,
                 step9,
@@ -314,6 +325,35 @@ export abstract class DiscoPoPRunner {
                         reject(
                             new Error(
                                 'discopop_explorer failed: patterns.json was not created'
+                            )
+                        )
+                    } else {
+                        resolve()
+                    }
+                }
+            )
+        })
+    }
+
+    /**
+     * Generates patches.
+     */
+    private static async _generatePatches(
+        configuration: DefaultConfiguration
+    ): Promise<void> {
+        // run like patch_generator like discopop_explorer
+        return new Promise<void>((resolve, reject) => {
+            exec(
+                `discopop_patch_generator`,
+                { cwd: `${configuration.getBuildDirectory()}/.discopop` },
+                (err, stdout, stderr) => {
+                    if (err) {
+                        reject(
+                            new Error(
+                                'discopop_patch_generator failed: ' +
+                                    err.message +
+                                    '\n' +
+                                    stderr
                             )
                         )
                     } else {
