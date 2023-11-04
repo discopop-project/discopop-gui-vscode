@@ -4,21 +4,15 @@ import { Config } from '../Utils/Config'
 import { Suggestion } from './classes/Suggestion/Suggestion'
 import { FileMapping } from '../FileMapping/FileMapping'
 import { Commands } from '../Utils/Commands'
+import { DefaultConfiguration } from '../ProjectManager/Configuration'
 
 export class DiscoPoPCodeLens extends vscode.CodeLens {
-    /**
-     * The provider that is responsible for this CodeLens.
-     *
-     * MUST be set by the provider before returning the CodeLens.
-     * This is required so we can apply the suggestion when the CodeLens is clicked (in order to move other codeLenses).
-     */
-    public responsibleProvider: DiscoPoPCodeLensProvider
-
-    /** The suggestion represented by this CodeLens */
-    public suggestion: Suggestion
-
-    public constructor(suggestion: Suggestion) {
+    public constructor(
+        suggestion: Suggestion,
+        fullConfiguration: DefaultConfiguration
+    ) {
         super(
+            // TODO use the line_mapping
             new vscode.Range(
                 suggestion.startLine - 1,
                 0,
@@ -26,11 +20,10 @@ export class DiscoPoPCodeLens extends vscode.CodeLens {
                 0
             )
         )
-        this.suggestion = suggestion
         this.command = {
-            title: `click to discover potential parallelism: ${suggestion.pragma}`,
-            command: Commands.codeLensAction,
-            arguments: [this],
+            title: `discovered potetential parallelism`,
+            command: Commands.applySuggestion,
+            arguments: [suggestion, fullConfiguration],
         }
     }
 }
@@ -38,9 +31,10 @@ export class DiscoPoPCodeLens extends vscode.CodeLens {
 export class DiscoPoPCodeLensProvider
     implements vscode.CodeLensProvider<DiscoPoPCodeLens>
 {
-    public hidden: boolean = false
+    public hidden: boolean = false // TODO hide suggestions if disabled in settings, or if disabled in this editor
     private suggestions: Suggestion[] = []
     private fileMapping: FileMapping
+    private fullConfiguration: DefaultConfiguration
 
     // emitter and its event
     public _onDidChangeCodeLenses: vscode.EventEmitter<void> =
@@ -48,9 +42,14 @@ export class DiscoPoPCodeLensProvider
     public readonly onDidChangeCodeLenses: vscode.Event<void> =
         this._onDidChangeCodeLenses.event
 
-    constructor(fileMapping: FileMapping, suggestions: Suggestion[]) {
+    constructor(
+        fileMapping: FileMapping,
+        suggestions: Suggestion[],
+        fullConfiguration: DefaultConfiguration
+    ) {
         this.fileMapping = fileMapping
         this.suggestions = suggestions
+        this.fullConfiguration = fullConfiguration
 
         // update lenses when settings change (codeLenses visibility might have changed)
         vscode.workspace.onDidChangeConfiguration((_) => {
@@ -62,27 +61,25 @@ export class DiscoPoPCodeLensProvider
         document: vscode.TextDocument,
         _token: vscode.CancellationToken
     ): DiscoPoPCodeLens[] | Thenable<DiscoPoPCodeLens[]> {
-        if (Config.codeLensEnabled && !this.hidden) {
-            const lenses = this.suggestions
-                // only suggestions for this file
-                .filter((suggestion) => {
-                    const fileId = this.fileMapping.getFileId(
-                        document.fileName.toString()
+        if (Config.codeLensEnabled() && !this.hidden) {
+            return (
+                this.suggestions
+                    // only suggestions for this file
+                    .filter((suggestion) => {
+                        const fileId = this.fileMapping.getFileId(
+                            document.fileName.toString()
+                        )
+                        return suggestion.fileId === fileId
+                    })
+                    // only suggestions that are not yet applied
+                    .filter((suggestion) => {
+                        return !suggestion.applied
+                    })
+                    // get CodeLens for each suggestion
+                    .map((suggestion) =>
+                        suggestion.getCodeLens(this.fullConfiguration)
                     )
-                    return suggestion.fileId === fileId
-                })
-                // only suggestions that are not yet applied
-                .filter((suggestion) => {
-                    return !suggestion.applied
-                })
-                // get CodeLens for each suggestion
-                .map((suggestion) => suggestion.getCodeLens())
-
-            lenses.forEach((lens) => {
-                lens.responsibleProvider = this
-            })
-
-            return lenses
+            )
         }
         return []
     }
@@ -95,48 +92,5 @@ export class DiscoPoPCodeLensProvider
             return codeLens
         }
         return null
-    }
-
-    public insertRecommendation(suggestion: Suggestion) {
-        suggestion.applied = true
-        this._insertSnippet(suggestion)
-        this._moveOtherRecommendations(suggestion)
-    }
-
-    private _moveOtherRecommendations = (
-        removedSuggestion: Suggestion,
-        offset: number = 1
-    ) => {
-        this.suggestions.map((suggestion) => {
-            if (suggestion.id === removedSuggestion.id) {
-                return
-            }
-            if (suggestion.startLine > removedSuggestion.startLine) {
-                if (suggestion.startLine) {
-                    suggestion.startLine += offset
-                }
-                if (suggestion.endLine) {
-                    suggestion.endLine += offset
-                }
-            }
-        })
-        this._onDidChangeCodeLenses.fire()
-    }
-
-    private _insertSnippet(suggestion: Suggestion) {
-        const editor = vscode.window.activeTextEditor
-
-        // get indentation of line where the suggestion is inserted
-        // by matching any whitespace at the beginning of the line
-        const indentation = editor.document
-            .lineAt(suggestion.startLine - 1)
-            .text.match(/^\s*/)[0]
-
-        editor.edit((editBuilder) => {
-            editBuilder.insert(
-                new Position(suggestion.startLine - 1, 0),
-                indentation + suggestion.pragma + '\n'
-            )
-        })
     }
 }

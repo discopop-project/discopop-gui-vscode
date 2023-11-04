@@ -3,13 +3,17 @@
 import * as vscode from 'vscode'
 import { Commands } from './Utils/Commands'
 import { ProjectManager } from './ProjectManager/ProjectManager'
-import { Configuration } from './ProjectManager/Configuration'
+import {
+    Configuration,
+    DefaultConfiguration,
+} from './ProjectManager/Configuration'
 import { DiscoPoPDetailViewProvider } from './DiscoPoP/DiscoPoPDetailViewProvider'
 import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
 import { FileMapping } from './FileMapping/FileMapping'
 import { DiscoPoPCodeLens } from './DiscoPoP/DiscoPoPCodeLensProvider'
 import { HotspotDetailViewProvider } from './HotspotDetection/HotspotDetailViewProvider'
 import { Hotspot } from './HotspotDetection/classes/Hotspot'
+import { PatchManager } from './DiscoPoP/PatchManager'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -176,13 +180,34 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(
-            Commands.codeLensAction,
-            async (codeLens: DiscoPoPCodeLens) => {
-                codeLens.responsibleProvider.insertRecommendation(
-                    codeLens.suggestion
-                )
+            Commands.applySuggestion,
+            async (
+                suggestion: Suggestion,
+                fullConfiguration: DefaultConfiguration
+            ) => {
+                try {
+                    await PatchManager.applyPatch(
+                        fullConfiguration.getBuildDirectory() + '/.discopop',
+                        suggestion.id
+                    )
+                    suggestion.applied = true // TODO this should be handled by the PatchManager
+                } catch (err) {
+                    if (err instanceof Error) {
+                        vscode.window.showErrorMessage(err.message)
+                    } else {
+                        vscode.window.showErrorMessage(
+                            'Failed to apply suggestion.'
+                        )
+                    }
+                    console.error('FAILED TO APPLY PATCH:')
+                    console.error(err)
+                    console.error(suggestion)
+                    console.error(fullConfiguration)
+                }
+
                 // TODO it would be nice to also show the suggestion as applied in the tree view
                 // --> themeIcon: record/pass
+
                 // TODO before inserting, preview the changes and request confirmation
                 // --> we could peek the patch file as a preview https://github.com/microsoft/vscode/blob/8434c86e5665341c753b00c10425a01db4fb8580/src/vs/editor/contrib/gotoSymbol/goToCommands.ts#L760
                 // --> we should also set the detail view to the suggestion that is being applied
