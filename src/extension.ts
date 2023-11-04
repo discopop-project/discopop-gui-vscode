@@ -10,7 +10,6 @@ import {
 import { DiscoPoPDetailViewProvider } from './DiscoPoP/DiscoPoPDetailViewProvider'
 import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
 import { FileMapping } from './FileMapping/FileMapping'
-import { DiscoPoPCodeLens } from './DiscoPoP/DiscoPoPCodeLensProvider'
 import { HotspotDetailViewProvider } from './HotspotDetection/HotspotDetailViewProvider'
 import { Hotspot } from './HotspotDetection/classes/Hotspot'
 import { PatchManager } from './DiscoPoP/PatchManager'

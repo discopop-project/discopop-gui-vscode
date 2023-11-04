@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
-import { exec, spawn } from 'child_process'
+import { exec } from 'child_process'
 
 import { Config } from '../Utils/Config'
 import {
