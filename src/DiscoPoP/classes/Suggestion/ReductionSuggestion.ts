@@ -9,6 +9,6 @@ export class ReductionSuggestion extends Suggestion {
         pureJSONData: any
         // we can parse more fields from the patterns.json file and use them, if we need to
     ) {
-        super(id, fileId, startLine, endLine, pureJSONData)
+        super(id, 'reduction', fileId, startLine, endLine, pureJSONData)
     }
 }
