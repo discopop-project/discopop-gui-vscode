@@ -4,6 +4,7 @@ import { Suggestion } from './classes/Suggestion/Suggestion'
 import { FileMapping } from '../FileMapping/FileMapping'
 import { Commands } from '../Utils/Commands'
 import { DefaultConfiguration } from '../ProjectManager/Configuration'
+import { LineMapping } from './LineMapping'
 
 export class DiscoPoPCodeLens extends vscode.CodeLens {
     public constructor(
@@ -33,9 +34,6 @@ export class DiscoPoPCodeLensProvider
     implements vscode.CodeLensProvider<DiscoPoPCodeLens>
 {
     public hidden: boolean = false // TODO hide suggestions if disabled in settings, or if disabled in this editor
-    private suggestions: Suggestion[] = []
-    private fileMapping: FileMapping
-    private fullConfiguration: DefaultConfiguration
 
     // emitter and its event
     public _onDidChangeCodeLenses: vscode.EventEmitter<void> =
@@ -44,16 +42,23 @@ export class DiscoPoPCodeLensProvider
         this._onDidChangeCodeLenses.event
 
     constructor(
-        fileMapping: FileMapping,
-        suggestions: Suggestion[],
-        fullConfiguration: DefaultConfiguration
+        private fileMapping: FileMapping,
+        private lineMapping: LineMapping,
+        private fullConfiguration: DefaultConfiguration,
+        private suggestions: Suggestion[] = []
     ) {
         this.fileMapping = fileMapping
+        this.lineMapping = lineMapping
         this.suggestions = suggestions
         this.fullConfiguration = fullConfiguration
 
         // update lenses when settings change (codeLenses visibility might have changed)
         vscode.workspace.onDidChangeConfiguration((_) => {
+            this._onDidChangeCodeLenses.fire()
+        })
+
+        // update lenses when lineMapping changes
+        this.lineMapping.onDidChangeLineMappingFile(() => {
             this._onDidChangeCodeLenses.fire()
         })
     }
@@ -75,6 +80,18 @@ export class DiscoPoPCodeLensProvider
                 // only suggestions that are not yet applied
                 .filter((suggestion) => {
                     return !suggestion.applied
+                })
+                // map line numbers
+                .map((suggestion) => {
+                    suggestion.startLine = this.lineMapping.getMappedLine(
+                        suggestion.fileId,
+                        suggestion.startLine
+                    )
+                    suggestion.endLine = this.lineMapping.getMappedLine(
+                        suggestion.fileId,
+                        suggestion.endLine
+                    )
+                    return suggestion
                 })
                 // group by line
                 .reduce((acc, suggestion) => {
