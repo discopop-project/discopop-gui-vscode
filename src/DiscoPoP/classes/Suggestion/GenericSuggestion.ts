@@ -8,13 +8,12 @@ import { Commands } from '../../../Utils/Commands'
  */
 export class GenericSuggestion extends Suggestion {
     constructor(
-        id: string,
+        id: number,
         fileId: number,
         startLine: number,
         endLine: number,
-        pragma: string,
         pureJSONData: any
     ) {
-        super(id, fileId, startLine, endLine, pragma, pureJSONData)
+        super(id, fileId, startLine, endLine, pureJSONData)
     }
 }

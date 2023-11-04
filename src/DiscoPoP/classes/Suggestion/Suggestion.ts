@@ -1,3 +1,4 @@
+import { DefaultConfiguration } from '../../../ProjectManager/Configuration'
 import { DiscoPoPCodeLens } from '../../DiscoPoPCodeLensProvider'
 
 export abstract class Suggestion {
@@ -5,16 +6,15 @@ export abstract class Suggestion {
 
     constructor(
         // parsed fields
-        public id: string,
+        public id: number,
         public fileId: number,
         public startLine: number,
         public endLine: number,
-        public pragma: string,
         // complete JSON data
         public pureJSONData: any
     ) {}
 
-    getCodeLens(): DiscoPoPCodeLens {
-        return new DiscoPoPCodeLens(this)
+    getCodeLens(fullConfiguration: DefaultConfiguration): DiscoPoPCodeLens {
+        return new DiscoPoPCodeLens(this, fullConfiguration)
     }
 }

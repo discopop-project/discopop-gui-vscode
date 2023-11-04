@@ -55,19 +55,14 @@ export class DiscoPoPSuggestionNode implements SimpleTreeNode<undefined> {
 
     public getView(): vscode.TreeItem {
         const view = new vscode.TreeItem(
-            this.suggestion.id,
+            `${this.suggestion.id}`,
             vscode.TreeItemCollapsibleState.None
         )
         const filePath = this.fileMapping.getFilePath(this.suggestion.fileId)
         const fileName = filePath.split('/').pop()
         view.resourceUri = vscode.Uri.file(filePath) // TODO is this good?
         view.description = `${fileName}:${this.suggestion.startLine}`
-        view.tooltip =
-            filePath +
-            ':' +
-            this.suggestion.startLine +
-            '\n' +
-            this.suggestion.pragma
+        view.tooltip = filePath + ':' + this.suggestion.startLine
         view.iconPath = new vscode.ThemeIcon('lightbulb')
         view.contextValue = 'suggestion'
         view.command = {

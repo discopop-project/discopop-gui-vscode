@@ -107,7 +107,7 @@ export abstract class DiscoPoPRunner {
             },
         }
 
-        const step6b = {
+        const step7 = {
             // TODO 7
             message: 'Generating patches...',
             increment: 5,
@@ -117,7 +117,7 @@ export abstract class DiscoPoPRunner {
             },
         }
 
-        const step7 = {
+        const step8 = {
             message: 'Parsing results (FileMapping)...',
             increment: 3,
             operation: async (state) => {
@@ -128,7 +128,7 @@ export abstract class DiscoPoPRunner {
             },
         }
 
-        const step8 = {
+        const step9 = {
             message: 'Parsing results (Suggestions)...',
             increment: 3,
             operation: async (state) => {
@@ -139,13 +139,14 @@ export abstract class DiscoPoPRunner {
             },
         }
 
-        const step9 = {
+        const step10 = {
             message: 'Preparing views and code hints...',
             increment: 4,
             operation: async (state) => {
                 await this._presentResults(
                     state.fileMapping,
-                    state.discoPoPResults
+                    state.discoPoPResults,
+                    state.fullConfiguration
                 )
                 return state
             },
@@ -156,6 +157,7 @@ export abstract class DiscoPoPRunner {
             vscode.ProgressLocation.Notification,
             false, // TODO: true is currently NOT supported
             [
+                // TODO refactor const steps = []; steps.push(...) // otherwise it is easy to forget to add a step here
                 step1a,
                 step1b,
                 step2,
@@ -163,10 +165,10 @@ export abstract class DiscoPoPRunner {
                 step4,
                 step5,
                 step6,
-                step6b,
                 step7,
                 step8,
                 step9,
+                step10,
             ],
             state,
             getDefaultErrorHandler('DiscoPoP failed. ')
@@ -369,7 +371,8 @@ export abstract class DiscoPoPRunner {
      */
     private static async _presentResults(
         fileMapping: FileMapping,
-        discoPoPResults: DiscoPoPResults
+        discoPoPResults: DiscoPoPResults,
+        fullConfiguration: DefaultConfiguration
     ): Promise<void> {
         // show the suggestions in the sidebar
         const suggestionTree = new SuggestionTree(fileMapping, discoPoPResults)
@@ -386,7 +389,8 @@ export abstract class DiscoPoPRunner {
         // enable code lenses for all suggestions
         const codeLensProvider = new DiscoPoPCodeLensProvider(
             fileMapping,
-            discoPoPResults.getAllSuggestions()
+            discoPoPResults.getAllSuggestions(),
+            fullConfiguration
         )
         await DiscoPoPRunner.codeLensProviderDisposable?.dispose()
         DiscoPoPRunner.codeLensProviderDisposable =
