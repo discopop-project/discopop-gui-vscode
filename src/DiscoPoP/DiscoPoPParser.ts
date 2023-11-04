@@ -70,6 +70,7 @@ export abstract class DiscoPoPParser {
                     suggestionList.push(
                         new GenericSuggestion(
                             pattern_id,
+                            type,
                             Number(start_file),
                             Number(start_line),
                             Number(end_line),

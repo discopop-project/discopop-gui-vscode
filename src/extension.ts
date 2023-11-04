@@ -182,9 +182,40 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             Commands.applySuggestion,
             async (
-                suggestion: Suggestion,
-                fullConfiguration: DefaultConfiguration
+                fullConfiguration: DefaultConfiguration,
+                suggestions: Suggestion[]
             ) => {
+                let suggestion: Suggestion | undefined = undefined
+                if (suggestions.length === 1) {
+                    suggestion = suggestions[0]
+                } else {
+                    // let the user select the suggestion
+                    const suggestionQuickPickItem =
+                        await vscode.window.showQuickPick(
+                            suggestions.map((suggestion) => {
+                                return {
+                                    label: `${suggestion.id}`,
+                                    description: `${suggestion.type}`,
+                                    detail: `${JSON.stringify(
+                                        suggestion.pureJSONData
+                                    )}`,
+                                }
+                            }),
+                            {
+                                placeHolder: 'Select the suggestion to apply',
+                            }
+                        )
+                    if (!suggestionQuickPickItem) {
+                        return
+                    }
+
+                    suggestion = suggestions.find((suggestion) => {
+                        return (
+                            `${suggestion.id}` === suggestionQuickPickItem.label
+                        )
+                    })
+                }
+
                 try {
                     await PatchManager.applyPatch(
                         fullConfiguration.getBuildDirectory() + '/.discopop',

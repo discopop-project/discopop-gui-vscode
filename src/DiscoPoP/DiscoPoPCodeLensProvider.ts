@@ -8,22 +8,24 @@ import { DefaultConfiguration } from '../ProjectManager/Configuration'
 
 export class DiscoPoPCodeLens extends vscode.CodeLens {
     public constructor(
-        suggestion: Suggestion,
-        fullConfiguration: DefaultConfiguration
+        fullConfiguration: DefaultConfiguration,
+        suggestions: Suggestion[]
     ) {
         super(
             // TODO use the line_mapping
             new vscode.Range(
-                suggestion.startLine - 1,
+                suggestions[0].startLine - 1,
                 0,
-                suggestion.startLine - 1,
+                suggestions[0].startLine - 1,
                 0
             )
         )
         this.command = {
-            title: `discovered potetential parallelism`,
+            title:
+                `discovered potetential parallelism` +
+                (suggestions.length > 1 ? ` (${suggestions.length})` : ''),
             command: Commands.applySuggestion,
-            arguments: [suggestion, fullConfiguration],
+            arguments: [fullConfiguration, suggestions],
         }
     }
 }
@@ -61,27 +63,41 @@ export class DiscoPoPCodeLensProvider
         document: vscode.TextDocument,
         _token: vscode.CancellationToken
     ): DiscoPoPCodeLens[] | Thenable<DiscoPoPCodeLens[]> {
+        const lenses = []
         if (Config.codeLensEnabled() && !this.hidden) {
-            return (
-                this.suggestions
-                    // only suggestions for this file
-                    .filter((suggestion) => {
-                        const fileId = this.fileMapping.getFileId(
-                            document.fileName.toString()
-                        )
-                        return suggestion.fileId === fileId
-                    })
-                    // only suggestions that are not yet applied
-                    .filter((suggestion) => {
-                        return !suggestion.applied
-                    })
-                    // get CodeLens for each suggestion
-                    .map((suggestion) =>
-                        suggestion.getCodeLens(this.fullConfiguration)
+            this.suggestions
+                // only suggestions for this file
+                .filter((suggestion) => {
+                    const fileId = this.fileMapping.getFileId(
+                        document.fileName.toString()
                     )
-            )
+                    return suggestion.fileId === fileId
+                })
+                // only suggestions that are not yet applied
+                .filter((suggestion) => {
+                    return !suggestion.applied
+                })
+                // group by line
+                .reduce((acc, suggestion) => {
+                    const line = suggestion.startLine
+                    if (acc.has(line)) {
+                        acc.get(line).push(suggestion)
+                    } else {
+                        acc.set(line, [suggestion])
+                    }
+                    return acc
+                }, new Map<Number, Suggestion[]>())
+                // get CodeLens for each suggestion
+                .forEach((suggestions, line) => {
+                    lenses.push(
+                        new DiscoPoPCodeLens(
+                            this.fullConfiguration,
+                            suggestions
+                        )
+                    )
+                })
         }
-        return []
+        return lenses
     }
 
     public resolveCodeLens(
