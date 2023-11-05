@@ -24,8 +24,12 @@ export class Commands {
     public static showHotspotDetails: string = 'discopop.showHotspotDetails'
 
     // suggestions
-    public static applySuggestion: string = 'discopop.applySuggestion'
-    public static rollbackSuggestion: string = 'discopop.rollbackSuggestion'
+    public static applySuggestions: string = 'discopop.applySuggestions'
+    public static rollbackSuggestions: string = 'discopop.rollbackSuggestions'
+    public static applySingleSuggestion: string =
+        'discopop.applySingleSuggestion'
+    public static rollbackSingleSuggestion: string =
+        'discopop.rollbackSingleSuggestion'
 
     // enable/disable/change settings
     // TODO

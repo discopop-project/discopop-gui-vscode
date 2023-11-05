@@ -3,21 +3,20 @@ import { ConfigurationItem } from './ConfigurationItem'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Project } from './Project'
 import { DiscoPoPRunner } from '../DiscoPoP/DiscoPoPRunner'
-import { ProjectManager } from './ProjectManager'
 import { HotspotDetectionRunner } from '../HotspotDetection/HotspotDetectionRunner'
 
 export class Configuration extends ProjectManagerTreeItem {
-    private name: string
     parent: Project | undefined
 
-    private projectPath: ConfigurationItem | undefined
-    private executableName: ConfigurationItem | undefined
-    private executableArgumentsDiscoPoP: ConfigurationItem | undefined
-    private executableArgumentsHotspotDetection:
+    private _name: string
+    private _projectPath: ConfigurationItem<string> | undefined
+    private _executableName: ConfigurationItem<string> | undefined
+    private _executableArgumentsDiscoPoP: ConfigurationItem<string> | undefined
+    private _executableArgumentsHotspotDetection:
         | ConfigurationItem<string[]>
         | undefined
-    private buildDirectory: ConfigurationItem | undefined
-    private cmakeArguments: ConfigurationItem | undefined
+    private _buildDirectory: ConfigurationItem<string> | undefined
+    private _cmakeArguments: ConfigurationItem<string> | undefined
 
     constructor(
         name: string,
@@ -32,33 +31,35 @@ export class Configuration extends ProjectManagerTreeItem {
         this.contextValue = 'configuration'
         this.iconPath = new vscode.ThemeIcon('gear')
 
-        this.name = name
+        this._name = name
 
-        this.projectPath = new ConfigurationItem(
+        this._projectPath = new ConfigurationItem<string>(
             this,
             'Project Path',
             projectPath,
             'The path to the root directory of the project. It should contain a CMakeLists.txt file.'
         )
-        this.cmakeArguments = new ConfigurationItem(
+
+        this._cmakeArguments = new ConfigurationItem<string>(
             this,
             'CMake Arguments',
             cmakeArguments,
             'The arguments passed to cmake during the build process'
         )
-        this.executableName = new ConfigurationItem(
+
+        this._executableName = new ConfigurationItem<string>(
             this,
             'Executable Name',
             executableName,
             'The name of the executable'
         )
-        this.executableArgumentsDiscoPoP = new ConfigurationItem(
+        this._executableArgumentsDiscoPoP = new ConfigurationItem<string>(
             this,
             'Executable Arguments for DiscoPoP',
             executableArgumentsDiscoPoP,
             'The arguments passed to the executable'
         )
-        this.executableArgumentsHotspotDetection = new ConfigurationItem<
+        this._executableArgumentsHotspotDetection = new ConfigurationItem<
             string[]
         >(
             this,
@@ -66,26 +67,12 @@ export class Configuration extends ProjectManagerTreeItem {
             executableArgumentsHotspotDetection,
             'The arguments passed to the executable'
         )
-        this.buildDirectory = new ConfigurationItem(
+        this._buildDirectory = new ConfigurationItem<string>(
             this,
             'Build Directory',
             buildDirectory,
             'Path to where the build should be performed. Also the DiscoPoP results will be stored in this directory.'
         )
-    }
-
-    getConfigurationItems(): (
-        | ConfigurationItem<string>
-        | ConfigurationItem<string[]>
-    )[] {
-        return [
-            this.projectPath,
-            this.cmakeArguments,
-            this.executableName,
-            this.executableArgumentsDiscoPoP,
-            this.executableArgumentsHotspotDetection,
-            this.buildDirectory,
-        ]
     }
 
     /**
@@ -122,7 +109,18 @@ export class Configuration extends ProjectManagerTreeItem {
     }
 
     getChildren(): ProjectManagerTreeItem[] {
-        return this.getConfigurationItems()
+        return [
+            this._projectPath,
+            this._cmakeArguments,
+            this._executableName,
+            this._executableArgumentsDiscoPoP,
+            this._executableArgumentsHotspotDetection,
+            this._buildDirectory,
+        ]
+    }
+
+    getView(): vscode.TreeItem {
+        return this
     }
 
     setParent(parent: Project) {
@@ -140,81 +138,84 @@ export class Configuration extends ProjectManagerTreeItem {
 
     async runDiscoPoP() {
         this.iconPath = new vscode.ThemeIcon('gear~spin')
-        ProjectManager.refresh()
+        this.refresh()
 
-        await DiscoPoPRunner.runConfiguration(this)
+        await DiscoPoPRunner.runAndParse({
+            fullConfiguration: this.getFullConfiguration(),
+        })
 
         this.iconPath = new vscode.ThemeIcon('gear')
-        ProjectManager.refresh()
+        this.refresh()
     }
 
     async runHotspotDetection() {
         this.iconPath = new vscode.ThemeIcon('gear~spin')
-        ProjectManager.refresh()
+        this.refresh()
 
         await HotspotDetectionRunner.runConfiguration(this)
 
         this.iconPath = new vscode.ThemeIcon('gear')
-        ProjectManager.refresh()
+        this.refresh()
     }
 
     // getters and setters for the configuration items (and name)
+    // TODO turn them into actual get and set methods
 
     setName(name: string) {
-        this.name = name
+        this._name = name
         this.label = name
     }
 
     getName(): string {
-        return this.name
+        return this._name
     }
 
     getProjectPath(): string | undefined {
-        return this.projectPath?.getValue()
+        return this._projectPath?.getValue()
     }
 
     setProjectPath(projectPath: string) {
-        this.projectPath?.setValue(projectPath)
+        this._projectPath?.setValue(projectPath)
     }
 
     getExecutableName(): string | undefined {
-        return this.executableName?.getValue()
+        return this._executableName?.getValue()
     }
 
     setExecutableName(executableName: string) {
-        this.executableName?.setValue(executableName)
+        this._executableName?.setValue(executableName)
     }
 
     getExecutableArgumentsDiscoPoP(): string | undefined {
-        return this.executableArgumentsDiscoPoP?.getValue()
+        return this._executableArgumentsDiscoPoP?.getValue()
     }
 
     setExecutableArgumentsDiscoPoP(executableArguments: string) {
-        this.executableArgumentsDiscoPoP?.setValue(executableArguments)
+        this._executableArgumentsDiscoPoP?.setValue(executableArguments)
     }
 
     getExecutableArgumentsHotspotDetection(): string[] | undefined {
-        return this.executableArgumentsHotspotDetection?.getValue()
+        return this._executableArgumentsHotspotDetection?.getValue()
     }
 
     setExecutableArgumentsHotspotDetection(executableArguments: string[]) {
-        this.executableArgumentsHotspotDetection?.setValue(executableArguments)
+        this._executableArgumentsHotspotDetection?.setValue(executableArguments)
     }
 
     getBuildDirectory(): string | undefined {
-        return this.buildDirectory?.getValue()
+        return this._buildDirectory?.getValue()
     }
 
     setBuildDirectory(buildDirectory: string) {
-        this.buildDirectory?.setValue(buildDirectory)
+        this._buildDirectory?.setValue(buildDirectory)
     }
 
     getCMakeArguments(): string | undefined {
-        return this.cmakeArguments?.getValue()
+        return this._cmakeArguments?.getValue()
     }
 
     setCMakeArguments(cmakeArguments: string) {
-        this.cmakeArguments?.setValue(cmakeArguments)
+        this._cmakeArguments?.setValue(cmakeArguments)
     }
 
     // JSON serialization --> avoid circular objects and only store important properties
@@ -222,15 +223,15 @@ export class Configuration extends ProjectManagerTreeItem {
     toJSONObject(): any {
         return {
             isDefault: false,
-            name: this.name,
-            projectPath: this.projectPath.getValue(),
-            executableName: this.executableName.getValue(),
+            name: this._name,
+            projectPath: this._projectPath.getValue(),
+            executableName: this._executableName.getValue(),
             executableArgumentsDiscopop:
-                this.executableArgumentsDiscoPoP.getValue(),
+                this._executableArgumentsDiscoPoP.getValue(),
             executableArgumentsHotspotDetection:
-                this.executableArgumentsHotspotDetection.getValue(),
-            buildDirectory: this.buildDirectory.getValue(),
-            cmakeArguments: this.cmakeArguments.getValue(),
+                this._executableArgumentsHotspotDetection.getValue(),
+            buildDirectory: this._buildDirectory.getValue(),
+            cmakeArguments: this._cmakeArguments.getValue(),
         }
     }
 

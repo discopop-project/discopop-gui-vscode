@@ -13,29 +13,21 @@ import { FileMapping } from './FileMapping/FileMapping'
 import { HotspotDetailViewProvider } from './HotspotDetection/HotspotDetailViewProvider'
 import { Hotspot } from './HotspotDetection/classes/Hotspot'
 import { PatchManager } from './DiscoPoP/PatchManager'
+import { Decoration } from './Utils/Decorations'
+import { DiscoPoPCodeLensProvider } from './DiscoPoP/DiscoPoPCodeLensProvider'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
 export function activate(context: vscode.ExtensionContext) {
-    // PROJECTS
-    ProjectManager.load(context)
+    const projectManager = new ProjectManager(context)
+    const dp_details = new DiscoPoPDetailViewProvider(undefined)
+    const hs_details = new HotspotDetailViewProvider(undefined)
+    // TODO
+    // const suggestionTree = new ...
+    // const hotspotTree = new ...
+    // const dp_codelensProvider = new DiscoPoPCodeLensProvider(undefined, undefined, undefined, undefined)
 
-    // SUGGESTIONS
-    // in package.json a welcome message is configured that is shown until a configuration was run
-
-    // HOTSPOTS
-    // in package.json a welcome message is configured that is shown until a configuration was run
-
-    // SUGGESTION DETAIL
-    // an undefined suggestion results in a placeholder text being shown until a suggestion is selected
-    DiscoPoPDetailViewProvider.load(undefined)
-
-    // HOTSPOT DETAIL
-    // an undefined hotspot results in a placeholder text being shown until a hotspot is selected
-    HotspotDetailViewProvider.load(undefined)
-
-    // COMMANDS
     context.subscriptions.push(
         vscode.commands.registerCommand(
             Commands.runDiscoPoPAndHotspotDetection,
@@ -63,31 +55,11 @@ export function activate(context: vscode.ExtensionContext) {
         )
     )
 
-    // decorations for highlighting suggestions/hotspots
-    const yesDecoration = vscode.window.createTextEditorDecorationType({
-        backgroundColor: 'rgba(255,0,0,0.5)', // strong red
-        isWholeLine: true,
-    })
-    const maybeDecoration = vscode.window.createTextEditorDecorationType({
-        backgroundColor: 'rgba(255,25,0,0.2)', // slightly transparent red
-        isWholeLine: true,
-    })
-    const noDecoration = vscode.window.createTextEditorDecorationType({
-        backgroundColor: 'rgba(255,50,0,0.05)', // very transparent red
-        isWholeLine: true,
-    })
-
-    const softHighlightDecoration =
-        vscode.window.createTextEditorDecorationType({
-            backgroundColor: 'rgba(255,255,255,0.05)', // very transparent white // TODO this will not show up well in light mode
-            isWholeLine: true,
-        })
-
     context.subscriptions.push(
         vscode.commands.registerCommand(
             Commands.showSuggestionDetails,
             async (suggestion: Suggestion, fileMapping: FileMapping) => {
-                DiscoPoPDetailViewProvider.load(suggestion)
+                dp_details.replaceContents(suggestion.pureJSONData)
                 const filePath = fileMapping.getFilePath(suggestion.fileId)
                 const document = await vscode.workspace.openTextDocument(
                     filePath
@@ -107,18 +79,16 @@ export function activate(context: vscode.ExtensionContext) {
                 // TODO we should remove the hightlight at some point (currently it disappears only when selecting another suggestion or reopening the file)
                 _removeDecorations(
                     editor,
-                    yesDecoration,
-                    maybeDecoration,
-                    noDecoration,
-                    softHighlightDecoration
+                    Decoration.YES,
+                    Decoration.MAYBE,
+                    Decoration.NO,
+                    Decoration.SOFT
                 )
                 const entireRange = new vscode.Range(
                     new vscode.Position(suggestion.startLine - 1, 0),
                     new vscode.Position(suggestion.endLine - 1, 0)
                 )
-                editor.setDecorations(softHighlightDecoration, [
-                    { range: entireRange },
-                ])
+                editor.setDecorations(Decoration.SOFT, [{ range: entireRange }])
             }
         )
     )
@@ -127,7 +97,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             Commands.showHotspotDetails,
             async (hotspot: Hotspot, fileMapping: FileMapping) => {
-                HotspotDetailViewProvider.load(hotspot)
+                hs_details.replaceContents(hotspot)
                 const filePath = fileMapping.getFilePath(hotspot.fid)
                 const document = await vscode.workspace.openTextDocument(
                     filePath
@@ -148,23 +118,23 @@ export function activate(context: vscode.ExtensionContext) {
                 // remove all previous decorations
                 _removeDecorations(
                     editor,
-                    yesDecoration,
-                    maybeDecoration,
-                    noDecoration,
-                    softHighlightDecoration
+                    Decoration.YES,
+                    Decoration.MAYBE,
+                    Decoration.NO,
+                    Decoration.SOFT
                 )
 
                 // highlight the hotspot
-                let decoration = softHighlightDecoration
+                let decoration = Decoration.SOFT
                 switch (hotspot.hotness) {
                     case 'YES':
-                        decoration = yesDecoration
+                        decoration = Decoration.YES
                         break
                     case 'MAYBE':
-                        decoration = maybeDecoration
+                        decoration = Decoration.MAYBE
                         break
                     case 'NO':
-                        decoration = noDecoration
+                        decoration = Decoration.NO
                         break
                     default:
                         console.error(
@@ -179,7 +149,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(
-            Commands.applySuggestion,
+            Commands.applySuggestions,
             async (
                 fullConfiguration: DefaultConfiguration,
                 suggestions: Suggestion[]
@@ -242,6 +212,24 @@ export function activate(context: vscode.ExtensionContext) {
                 // --> we could peek the patch file as a preview https://github.com/microsoft/vscode/blob/8434c86e5665341c753b00c10425a01db4fb8580/src/vs/editor/contrib/gotoSymbol/goToCommands.ts#L760
                 // --> we should also set the detail view to the suggestion that is being applied
                 // --> if hotspot results are available for the loop/function, we should also show them in the detail view
+            }
+        )
+    )
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            Commands.applySingleSuggestion,
+            async () => {
+                vscode.window.showErrorMessage('Not implemented yet.')
+            }
+        )
+    )
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            Commands.rollbackSingleSuggestion,
+            async () => {
+                vscode.window.showErrorMessage('Not implemented yet.')
             }
         )
     )

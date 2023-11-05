@@ -61,6 +61,10 @@ export class Project extends ProjectManagerTreeItem {
         return this.getConfigurations()
     }
 
+    getView(): vscode.TreeItem {
+        return this
+    }
+
     getParent(): undefined {
         return undefined
     }

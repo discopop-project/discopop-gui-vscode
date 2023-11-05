@@ -21,6 +21,7 @@ export abstract class HotspotDetectionRunner {
         throw new Error('This class cannot be instantiated')
     }
 
+    // TODO same structure as in DiscoPoPRunner
     public static async runConfiguration(
         configuration: Configuration
     ): Promise<void> {
@@ -30,19 +31,20 @@ export abstract class HotspotDetectionRunner {
             hotspotDetectionResults: undefined as HotspotDetectionResults,
         }
 
-        const step0 = {
+        const steps: ProgressingOperation<typeof state>[] = []
+
+        steps.push({
             message: 'Checking setup...',
             increment: 0,
-            operation: async (s: Partial<typeof state>) => {
+            operation: async (s) => {
                 Config.checkHotspotDetectionSetup()
-                return s
             },
-        }
+        })
 
-        const step1 = {
+        steps.push({
             message: 'Preparing build directory...',
             increment: 5,
-            operation: async (s: Partial<typeof state>) => {
+            operation: async (s) => {
                 if (
                     !fs.existsSync(
                         s.configuration.getHotspotDetectionBuildDirectory()
@@ -69,16 +71,15 @@ export abstract class HotspotDetectionRunner {
                 } else {
                     throw new Error('Operation cancelled by user')
                 }
-                return s
             },
-        }
+        })
 
-        const step2 = {
+        steps.push({
             message: 'Running cmake...',
             increment: 10,
-            operation: async (s: Partial<typeof state>) => {
+            operation: async (s) => {
                 const cmakeWrapperScript = `${Config.hotspotDetectionBuild()}/scripts/CMAKE_wrapper.sh`
-                return new Promise<Partial<typeof state>>((resolve, reject) => {
+                return new Promise<void>((resolve, reject) => {
                     exec(
                         `${cmakeWrapperScript} ${s.configuration.getProjectPath()}`,
                         {
@@ -95,19 +96,19 @@ export abstract class HotspotDetectionRunner {
                                     )
                                 )
                             } else {
-                                resolve(s)
+                                resolve()
                             }
                         }
                     )
                 })
             },
-        }
+        })
 
-        const step3 = {
+        steps.push({
             message: 'Running make...',
             increment: 10,
-            operation: async (s: Partial<typeof state>) => {
-                return new Promise<Partial<typeof state>>((resolve, reject) => {
+            operation: async (s) => {
+                return new Promise<void>((resolve, reject) => {
                     exec(
                         `make > make.log 2>&1`,
                         {
@@ -124,60 +125,57 @@ export abstract class HotspotDetectionRunner {
                                     )
                                 )
                             } else {
-                                resolve(s)
+                                resolve()
                             }
                         }
                     )
                 })
             },
-        }
+        })
 
-        const steps4: ProgressingOperation<typeof state>[] = []
         // TODO we need to get args from the configuration
         const executable_args =
             state.configuration.getExecutableArgumentsHotspotDetection()
 
         executable_args.forEach((args, index) => {
-            steps4.push({
+            steps.push({
                 message: `Running Executable... (${index + 1}/${
                     executable_args.length
                 })`,
                 increment: 50 / executable_args.length,
-                operation: async (s: Partial<typeof state>) => {
-                    return new Promise<Partial<typeof state>>(
-                        (resolve, reject) => {
-                            exec(
-                                `${s.configuration.getHotspotDetectionBuildDirectory()}/${s.configuration.getExecutableName()} ${args}`,
-                                {
-                                    cwd: s.configuration.getHotspotDetectionBuildDirectory(),
-                                },
-                                (err, stdout, stderr) => {
-                                    if (err) {
-                                        reject(
-                                            new Error(
-                                                'Hotspot Detection failed: ' +
-                                                    err.message +
-                                                    '\n' +
-                                                    stderr
-                                            )
+                operation: async (s) => {
+                    return new Promise<void>((resolve, reject) => {
+                        exec(
+                            `${s.configuration.getHotspotDetectionBuildDirectory()}/${s.configuration.getExecutableName()} ${args}`,
+                            {
+                                cwd: s.configuration.getHotspotDetectionBuildDirectory(),
+                            },
+                            (err, stdout, stderr) => {
+                                if (err) {
+                                    reject(
+                                        new Error(
+                                            'Hotspot Detection failed: ' +
+                                                err.message +
+                                                '\n' +
+                                                stderr
                                         )
-                                        // TODO maybe it is acceptable for the executable to fail?
-                                    } else {
-                                        resolve(s)
-                                    }
+                                    )
+                                    // TODO maybe it is acceptable for the executable to fail?
+                                } else {
+                                    resolve()
                                 }
-                            )
-                        }
-                    )
+                            }
+                        )
+                    })
                 },
             })
         })
 
-        const step5 = {
+        steps.push({
             message: 'Detecting Hotspots...',
             increment: 10,
-            operation: async (s: Partial<typeof state>) => {
-                return new Promise<Partial<typeof state>>((resolve, reject) => {
+            operation: async (s) => {
+                return new Promise<void>((resolve, reject) => {
                     exec(
                         `hotspot_analyzer`,
                         {
@@ -194,45 +192,44 @@ export abstract class HotspotDetectionRunner {
                                     )
                                 )
                             } else {
-                                resolve(s)
+                                resolve()
                             }
                         }
                     )
                 })
             },
-        }
+        })
 
-        const step6a = {
+        steps.push({
             message: 'Parsing results (FileMapping)...',
             increment: 5,
-            operation: async (s: Partial<typeof state>) => {
+            operation: async (s) => {
                 s.fileMapping = FileMappingParser.parseFile(
                     s.configuration.getHotspotDetectionBuildDirectory() +
                         '/.discopop/common_data/FileMapping.txt'
                 )
-                return s
             },
-        }
+        })
 
-        const step6b = {
+        steps.push({
             message: 'Parsing results (Hotspots)...',
             increment: 5,
-            operation: async (s: Partial<typeof state>) => {
+            operation: async (s) => {
                 s.hotspotDetectionResults = HotspotDetectionParser.parseFile(
                     s.configuration.getHotspotDetectionBuildDirectory() +
                         '/.discopop/hotspot_detection/Hotspots.json'
                 )
-                return s
             },
-        }
+        })
 
-        const step7 = {
+        steps.push({
             message: 'Preparing results...',
             increment: 5,
-            operation: async (s: Partial<typeof state>) => {
+            operation: async (s) => {
                 // show the hotspots in the sidebar
                 const hotspotTree = new HotspotTree(
                     s.fileMapping,
+                    undefined, // TODO s.lineMapping,
                     s.hotspotDetectionResults
                 )
                 await HotspotDetectionRunner.hotspotTreeDisposable?.dispose()
@@ -242,28 +239,14 @@ export abstract class HotspotDetectionRunner {
                         showCollapseAll: false,
                         canSelectMany: false,
                     })
-
-                return s
             },
-        }
-
-        const operations: ProgressingOperation<typeof state>[] = [
-            step0,
-            step1,
-            step2,
-            step3,
-            ...steps4,
-            step5,
-            step6a,
-            step6b,
-            step7,
-        ]
+        })
 
         const withProgressRunner = new WithProgressRunner<typeof state>(
             'Simulating Hotspot Detection', // TODO
             vscode.ProgressLocation.Notification,
             false, // TODO true is currently NOT supported
-            operations,
+            steps,
             state,
             getDefaultErrorHandler('Hotspot Detection failed. ')
         )
