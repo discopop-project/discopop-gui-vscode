@@ -173,6 +173,30 @@
                 "category": "DiscoPoP",
                 "enablement": "false",
                 "icon": "$(eye-closed)"
+            },
+            {
+                "title": "Apply Suggestion",
+                "command": "discopop.applySingleSuggestion",
+                "category": "DiscoPoP",
+                "icon": "$(check)"
+            },
+            {
+                "title": "Rollback Suggestion",
+                "command": "discopop.rollbackSingleSuggestion",
+                "category": "DiscoPoP",
+                "icon": "$(close)"
+            },
+            {
+                "title": "Apply Multiple Suggestions",
+                "command": "discopop.applySuggestions",
+                "category": "DiscoPoP",
+                "icon": "$(check)"
+            },
+            {
+                "title": "Rollback Multiple Suggestions",
+                "command": "discopop.rollbackSuggestions",
+                "category": "DiscoPoP",
+                "icon": "$(close)"
             }
         ],
         "menus": {
@@ -216,6 +240,14 @@
                 {
                     "command": "discopop.runHotspotDetection",
                     "when": "false"
+                },
+                {
+                    "command": "discopop.applySingleSuggestion",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.rollbackSingleSuggestion",
+                    "when": "false"
                 }
             ],
             "view/title": [
@@ -226,6 +258,28 @@
                 }
             ],
             "view/item/context": [
+                {
+                    "command": "discopop.applySuggestions",
+                    "when": "view == sidebar-suggestions-view",
+                    "group": "navigation"
+                },
+                {
+                    "command": "discopop.rollbackSuggestions",
+                    "when": "view == sidebar-suggestions-view",
+                    "group": "navigation"
+                },
+                {
+                    "command": "discopop.applySingleSuggestion",
+                    "when": "view == sidebar-suggestions-view && viewItem==suggestion",
+                    "group": "inline",
+                    "icon": "$(check)"
+                },
+                {
+                    "command": "discopop.rollbackSingleSuggestion",
+                    "when": "view == sidebar-suggestions-view && viewItem==suggestion",
+                    "group": "inline",
+                    "icon": "$(close)"
+                },
                 {
                     "command": "discopop.removeProject",
                     "when": "view == sidebar-projects-view && viewItem==project",

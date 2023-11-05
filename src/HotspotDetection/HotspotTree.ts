@@ -4,6 +4,7 @@ import { FileMapping } from '../FileMapping/FileMapping'
 import { HotspotDetectionResults } from './HotspotDetectionResults'
 import { Hotspot } from './classes/Hotspot'
 import { Commands } from '../Utils/Commands'
+import { LineMapping } from '../LineMapping/LineMapping'
 
 // inner nodes
 export class HotspotGroup
@@ -58,6 +59,7 @@ export class HotspotNode implements SimpleTreeNode<undefined> {
 export class HotspotTree extends SimpleTree<HotspotGroup | HotspotNode> {
     constructor(
         fileMapping: FileMapping,
+        lineMapping: LineMapping,
         hotspotDetectionResults: HotspotDetectionResults
     ) {
         const groups = hotspotDetectionResults.hotspots

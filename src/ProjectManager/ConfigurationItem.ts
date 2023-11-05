@@ -1,10 +1,9 @@
 import * as vscode from 'vscode'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Configuration } from './Configuration'
-import { ProjectManager } from './ProjectManager'
 
 export class ConfigurationItem<
-    T extends string | string[] = string
+    T extends string | string[]
 > extends ProjectManagerTreeItem {
     description?: string
     protected parent: Configuration
@@ -44,12 +43,16 @@ export class ConfigurationItem<
         }
         this.value = value
         this.description = this._getDescription(value)
-        ProjectManager.refresh()
+        this.refresh()
     }
 
     getChildren(): ProjectManagerTreeItem[] {
         // TODO we should show values of string[] settings as children
         return []
+    }
+
+    getView(): vscode.TreeItem {
+        return this
     }
 
     setParent(parent: Configuration) {

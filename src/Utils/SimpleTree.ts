@@ -15,9 +15,9 @@ export interface SimpleTreeNode<T extends SimpleTreeNode<T> | undefined> {
 export abstract class SimpleTree<T extends SimpleTreeNode<T>>
     implements vscode.TreeDataProvider<T>
 {
-    public constructor(public readonly roots: T[]) {}
+    public constructor(protected roots: T[]) {}
 
-    private _onDidChangeTreeData: vscode.EventEmitter<
+    protected _onDidChangeTreeData: vscode.EventEmitter<
         T | undefined | null | void
     > = new vscode.EventEmitter<T | undefined | null | void>()
     readonly onDidChangeTreeData: vscode.Event<void | T | T[]> =

@@ -4,7 +4,7 @@ import { Suggestion } from './classes/Suggestion/Suggestion'
 import { FileMapping } from '../FileMapping/FileMapping'
 import { Commands } from '../Utils/Commands'
 import { DefaultConfiguration } from '../ProjectManager/Configuration'
-import { LineMapping } from './LineMapping'
+import { LineMapping } from '../LineMapping/LineMapping'
 
 export class DiscoPoPCodeLens extends vscode.CodeLens {
     public constructor(
@@ -24,7 +24,7 @@ export class DiscoPoPCodeLens extends vscode.CodeLens {
             title:
                 `discovered potetential parallelism` +
                 (suggestions.length > 1 ? ` (${suggestions.length})` : ''),
-            command: Commands.applySuggestion,
+            command: Commands.applySuggestions,
             arguments: [fullConfiguration, suggestions],
         }
     }

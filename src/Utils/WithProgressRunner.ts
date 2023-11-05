@@ -51,7 +51,7 @@ export class WithProgressRunner<State> {
                             increment: this.nextIncrement,
                             message: operation.message,
                         })
-                        this.state = await operation.operation(this.state)
+                        await operation.operation(this.state)
                         this.nextIncrement = operation.increment
                     }
 
@@ -75,5 +75,5 @@ export class WithProgressRunner<State> {
 export interface ProgressingOperation<State extends Object> {
     message: string
     increment: number
-    operation: (state: Partial<State>) => Promise<Partial<State>>
+    operation: (state: Partial<State>) => Promise<void>
 }

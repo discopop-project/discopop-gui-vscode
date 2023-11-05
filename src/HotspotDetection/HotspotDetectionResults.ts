@@ -6,7 +6,10 @@ export class HotspotDetectionResults {
 
     // convenience methods to sort and filter results:
 
-    private _sortByKey(hotspots: Hotspot[], key?: keyof Hotspot): Hotspot[] {
+    private static _sortByKey = (
+        hotspots: Hotspot[],
+        key?: keyof Hotspot
+    ): Hotspot[] => {
         if (!key) {
             return hotspots
         }
@@ -21,27 +24,6 @@ export class HotspotDetectionResults {
         })
     }
 
-    public getYESHotspots(sortByKey?: keyof Hotspot): Hotspot[] {
-        return this._sortByKey(
-            this.hotspots.filter((h) => h.hotness === 'YES'),
-            sortByKey
-        )
-    }
-
-    public getNOHotspots(sortByKey?: keyof Hotspot): Hotspot[] {
-        return this._sortByKey(
-            this.hotspots.filter((h) => h.hotness === 'NO'),
-            sortByKey
-        )
-    }
-
-    public getMAYBEHotspots(sortByKey?: keyof Hotspot): Hotspot[] {
-        return this._sortByKey(
-            this.hotspots.filter((h) => h.hotness === 'MAYBE'),
-            sortByKey
-        )
-    }
-
     public getHotspotsByFileID(
         fid: number,
         filterByHotness?: 'YES' | 'NO' | 'MAYBE',
@@ -49,18 +31,19 @@ export class HotspotDetectionResults {
     ): Hotspot[] {
         const hotspots = this.hotspots.filter((h) => h.fid === fid)
         if (filterByHotness) {
-            return this._sortByKey(
+            return HotspotDetectionResults._sortByKey(
                 hotspots.filter((h) => h.hotness === filterByHotness),
                 sortByKey
             )
         } else {
-            return this._sortByKey(hotspots, sortByKey)
+            return HotspotDetectionResults._sortByKey(hotspots, sortByKey)
         }
     }
 
     public getHotspotsByFilePath(
         fileName: string,
         fileMapping: FileMapping,
+        // TODO lineMapping: LineMapping,
         filterByHotness?: 'YES' | 'NO' | 'MAYBE',
         sortByKey?: keyof Hotspot
     ): Hotspot[] {

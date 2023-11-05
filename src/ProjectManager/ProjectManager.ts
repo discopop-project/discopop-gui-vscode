@@ -5,73 +5,62 @@ import { Commands } from '../Utils/Commands'
 import { UIPrompts } from '../Utils/UIPrompts'
 import { Configuration } from './Configuration'
 import { ConfigurationItem } from './ConfigurationItem'
+import { SimpleTree } from '../Utils/SimpleTree'
 
-export class ProjectManager
-    implements vscode.TreeDataProvider<ProjectManagerTreeItem>
-{
-    private static instance: ProjectManager | undefined
-
-    private context: vscode.ExtensionContext
+export class ProjectManager extends SimpleTree<ProjectManagerTreeItem> {
     private projectViewer: vscode.TreeView<ProjectManagerTreeItem> | undefined
-    private projects: Project[] = []
+    private disposables: Map<Project, vscode.Disposable> = new Map()
 
-    private constructor(context: vscode.ExtensionContext) {
-        this.context = context
-        this._registerCommands()
+    public constructor(
+        private context: vscode.ExtensionContext,
+        protected roots: Project[] = []
+    ) {
+        super(roots)
+        this.roots.forEach((project) => {
+            this.disposables.set(
+                project,
+                project.onDidChange(() => this.refresh())
+            )
+        })
+        this._registerCommands() // TODO we dont wanna do it this way... the extension should register the commands (the extension has access to all the state, so it can work with it when executing commands)
+        this.register()
         this._restoreProjectsFromState()
     }
 
-    static load(context: vscode.ExtensionContext): void {
-        if (!ProjectManager.instance) {
-            ProjectManager.instance = new ProjectManager(context)
-        }
-        ProjectManager.refresh()
-        // return ProjectManager.instance
-    }
-
     addProject(project: Project) {
-        this.projects.push(project)
+        this.disposables.set(
+            project,
+            project.onDidChange(() => this.refresh())
+        )
+        this.roots.push(project)
         this.refresh()
     }
 
     removeProject(project: Project) {
-        this.projects = this.projects.filter((p) => p !== project)
+        this.disposables.get(project)?.dispose()
+        this.disposables.delete(project)
+        this.roots = this.roots.filter((p) => p !== project)
         this.refresh()
     }
 
-    getProjects(): Project[] {
-        return this.projects
-    }
-
-    static refresh() {
-        ProjectManager.instance?.refresh()
-    }
-
-    refresh(): void {
-        if (this.projects.length === 0) {
-            // 1) implicitly show no projects message (see package.json)
-
-            // 2) get rid of the tree view
-            this.projectViewer?.dispose()
-            this.projectViewer = undefined
-
-            // 3) remove projects from workspace state
-            this.context.workspaceState.update('projects', undefined)
-        } else {
-            // 1) implicitly hide the no projects message (see package.json)
-
-            // 2) create tree view
-            this.projectViewer = vscode.window.createTreeView(
-                'sidebar-projects-view',
-                { treeDataProvider: this }
-            )
-            this.context.subscriptions.push(this.projectViewer)
-
-            // 3) save projects to workspace state
+    public refresh(uiOnly: boolean = false): void {
+        if (!uiOnly) {
             this._storeProjectsToState()
         }
-        // update the tree view
-        this._onDidChangeTreeData.fire()
+        super.refresh()
+    }
+
+    public register() {
+        this.projectViewer = vscode.window.createTreeView(
+            'sidebar-projects-view',
+            { treeDataProvider: this }
+        )
+        this.context.subscriptions.push(this.projectViewer)
+    }
+
+    public unregister() {
+        this.projectViewer?.dispose()
+        this.projectViewer = undefined
     }
 
     private _restoreProjectsFromState(): void {
@@ -79,45 +68,35 @@ export class ProjectManager
             'projects'
         ) as any[]
         if (storedProjects) {
-            this.projects = storedProjects.map((project) => {
+            // clear old projects
+            this.disposables.forEach((disposable) => disposable.dispose())
+            this.disposables.clear()
+
+            // add new projects
+            this.roots = storedProjects.map((project) => {
                 return Project.fromJSONObject(project)
             })
+            this.roots.forEach((project) => {
+                this.disposables.set(
+                    project,
+                    project.onDidChange(() => this.refresh())
+                )
+            })
+            this.refresh(true)
         } else {
-            this.projects = []
+            // clear old projects
+            this.disposables.forEach((disposable) => disposable.dispose())
+            this.disposables.clear()
+            this.roots = []
+            this.refresh(true)
         }
     }
 
     private _storeProjectsToState(): void {
-        const projects = this.projects.map((project) => {
-            return project.toJSONObject()
+        const projects = this.roots?.map((project) => {
+            return (project as Project).toJSONObject()
         })
         this.context.workspaceState.update('projects', projects)
-    }
-
-    // TreeDataProvider implementation:
-    private _onDidChangeTreeData: vscode.EventEmitter<
-        ProjectManagerTreeItem | undefined | null | void
-    > = new vscode.EventEmitter<
-        ProjectManagerTreeItem | undefined | null | void
-    >()
-
-    readonly onDidChangeTreeData: vscode.Event<
-        ProjectManagerTreeItem | undefined | null | void
-    > = this._onDidChangeTreeData.event
-
-    getTreeItem(
-        element: ProjectManagerTreeItem
-    ): vscode.TreeItem | Thenable<vscode.TreeItem> {
-        return element
-    }
-
-    getChildren(
-        element?: ProjectManagerTreeItem
-    ): vscode.ProviderResult<ProjectManagerTreeItem[]> {
-        if (!element) {
-            return this.getProjects()
-        }
-        return element.getChildren()
     }
 
     getParent(
