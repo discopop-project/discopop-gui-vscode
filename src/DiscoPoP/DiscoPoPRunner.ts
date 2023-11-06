@@ -360,7 +360,7 @@ export abstract class DiscoPoPRunner {
         // run like patch_generator like discopop_explorer
         return new Promise<void>((resolve, reject) => {
             exec(
-                `discopop_patch_generator`,
+                `discopop_patch_generator --dp-build-path=${Config.discopopBuild()}`,
                 { cwd: `${configuration.getBuildDirectory()}/.discopop` },
                 (err, stdout, stderr) => {
                     if (err) {
