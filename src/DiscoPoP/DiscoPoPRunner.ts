@@ -137,7 +137,7 @@ export abstract class DiscoPoPRunner {
             increment: 3,
             operation: async () => {
                 fileMapping = FileMappingParser.parseFile(
-                    `${dpRunnerParseArgs.fullConfiguration.getBuildDirectory()}/.discopop/FileMapping.txt`
+                    `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/FileMapping.txt`
                 )
             },
         })
@@ -147,7 +147,7 @@ export abstract class DiscoPoPRunner {
             increment: 3,
             operation: async () => {
                 discoPoPResults = DiscoPoPParser.parseFile(
-                    `${dpRunnerParseArgs.fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
+                    `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/explorer/patterns.json`
                 )
             },
         })
@@ -156,7 +156,7 @@ export abstract class DiscoPoPRunner {
             message: 'watching for line_mapping.json changes...',
             increment: 1,
             operation: async () => {
-                const lineMappingFile = `${dpRunnerParseArgs.fullConfiguration.getBuildDirectory()}/.discopop/line_mapping.json`
+                const lineMappingFile = `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/line_mapping.json`
                 lineMapping = new LineMapping(lineMappingFile)
             },
         })
@@ -184,16 +184,22 @@ export abstract class DiscoPoPRunner {
     private static async _createBuildDirectory(
         configuration: DefaultConfiguration
     ): Promise<void> {
-        if (!fs.existsSync(configuration.getBuildDirectory())) {
-            fs.mkdirSync(configuration.getBuildDirectory(), { recursive: true })
+        if (!fs.existsSync(configuration.getDiscoPoPBuildDirectory())) {
+            fs.mkdirSync(configuration.getDiscoPoPBuildDirectory(), {
+                recursive: true,
+            })
         } else if (
             Config.skipOverwriteConfirmation() ||
             (await UIPrompts.actionConfirmed(
                 'The build directory already exists. Do you want to overwrite it?\n(You can disable this dialog in the extension settings)'
             ))
         ) {
-            fs.rmSync(configuration.getBuildDirectory(), { recursive: true })
-            fs.mkdirSync(configuration.getBuildDirectory(), { recursive: true })
+            fs.rmSync(configuration.getDiscoPoPBuildDirectory(), {
+                recursive: true,
+            })
+            fs.mkdirSync(configuration.getDiscoPoPBuildDirectory(), {
+                recursive: true,
+            })
         } else {
             throw new Error('Operation cancelled by user')
         }
@@ -209,7 +215,7 @@ export abstract class DiscoPoPRunner {
         return new Promise<void>((resolve, reject) => {
             exec(
                 `${cmakeWrapperScript} ${configuration.getProjectPath()}`,
-                { cwd: configuration.getBuildDirectory() },
+                { cwd: configuration.getDiscoPoPBuildDirectory() },
                 (err, stdout, stderr) => {
                     if (err) {
                         reject(
@@ -234,7 +240,7 @@ export abstract class DiscoPoPRunner {
         return new Promise<void>((resolve, reject) => {
             exec(
                 `make > make.log 2>&1`,
-                { cwd: configuration.getBuildDirectory() },
+                { cwd: configuration.getDiscoPoPBuildDirectory() },
                 (err, stdout, stderr) => {
                     if (err) {
                         reject(
@@ -272,12 +278,12 @@ export abstract class DiscoPoPRunner {
     ): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             exec(
-                `${configuration.getBuildDirectory()}/${configuration.getExecutableName()} ${
+                `${configuration.getDiscoPoPBuildDirectory()}/${configuration.getExecutableName()} ${
                     configuration.getExecutableArgumentsDiscoPoP()
                         ? configuration.getExecutableArgumentsDiscoPoP()
                         : ''
                 }`,
-                { cwd: configuration.getBuildDirectory() },
+                { cwd: configuration.getDiscoPoPBuildDirectory() },
                 (err, stdout, stderr) => {
                     if (err) {
                         reject(
@@ -306,7 +312,9 @@ export abstract class DiscoPoPRunner {
         return new Promise<void>((resolve, reject) => {
             exec(
                 `discopop_explorer`,
-                { cwd: `${configuration.getBuildDirectory()}/.discopop` },
+                {
+                    cwd: `${configuration.getDiscoPoPBuildDirectory()}/.discopop`,
+                },
                 (err, stdout, stderr) => {
                     if (err) {
                         reject(
@@ -322,7 +330,7 @@ export abstract class DiscoPoPRunner {
                     // for now: ensure that patterns.json was created
                     else if (
                         !fs.existsSync(
-                            `${configuration.getBuildDirectory()}/.discopop/explorer/patterns.json`
+                            `${configuration.getDiscoPoPBuildDirectory()}/.discopop/explorer/patterns.json`
                         )
                     ) {
                         reject(
@@ -348,7 +356,9 @@ export abstract class DiscoPoPRunner {
         return new Promise<void>((resolve, reject) => {
             exec(
                 `discopop_patch_generator --dp-build-path=${Config.discopopBuild()}`,
-                { cwd: `${configuration.getBuildDirectory()}/.discopop` },
+                {
+                    cwd: `${configuration.getDiscoPoPBuildDirectory()}/.discopop`,
+                },
                 (err, stdout, stderr) => {
                     if (err) {
                         reject(
