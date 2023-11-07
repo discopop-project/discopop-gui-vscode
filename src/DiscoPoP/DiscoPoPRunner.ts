@@ -3,16 +3,14 @@ import * as fs from 'fs'
 import { exec } from 'child_process'
 
 import { Config } from '../Utils/Config'
-import {
-    DefaultConfiguration,
-} from '../ProjectManager/Configuration'
+import { DefaultConfiguration } from '../ProjectManager/Configuration'
 import { UIPrompts } from '../Utils/UIPrompts'
 import { FileMappingParser } from '../FileMapping/FileMappingParser'
 import { DiscoPoPParser } from './DiscoPoPParser'
 import { FileMapping } from '../FileMapping/FileMapping'
 import { DiscoPoPResults } from './classes/DiscoPoPResults'
 import {
-    ProgressingOperation,
+    WithProgressOperation,
     WithProgressRunner,
 } from '../Utils/WithProgressRunner'
 import { getDefaultErrorHandler } from '../Utils/ErrorHandler'
@@ -47,13 +45,12 @@ export abstract class DiscoPoPRunner {
     public static async run(
         dpRunnerRunArgs: DiscoPoPRunnerRunArguments
     ): Promise<void> {
-        const state = dpRunnerRunArgs // TODO we actually need no state
-        const steps: ProgressingOperation<typeof state>[] = []
+        const steps: WithProgressOperation[] = []
 
         steps.push({
             message: 'Checking setup...',
             increment: 0,
-            operation: async (state) => {
+            operation: async () => {
                 Config.checkDiscoPoPSetup()
             },
         })
@@ -61,57 +58,60 @@ export abstract class DiscoPoPRunner {
         steps.push({
             message: 'Preparing build directory...',
             increment: 5,
-            operation: async (state) => {
-                await this._createBuildDirectory(state.fullConfiguration)
+            operation: async () => {
+                await this._createBuildDirectory(
+                    dpRunnerRunArgs.fullConfiguration
+                )
             },
         })
 
         steps.push({
             message: 'Running CMAKE...',
             increment: 10,
-            operation: async (state) => {
-                await this._runCMake(state.fullConfiguration)
+            operation: async () => {
+                await this._runCMake(dpRunnerRunArgs.fullConfiguration)
             },
         })
 
         steps.push({
             message: 'Running MAKE...',
             increment: 10,
-            operation: async (state) => {
-                await this._runMake(state.fullConfiguration)
+            operation: async () => {
+                await this._runMake(dpRunnerRunArgs.fullConfiguration)
             },
         })
 
         steps.push({
             message: 'Running executable...',
             increment: 20,
-            operation: async (state) => {
-                await this._runExecutable(state.fullConfiguration)
+            operation: async () => {
+                await this._runExecutable(dpRunnerRunArgs.fullConfiguration)
             },
         })
 
         steps.push({
             message: 'Running discopop_explorer...',
             increment: 45,
-            operation: async (state) => {
-                await this._runDiscopopExplorer(state.fullConfiguration)
+            operation: async () => {
+                await this._runDiscopopExplorer(
+                    dpRunnerRunArgs.fullConfiguration
+                )
             },
         })
 
         steps.push({
             message: 'Generating patches...',
             increment: 10,
-            operation: async (state) => {
-                await this._generatePatches(state.fullConfiguration)
+            operation: async () => {
+                await this._generatePatches(dpRunnerRunArgs.fullConfiguration)
             },
         })
 
-        const withProgressRunner = new WithProgressRunner<typeof state>(
+        const withProgressRunner = new WithProgressRunner(
             'Running DiscoPoP...',
             vscode.ProgressLocation.Notification,
             false, // TODO: true is currently NOT supported
             steps,
-            state,
             getDefaultErrorHandler('DiscoPoP failed. ')
         )
 
@@ -121,19 +121,23 @@ export abstract class DiscoPoPRunner {
     public static async parse(
         dpRunnerParseArgs: DiscoPoPRunnerParseArguments
     ): Promise<DiscoPoPRunnerResults> {
-        const sharedState = {
-            arguments: dpRunnerParseArgs, // TODO remove, simply access the function parameter
-            results: {} as Partial<DiscoPoPRunnerResults>,
-        }
+        // const sharedState = {
+        //     arguments: dpRunnerParseArgs, // TODO remove, simply access the function parameter
+        //     results: {} as Partial<DiscoPoPRunnerResults>,
+        // }
 
-        const steps: ProgressingOperation<typeof sharedState>[] = []
+        const steps: WithProgressOperation[] = []
+
+        let fileMapping: FileMapping | undefined = undefined
+        let discoPoPResults: DiscoPoPResults | undefined = undefined
+        let lineMapping: LineMapping | undefined = undefined
 
         steps.push({
             message: 'Parsing results (FileMapping)...',
             increment: 3,
-            operation: async (state) => {
-                state.results.fileMapping = FileMappingParser.parseFile(
-                    `${state.arguments.fullConfiguration.getBuildDirectory()}/.discopop/FileMapping.txt`
+            operation: async () => {
+                fileMapping = FileMappingParser.parseFile(
+                    `${dpRunnerParseArgs.fullConfiguration.getBuildDirectory()}/.discopop/FileMapping.txt`
                 )
             },
         })
@@ -141,9 +145,9 @@ export abstract class DiscoPoPRunner {
         steps.push({
             message: 'Parsing results (Suggestions)...',
             increment: 3,
-            operation: async (state) => {
-                state.results.discoPoPResults = DiscoPoPParser.parseFile(
-                    `${state.arguments.fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
+            operation: async () => {
+                discoPoPResults = DiscoPoPParser.parseFile(
+                    `${dpRunnerParseArgs.fullConfiguration.getBuildDirectory()}/.discopop/explorer/patterns.json`
                 )
             },
         })
@@ -151,37 +155,27 @@ export abstract class DiscoPoPRunner {
         steps.push({
             message: 'watching for line_mapping.json changes...',
             increment: 1,
-            operation: async (state) => {
-                const lineMappingFile = `${state.arguments.fullConfiguration.getBuildDirectory()}/.discopop/line_mapping.json`
-                state.results.lineMapping = new LineMapping(lineMappingFile)
+            operation: async () => {
+                const lineMappingFile = `${dpRunnerParseArgs.fullConfiguration.getBuildDirectory()}/.discopop/line_mapping.json`
+                lineMapping = new LineMapping(lineMappingFile)
             },
         })
 
-        // steps.push({
-        //     // TODO move, this should not be done by the runner
-        //     message: 'Preparing views and code hints...',
-        //     increment: 3,
-        //     operation: async (state) => {
-        //         await this._presentResults(
-        //             state.results.fileMapping,
-        //             state.results.lineMapping,
-        //             state.results.discoPoPResults,
-        //             state.arguments.fullConfiguration
-        //         )
-        //     },
-        // })
-
-        const withProgressRunner = new WithProgressRunner<typeof sharedState>(
+        const withProgressRunner = new WithProgressRunner(
             'Parsing DiscoPoP results...',
             vscode.ProgressLocation.Notification,
             false, // TODO: true is currently NOT supported
             steps,
-            sharedState,
             getDefaultErrorHandler('DiscoPoP parsing failed. ')
         )
 
         await withProgressRunner.run()
-        return sharedState.results as DiscoPoPRunnerResults
+
+        return {
+            fileMapping: fileMapping!,
+            discoPoPResults: discoPoPResults!,
+            lineMapping: lineMapping!,
+        }
     }
 
     /**
