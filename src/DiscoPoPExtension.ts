@@ -385,6 +385,23 @@ export class DiscoPoPExtension {
                 }
             )
         )
+
+        // to allow undoing all suggestions, we need to get a hold on the .discopop directory
+        // once we refactor to have more state in the extension, this is simple:
+        // this.context.subscriptions.push(
+        //     vscode.commands.registerCommand(
+        //         Commands.rollbackAllSuggestions,
+        //         async () => {
+
+        //         }
+        //     )
+        // )
+        // // package.json: (view/title)
+        // {
+        //     "command": "discopop.rollbackAllSuggestions",
+        //     "when": "view == sidebar-suggestions-view",
+        //     "group": "navigation"
+        // }
     }
 
     public deactivate() {}

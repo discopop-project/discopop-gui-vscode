@@ -32,6 +32,8 @@ export class Commands {
         'discopop.applySingleSuggestion'
     public static rollbackSingleSuggestion: string =
         'discopop.rollbackSingleSuggestion'
+    public static rollbackAllSuggestions: string =
+        'discopop.rollbackAllSuggestions'
 
     // enable/disable/change settings
     // TODO

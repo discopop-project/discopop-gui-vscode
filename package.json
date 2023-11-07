@@ -207,6 +207,12 @@
                 "command": "discopop.rollbackSuggestions",
                 "category": "DiscoPoP",
                 "icon": "$(close)"
+            },
+            {
+                "title": "Rollback All Suggestions",
+                "command": "discopop.rollbackAllSuggestions",
+                "category": "DiscoPoP",
+                "icon": "$(clear-all)"
             }
         ],
         "menus": {
@@ -265,6 +271,10 @@
                 },
                 {
                     "command": "discopop.rollbackSingleSuggestion",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.rollbackAllSuggestions",
                     "when": "false"
                 }
             ],
