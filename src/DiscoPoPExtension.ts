@@ -277,6 +277,7 @@ export class DiscoPoPExtension {
             )
         )
 
+        // used by codelenses
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.applySuggestions,
@@ -319,7 +320,7 @@ export class DiscoPoPExtension {
 
                     try {
                         await PatchManager.applyPatch(
-                            fullConfiguration.getBuildDirectory() +
+                            fullConfiguration.getDiscoPoPBuildDirectory() +
                                 '/.discopop',
                             suggestion.id
                         )
@@ -355,7 +356,7 @@ export class DiscoPoPExtension {
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
                     const suggestion = suggestionNode.suggestion
                     const dotDiscoPoP =
-                        suggestionNode.fullConfig.getBuildDirectory() +
+                        suggestionNode.fullConfig.getDiscoPoPBuildDirectory() +
                         '/.discopop'
                     suggestion.applied = true // TODO this should be handled by the PatchManager
                     PatchManager.applyPatch(dotDiscoPoP, suggestion.id).catch(
@@ -372,7 +373,7 @@ export class DiscoPoPExtension {
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
                     const suggestion = suggestionNode.suggestion
                     const dotDiscoPoP =
-                        suggestionNode.fullConfig.getBuildDirectory() +
+                        suggestionNode.fullConfig.getDiscoPoPBuildDirectory() +
                         '/.discopop'
                     suggestion.applied = false // TODO this should be handled by the PatchManager
                     PatchManager.rollbackPatch(

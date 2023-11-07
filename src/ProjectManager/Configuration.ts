@@ -109,11 +109,6 @@ export class Configuration extends ProjectManagerTreeItem {
         return combined
     }
 
-    getHotspotDetectionBuildDirectory(): string {
-        // TODO: make it configurable
-        return this.getBuildDirectory() + '_hotspotDetection'
-    }
-
     getChildren(): ProjectManagerTreeItem[] {
         return [
             this._projectPath,
@@ -207,6 +202,14 @@ export class Configuration extends ProjectManagerTreeItem {
 
     setExecutableArgumentsHotspotDetection(executableArguments: string[]) {
         this._executableArgumentsHotspotDetection?.setValue(executableArguments)
+    }
+
+    getDiscoPoPBuildDirectory(): string | undefined {
+        return this.getBuildDirectory() + '/DiscoPoP'
+    }
+
+    getHotspotDetectionBuildDirectory(): string {
+        return this.getBuildDirectory() + '/HotspotDetection'
     }
 
     getBuildDirectory(): string | undefined {
