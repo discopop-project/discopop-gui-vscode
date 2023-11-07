@@ -163,12 +163,12 @@
             {
                 "title": "Load DiscoPoP Results",
                 "command": "discopop.loadDiscoPoPResults",
-                "icon": "$(issue-reopened)"
+                "icon": "$(history)"
             },
             {
                 "title": "Load Hotspot Detection Results",
                 "command": "discopop.loadHotspotResults",
-                "icon": "$(issue-reopened)"
+                "icon": "$(history)"
             },
             {
                 "title": "Enable Recommendations CodeLens",
