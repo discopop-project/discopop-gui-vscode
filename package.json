@@ -277,16 +277,6 @@
             ],
             "view/item/context": [
                 {
-                    "command": "discopop.applySuggestions",
-                    "when": "view == sidebar-suggestions-view",
-                    "group": "navigation"
-                },
-                {
-                    "command": "discopop.rollbackSuggestions",
-                    "when": "view == sidebar-suggestions-view",
-                    "group": "navigation"
-                },
-                {
                     "command": "discopop.applySingleSuggestion",
                     "when": "view == sidebar-suggestions-view && viewItem==suggestion",
                     "group": "inline",

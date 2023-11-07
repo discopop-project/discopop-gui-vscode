@@ -4,6 +4,7 @@ import { FileMapping } from '../FileMapping/FileMapping'
 import { DiscoPoPResults } from './classes/DiscoPoPResults'
 import { Commands } from '../Utils/Commands'
 import { SimpleTree, SimpleTreeNode } from '../Utils/SimpleTree'
+import { DefaultConfiguration } from '../ProjectManager/Configuration'
 
 /**
  * A suggestion group is a group of suggestions of the same type.
@@ -13,18 +14,18 @@ import { SimpleTree, SimpleTreeNode } from '../Utils/SimpleTree'
 export class DiscoPoPSuggestionGroup
     implements SimpleTreeNode<DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode>
 {
-    label: string
     children: DiscoPoPSuggestionGroup[] | DiscoPoPSuggestionNode[]
-    fileMapping: FileMapping
 
     public constructor(
-        label: string,
+        public label: string,
         children: Suggestion[],
-        fileMapping: FileMapping
+        public fileMapping: FileMapping,
+        public readonly fullConfig: DefaultConfiguration
     ) {
         this.label = label
         this.children = children.map(
-            (child) => new DiscoPoPSuggestionNode(child, fileMapping)
+            (child) =>
+                new DiscoPoPSuggestionNode(this.fullConfig, child, fileMapping)
         )
         this.fileMapping = fileMapping
     }
@@ -49,6 +50,7 @@ export class DiscoPoPSuggestionGroup
  */
 export class DiscoPoPSuggestionNode implements SimpleTreeNode<undefined> {
     public constructor(
+        public readonly fullConfig: DefaultConfiguration,
         public readonly suggestion: Suggestion,
         public readonly fileMapping: FileMapping
     ) {}
@@ -82,6 +84,7 @@ export class SuggestionTree extends SimpleTree<
     DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode
 > {
     public constructor(
+        fullConfig: DefaultConfiguration,
         fileMapping: FileMapping,
         discoPoPResults: DiscoPoPResults
     ) {
@@ -89,7 +92,12 @@ export class SuggestionTree extends SimpleTree<
         Array.from(discoPoPResults.suggestionsByType.entries()).forEach(
             ([type, suggestions]) => {
                 nodes.push(
-                    new DiscoPoPSuggestionGroup(type, suggestions, fileMapping)
+                    new DiscoPoPSuggestionGroup(
+                        type,
+                        suggestions,
+                        fileMapping,
+                        fullConfig
+                    )
                 )
             }
         )
