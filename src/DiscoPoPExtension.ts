@@ -15,8 +15,14 @@ import {
     DefaultConfiguration,
 } from './ProjectManager/Configuration'
 import { Decoration } from './Utils/Decorations'
-import { DiscoPoPRunnerResults } from './DiscoPoP/DiscoPoPRunner'
-import { HotspotDetectionRunnerResults } from './HotspotDetection/HotspotDetectionRunner'
+import {
+    DiscoPoPRunner,
+    DiscoPoPRunnerResults,
+} from './DiscoPoP/DiscoPoPRunner'
+import {
+    HotspotDetectionRunner,
+    HotspotDetectionRunnerResults,
+} from './HotspotDetection/HotspotDetectionRunner'
 
 function _removeDecorations(
     editor: vscode.TextEditor,
@@ -138,6 +144,32 @@ export class DiscoPoPExtension {
                 Commands.runHotspotDetection,
                 async (configuration: Configuration) => {
                     const results = await configuration.runHotspotDetection()
+                    this.showHotspotDetectionResults(results)
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.loadDiscoPoPResults,
+                async (configuration: Configuration) => {
+                    const fullConfig = configuration.getFullConfiguration()
+                    const results = await DiscoPoPRunner.parse({
+                        fullConfiguration: fullConfig,
+                    })
+                    this.showDiscoPoPResults(results, fullConfig)
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.loadHotspotResults,
+                async (configuration: Configuration) => {
+                    const fullConfig = configuration.getFullConfiguration()
+                    const results = await HotspotDetectionRunner.parse({
+                        configuration: fullConfig,
+                    })
                     this.showHotspotDetectionResults(results)
                 }
             )
