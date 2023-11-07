@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import { UIPrompts } from '../Utils/UIPrompts'
 import { Configuration } from '../ProjectManager/Configuration'
 import {
-    ProgressingOperation,
+    WithProgressOperation,
     WithProgressRunner,
 } from '../Utils/WithProgressRunner'
 import { getDefaultErrorHandler } from '../Utils/ErrorHandler'
@@ -34,20 +34,21 @@ export abstract class HotspotDetectionRunner {
     }
 
     public static async runAndParse(
-        args: HotspotDetectionRunnerRunArguments & HotspotDetectionRunnerParseArguments
+        args: HotspotDetectionRunnerRunArguments &
+            HotspotDetectionRunnerParseArguments
     ): Promise<HotspotDetectionRunnerResults> {
         await HotspotDetectionRunner.run(args)
         return HotspotDetectionRunner.parse(args)
     }
 
     public static async run(args: HotspotDetectionRunnerRunArguments) {
-        const state:undefined = undefined
-        const steps: ProgressingOperation<typeof state>[] = []
+        const state: undefined = undefined
+        const steps: WithProgressOperation[] = []
 
         steps.push({
             message: 'Checking setup...',
             increment: 0,
-            operation: async (_) => {
+            operation: async () => {
                 Config.checkHotspotDetectionSetup()
             },
         })
@@ -55,7 +56,7 @@ export abstract class HotspotDetectionRunner {
         steps.push({
             message: 'Preparing build directory...',
             increment: 5,
-            operation: async (_) => {
+            operation: async () => {
                 if (
                     !fs.existsSync(
                         args.configuration.getHotspotDetectionBuildDirectory()
@@ -88,7 +89,7 @@ export abstract class HotspotDetectionRunner {
         steps.push({
             message: 'Running cmake...',
             increment: 10,
-            operation: async (s) => {
+            operation: async () => {
                 const cmakeWrapperScript = `${Config.hotspotDetectionBuild()}/scripts/CMAKE_wrapper.sh`
                 return new Promise<void>((resolve, reject) => {
                     exec(
@@ -118,7 +119,7 @@ export abstract class HotspotDetectionRunner {
         steps.push({
             message: 'Running make...',
             increment: 10,
-            operation: async (s) => {
+            operation: async () => {
                 return new Promise<void>((resolve, reject) => {
                     exec(
                         `make > make.log 2>&1`,
@@ -154,7 +155,7 @@ export abstract class HotspotDetectionRunner {
                     executable_args.length
                 })`,
                 increment: 50 / executable_args.length,
-                operation: async (s) => {
+                operation: async () => {
                     return new Promise<void>((resolve, reject) => {
                         exec(
                             `${args.configuration.getHotspotDetectionBuildDirectory()}/${args.configuration.getExecutableName()} ${execArgs}`,
@@ -185,7 +186,7 @@ export abstract class HotspotDetectionRunner {
         steps.push({
             message: 'Detecting Hotspots...',
             increment: 10,
-            operation: async (s) => {
+            operation: async () => {
                 return new Promise<void>((resolve, reject) => {
                     exec(
                         `hotspot_analyzer`,
@@ -216,24 +217,26 @@ export abstract class HotspotDetectionRunner {
             vscode.ProgressLocation.Notification,
             false, // TODO true is currently NOT supported
             steps,
-            state,
             getDefaultErrorHandler('Hotspot Detection failed. ')
         )
 
         await withProgressRunner.run()
     }
 
-    public static async parse(args: HotspotDetectionRunnerParseArguments): Promise<HotspotDetectionRunnerResults> {
-        const state = {
-            results: {} as Partial<HotspotDetectionRunnerResults>,
-        }
-        const steps: ProgressingOperation<typeof state>[] = []
+    public static async parse(
+        args: HotspotDetectionRunnerParseArguments
+    ): Promise<HotspotDetectionRunnerResults> {
+        const steps: WithProgressOperation[] = []
+
+        let fileMapping: FileMapping | undefined = undefined
+        let hotspotDetectionResults: HotspotDetectionResults | undefined =
+            undefined
 
         steps.push({
             message: 'Parsing results (FileMapping)...',
             increment: 5,
-            operation: async (s) => {
-                s.results.fileMapping = FileMappingParser.parseFile(
+            operation: async () => {
+                fileMapping = FileMappingParser.parseFile(
                     args.configuration.getHotspotDetectionBuildDirectory() +
                         '/.discopop/common_data/FileMapping.txt'
                 )
@@ -243,8 +246,8 @@ export abstract class HotspotDetectionRunner {
         steps.push({
             message: 'Parsing results (Hotspots)...',
             increment: 5,
-            operation: async (s) => {
-                s.results.hotspotDetectionResults = HotspotDetectionParser.parseFile(
+            operation: async () => {
+                hotspotDetectionResults = HotspotDetectionParser.parseFile(
                     args.configuration.getHotspotDetectionBuildDirectory() +
                         '/.discopop/hotspot_detection/Hotspots.json'
                 )
@@ -253,17 +256,19 @@ export abstract class HotspotDetectionRunner {
 
         // TODO make sure the numbers add up to 100 in both run and parse functions
         // better even: normalize in the WithProgressRunner!
-        
-        const withProgressRunner = new WithProgressRunner<typeof state>(
+
+        const withProgressRunner = new WithProgressRunner(
             'Parsing Hotspot Detection Results...',
             vscode.ProgressLocation.Notification,
             false, // TODO true is currently NOT supported
             steps,
-            state,
             getDefaultErrorHandler('Hotspot Detection failed. ')
         )
 
         await withProgressRunner.run()
-        return state.results as HotspotDetectionRunnerResults
+        return {
+            fileMapping: fileMapping!,
+            hotspotDetectionResults: hotspotDetectionResults!,
+        }
     }
 }

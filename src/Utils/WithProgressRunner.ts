@@ -24,8 +24,7 @@ export class WithProgressRunner<State> {
         private title: string,
         private location: vscode.ProgressLocation,
         private cancellable: boolean,
-        private operations: ProgressingOperation<State>[],
-        private state: Partial<State>,
+        private operations: WithProgressOperation[],
         private errorHandler: (error: unknown) => void = (error: unknown) =>
             console.error(error),
         private doneMessage: string | undefined = undefined,
@@ -51,7 +50,7 @@ export class WithProgressRunner<State> {
                             increment: this.nextIncrement,
                             message: operation.message,
                         })
-                        await operation.operation(this.state)
+                        await operation.operation()
                         this.nextIncrement = operation.increment
                     }
 
@@ -72,12 +71,11 @@ export class WithProgressRunner<State> {
     }
 }
 
-export interface ProgressingOperation<State extends Object> {
+export interface WithProgressOperation {
     message: string
     increment: number
-    operation: (state: Partial<State>) => Promise<void>
+    operation: () => Promise<void>
 }
-
 
 // TODO normalize the increment values so that they add up to 100
 
