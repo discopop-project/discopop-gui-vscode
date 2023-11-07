@@ -16,10 +16,25 @@ export abstract class PatchManager {
         dotDiscoPoP: string,
         id: number
     ): Promise<void> {
-        // TODO allow passing multiple ids
+        const args = `-a ${id}`
+        return this._runPatchApplicator(dotDiscoPoP, args)
+    }
+
+    public static async rollbackPatch(
+        dotDiscoPoP: string,
+        id: number
+    ): Promise<void> {
+        const args = `-r ${id}`
+        return this._runPatchApplicator(dotDiscoPoP, args)
+    }
+
+    private static async _runPatchApplicator(
+        dotDiscoPoP: string,
+        args: string
+    ): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             exec(
-                `discopop_patch_applicator -a ${id}`,
+                `discopop_patch_applicator ${args}`,
                 { cwd: dotDiscoPoP },
                 (err, stdout, stderr) => {
                     if (err) {
@@ -49,4 +64,6 @@ export abstract class PatchManager {
 
     // TODO provide interface for the other options of the patch_applicator
     // clear, rollback, load, list, ...
+
+    // TODO allow passing multiple ids to apply/rollback
 }

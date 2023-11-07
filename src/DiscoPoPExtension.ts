@@ -26,6 +26,7 @@ import {
     HotspotDetectionRunner,
     HotspotDetectionRunnerResults,
 } from './HotspotDetection/HotspotDetectionRunner'
+import { getDefaultErrorHandler } from './Utils/ErrorHandler'
 
 function _removeDecorations(
     editor: vscode.TextEditor,
@@ -357,7 +358,10 @@ export class DiscoPoPExtension {
                         suggestionNode.fullConfig.getBuildDirectory() +
                         '/.discopop'
                     suggestion.applied = true // TODO this should be handled by the PatchManager
-                    PatchManager.applyPatch(dotDiscoPoP, suggestion.id)
+                    PatchManager.applyPatch(dotDiscoPoP, suggestion.id).catch(
+                        getDefaultErrorHandler('Failed to apply suggestion')
+                    )
+                    // TODO also update the tree view
                 }
             )
         )
@@ -365,8 +369,19 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.rollbackSingleSuggestion,
-                async () => {
-                    vscode.window.showErrorMessage('Not implemented yet.')
+                async (suggestionNode: DiscoPoPSuggestionNode) => {
+                    const suggestion = suggestionNode.suggestion
+                    const dotDiscoPoP =
+                        suggestionNode.fullConfig.getBuildDirectory() +
+                        '/.discopop'
+                    suggestion.applied = false // TODO this should be handled by the PatchManager
+                    PatchManager.rollbackPatch(
+                        dotDiscoPoP,
+                        suggestion.id
+                    ).catch(
+                        getDefaultErrorHandler('Failed to rollback suggestion')
+                    )
+                    // TODO also update the tree view
                 }
             )
         )
