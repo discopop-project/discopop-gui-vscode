@@ -15,28 +15,39 @@ import { HotspotDetectionResults } from './HotspotDetectionResults'
 import { HotspotDetectionParser } from './HotspotDetectionParser'
 import { HotspotTree } from './HotspotTree'
 
+export interface HotspotDetectionRunnerRunArguments {
+    configuration: Configuration // TODO only the relevent properties
+}
+
+export interface HotspotDetectionRunnerParseArguments {
+    configuration: Configuration // TODO only the relevent properties
+}
+
+export interface HotspotDetectionRunnerResults {
+    fileMapping: FileMapping
+    hotspotDetectionResults: HotspotDetectionResults
+}
+
 export abstract class HotspotDetectionRunner {
-    static hotspotTreeDisposable: any
     private constructor() {
         throw new Error('This class cannot be instantiated')
     }
 
-    // TODO same structure as in DiscoPoPRunner
-    public static async runConfiguration(
-        configuration: Configuration
-    ): Promise<void> {
-        const state = {
-            configuration: configuration.getFullConfiguration(),
-            fileMapping: undefined as FileMapping,
-            hotspotDetectionResults: undefined as HotspotDetectionResults,
-        }
+    public static async runAndParse(
+        args: HotspotDetectionRunnerRunArguments & HotspotDetectionRunnerParseArguments
+    ): Promise<HotspotDetectionRunnerResults> {
+        await HotspotDetectionRunner.run(args)
+        return HotspotDetectionRunner.parse(args)
+    }
 
+    public static async run(args: HotspotDetectionRunnerRunArguments) {
+        const state:undefined = undefined
         const steps: ProgressingOperation<typeof state>[] = []
 
         steps.push({
             message: 'Checking setup...',
             increment: 0,
-            operation: async (s) => {
+            operation: async (_) => {
                 Config.checkHotspotDetectionSetup()
             },
         })
@@ -44,14 +55,14 @@ export abstract class HotspotDetectionRunner {
         steps.push({
             message: 'Preparing build directory...',
             increment: 5,
-            operation: async (s) => {
+            operation: async (_) => {
                 if (
                     !fs.existsSync(
-                        s.configuration.getHotspotDetectionBuildDirectory()
+                        args.configuration.getHotspotDetectionBuildDirectory()
                     )
                 ) {
                     fs.mkdirSync(
-                        s.configuration.getHotspotDetectionBuildDirectory(),
+                        args.configuration.getHotspotDetectionBuildDirectory(),
                         { recursive: true }
                     )
                 } else if (
@@ -61,11 +72,11 @@ export abstract class HotspotDetectionRunner {
                     ))
                 ) {
                     fs.rmSync(
-                        s.configuration.getHotspotDetectionBuildDirectory(),
+                        args.configuration.getHotspotDetectionBuildDirectory(),
                         { recursive: true }
                     )
                     fs.mkdirSync(
-                        s.configuration.getHotspotDetectionBuildDirectory(),
+                        args.configuration.getHotspotDetectionBuildDirectory(),
                         { recursive: true }
                     )
                 } else {
@@ -81,9 +92,9 @@ export abstract class HotspotDetectionRunner {
                 const cmakeWrapperScript = `${Config.hotspotDetectionBuild()}/scripts/CMAKE_wrapper.sh`
                 return new Promise<void>((resolve, reject) => {
                     exec(
-                        `${cmakeWrapperScript} ${s.configuration.getProjectPath()}`,
+                        `${cmakeWrapperScript} ${args.configuration.getProjectPath()}`,
                         {
-                            cwd: s.configuration.getHotspotDetectionBuildDirectory(),
+                            cwd: args.configuration.getHotspotDetectionBuildDirectory(),
                         },
                         (err, stdout, stderr) => {
                             if (err) {
@@ -112,7 +123,7 @@ export abstract class HotspotDetectionRunner {
                     exec(
                         `make > make.log 2>&1`,
                         {
-                            cwd: s.configuration.getHotspotDetectionBuildDirectory(),
+                            cwd: args.configuration.getHotspotDetectionBuildDirectory(),
                         },
                         (err, stdout, stderr) => {
                             if (err) {
@@ -135,9 +146,9 @@ export abstract class HotspotDetectionRunner {
 
         // TODO we need to get args from the configuration
         const executable_args =
-            state.configuration.getExecutableArgumentsHotspotDetection()
+            args.configuration.getExecutableArgumentsHotspotDetection()
 
-        executable_args.forEach((args, index) => {
+        executable_args.forEach((execArgs, index) => {
             steps.push({
                 message: `Running Executable... (${index + 1}/${
                     executable_args.length
@@ -146,9 +157,9 @@ export abstract class HotspotDetectionRunner {
                 operation: async (s) => {
                     return new Promise<void>((resolve, reject) => {
                         exec(
-                            `${s.configuration.getHotspotDetectionBuildDirectory()}/${s.configuration.getExecutableName()} ${args}`,
+                            `${args.configuration.getHotspotDetectionBuildDirectory()}/${args.configuration.getExecutableName()} ${execArgs}`,
                             {
-                                cwd: s.configuration.getHotspotDetectionBuildDirectory(),
+                                cwd: args.configuration.getHotspotDetectionBuildDirectory(),
                             },
                             (err, stdout, stderr) => {
                                 if (err) {
@@ -179,7 +190,7 @@ export abstract class HotspotDetectionRunner {
                     exec(
                         `hotspot_analyzer`,
                         {
-                            cwd: `${configuration.getHotspotDetectionBuildDirectory()}/.discopop`,
+                            cwd: `${args.configuration.getHotspotDetectionBuildDirectory()}/.discopop`,
                         },
                         (err, stdout, stderr) => {
                             if (err) {
@@ -200,12 +211,30 @@ export abstract class HotspotDetectionRunner {
             },
         })
 
+        const withProgressRunner = new WithProgressRunner<typeof state>(
+            'Running Hotspot Detection...',
+            vscode.ProgressLocation.Notification,
+            false, // TODO true is currently NOT supported
+            steps,
+            state,
+            getDefaultErrorHandler('Hotspot Detection failed. ')
+        )
+
+        await withProgressRunner.run()
+    }
+
+    public static async parse(args: HotspotDetectionRunnerParseArguments): Promise<HotspotDetectionRunnerResults> {
+        const state = {
+            results: {} as Partial<HotspotDetectionRunnerResults>,
+        }
+        const steps: ProgressingOperation<typeof state>[] = []
+
         steps.push({
             message: 'Parsing results (FileMapping)...',
             increment: 5,
             operation: async (s) => {
-                s.fileMapping = FileMappingParser.parseFile(
-                    s.configuration.getHotspotDetectionBuildDirectory() +
+                s.results.fileMapping = FileMappingParser.parseFile(
+                    args.configuration.getHotspotDetectionBuildDirectory() +
                         '/.discopop/common_data/FileMapping.txt'
                 )
             },
@@ -215,35 +244,18 @@ export abstract class HotspotDetectionRunner {
             message: 'Parsing results (Hotspots)...',
             increment: 5,
             operation: async (s) => {
-                s.hotspotDetectionResults = HotspotDetectionParser.parseFile(
-                    s.configuration.getHotspotDetectionBuildDirectory() +
+                s.results.hotspotDetectionResults = HotspotDetectionParser.parseFile(
+                    args.configuration.getHotspotDetectionBuildDirectory() +
                         '/.discopop/hotspot_detection/Hotspots.json'
                 )
             },
         })
 
-        steps.push({
-            message: 'Preparing results...',
-            increment: 5,
-            operation: async (s) => {
-                // show the hotspots in the sidebar
-                const hotspotTree = new HotspotTree(
-                    s.fileMapping,
-                    undefined, // TODO s.lineMapping,
-                    s.hotspotDetectionResults
-                )
-                await HotspotDetectionRunner.hotspotTreeDisposable?.dispose()
-                HotspotDetectionRunner.hotspotTreeDisposable =
-                    vscode.window.createTreeView('sidebar-hotspots-view', {
-                        treeDataProvider: hotspotTree,
-                        showCollapseAll: false,
-                        canSelectMany: false,
-                    })
-            },
-        })
-
+        // TODO make sure the numbers add up to 100 in both run and parse functions
+        // better even: normalize in the WithProgressRunner!
+        
         const withProgressRunner = new WithProgressRunner<typeof state>(
-            'Simulating Hotspot Detection', // TODO
+            'Parsing Hotspot Detection Results...',
             vscode.ProgressLocation.Notification,
             false, // TODO true is currently NOT supported
             steps,
@@ -252,5 +264,6 @@ export abstract class HotspotDetectionRunner {
         )
 
         await withProgressRunner.run()
+        return state.results as HotspotDetectionRunnerResults
     }
 }

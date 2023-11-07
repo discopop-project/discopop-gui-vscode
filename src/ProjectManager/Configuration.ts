@@ -2,8 +2,8 @@ import * as vscode from 'vscode'
 import { ConfigurationItem } from './ConfigurationItem'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Project } from './Project'
-import { DiscoPoPRunner } from '../DiscoPoP/DiscoPoPRunner'
-import { HotspotDetectionRunner } from '../HotspotDetection/HotspotDetectionRunner'
+import { DiscoPoPRunner, DiscoPoPRunnerResults } from '../DiscoPoP/DiscoPoPRunner'
+import { HotspotDetectionRunner, HotspotDetectionRunnerResults } from '../HotspotDetection/HotspotDetectionRunner'
 
 export class Configuration extends ProjectManagerTreeItem {
     parent: Project | undefined
@@ -131,31 +131,36 @@ export class Configuration extends ProjectManagerTreeItem {
         return this.parent
     }
 
-    async runDiscoPoPAndHotspotDetection() {
-        await this.runDiscoPoP()
-        await this.runHotspotDetection()
+    async runDiscoPoPAndHotspotDetection(): Promise<[DiscoPoPRunnerResults, HotspotDetectionRunnerResults]> {
+        const dpResults = await this.runDiscoPoP()
+        const hsResults = await this.runHotspotDetection()
+        return [dpResults, hsResults]
     }
 
-    async runDiscoPoP() {
+    async runDiscoPoP(): Promise<DiscoPoPRunnerResults> {
         this.iconPath = new vscode.ThemeIcon('gear~spin')
         this.refresh()
 
-        await DiscoPoPRunner.runAndParse({
+        const results = await DiscoPoPRunner.runAndParse({
             fullConfiguration: this.getFullConfiguration(),
         })
 
         this.iconPath = new vscode.ThemeIcon('gear')
         this.refresh()
+
+        return results
     }
 
-    async runHotspotDetection() {
+    async runHotspotDetection(): Promise<HotspotDetectionRunnerResults> {
         this.iconPath = new vscode.ThemeIcon('gear~spin')
         this.refresh()
 
-        await HotspotDetectionRunner.runConfiguration(this)
+        const results = await HotspotDetectionRunner.runAndParse({configuration: this})
 
         this.iconPath = new vscode.ThemeIcon('gear')
         this.refresh()
+        
+        return results
     }
 
     // getters and setters for the configuration items (and name)

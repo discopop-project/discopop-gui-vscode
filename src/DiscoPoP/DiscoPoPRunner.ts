@@ -4,18 +4,11 @@ import { exec } from 'child_process'
 
 import { Config } from '../Utils/Config'
 import {
-    Configuration,
     DefaultConfiguration,
 } from '../ProjectManager/Configuration'
 import { UIPrompts } from '../Utils/UIPrompts'
-import {
-    DiscoPoPSuggestionGroup,
-    DiscoPoPSuggestionNode,
-    SuggestionTree,
-} from './DiscoPoPSuggestionTree'
 import { FileMappingParser } from '../FileMapping/FileMappingParser'
 import { DiscoPoPParser } from './DiscoPoPParser'
-import { DiscoPoPCodeLensProvider } from './DiscoPoPCodeLensProvider'
 import { FileMapping } from '../FileMapping/FileMapping'
 import { DiscoPoPResults } from './classes/DiscoPoPResults'
 import {
@@ -24,7 +17,6 @@ import {
 } from '../Utils/WithProgressRunner'
 import { getDefaultErrorHandler } from '../Utils/ErrorHandler'
 import { LineMapping } from '../LineMapping/LineMapping'
-import { title } from 'process'
 
 export interface DiscoPoPRunnerRunArguments {
     fullConfiguration: DefaultConfiguration // TODO replace with only the necessary fields
@@ -34,7 +26,7 @@ export interface DiscoPoPRunnerParseArguments {
     fullConfiguration: DefaultConfiguration // TODO replace with only the necessary fields
 }
 
-export interface DiscoPoPRunnerParsedResults {
+export interface DiscoPoPRunnerResults {
     fileMapping: FileMapping
     lineMapping: LineMapping
     discoPoPResults: DiscoPoPResults
@@ -47,7 +39,7 @@ export abstract class DiscoPoPRunner {
 
     public static async runAndParse(
         dpRunnerArgs: DiscoPoPRunnerRunArguments & DiscoPoPRunnerParseArguments
-    ): Promise<DiscoPoPRunnerParsedResults> {
+    ): Promise<DiscoPoPRunnerResults> {
         await DiscoPoPRunner.run(dpRunnerArgs)
         return DiscoPoPRunner.parse(dpRunnerArgs)
     }
@@ -55,7 +47,7 @@ export abstract class DiscoPoPRunner {
     public static async run(
         dpRunnerRunArgs: DiscoPoPRunnerRunArguments
     ): Promise<void> {
-        const state = dpRunnerRunArgs
+        const state = dpRunnerRunArgs // TODO we actually need no state
         const steps: ProgressingOperation<typeof state>[] = []
 
         steps.push({
@@ -128,10 +120,10 @@ export abstract class DiscoPoPRunner {
 
     public static async parse(
         dpRunnerParseArgs: DiscoPoPRunnerParseArguments
-    ): Promise<DiscoPoPRunnerParsedResults> {
+    ): Promise<DiscoPoPRunnerResults> {
         const sharedState = {
-            arguments: dpRunnerParseArgs,
-            results: {} as Partial<DiscoPoPRunnerParsedResults>,
+            arguments: dpRunnerParseArgs, // TODO remove, simply access the function parameter
+            results: {} as Partial<DiscoPoPRunnerResults>,
         }
 
         const steps: ProgressingOperation<typeof sharedState>[] = []
@@ -165,19 +157,19 @@ export abstract class DiscoPoPRunner {
             },
         })
 
-        steps.push({
-            // TODO move, this should not be done by the runner
-            message: 'Preparing views and code hints...',
-            increment: 3,
-            operation: async (state) => {
-                await this._presentResults(
-                    state.results.fileMapping,
-                    state.results.lineMapping,
-                    state.results.discoPoPResults,
-                    state.arguments.fullConfiguration
-                )
-            },
-        })
+        // steps.push({
+        //     // TODO move, this should not be done by the runner
+        //     message: 'Preparing views and code hints...',
+        //     increment: 3,
+        //     operation: async (state) => {
+        //         await this._presentResults(
+        //             state.results.fileMapping,
+        //             state.results.lineMapping,
+        //             state.results.discoPoPResults,
+        //             state.arguments.fullConfiguration
+        //         )
+        //     },
+        // })
 
         const withProgressRunner = new WithProgressRunner<typeof sharedState>(
             'Parsing DiscoPoP results...',
@@ -189,15 +181,8 @@ export abstract class DiscoPoPRunner {
         )
 
         await withProgressRunner.run()
-
-        return sharedState.results as DiscoPoPRunnerParsedResults
+        return sharedState.results as DiscoPoPRunnerResults
     }
-
-    // TODO move, this should not be done by the runner
-    private static codeLensProviderDisposable: vscode.Disposable | undefined
-    private static suggestionTreeDisposable:
-        | vscode.TreeView<DiscoPoPSuggestionNode | DiscoPoPSuggestionGroup>
-        | undefined
 
     /**
      * Creates the build directory if it does not exist yet.
@@ -386,41 +371,5 @@ export abstract class DiscoPoPRunner {
                 }
             )
         })
-    }
-
-    /**
-     * Presents the results.
-     */
-    private static async _presentResults(
-        fileMapping: FileMapping,
-        lineMapping: LineMapping,
-        discoPoPResults: DiscoPoPResults,
-        fullConfiguration: DefaultConfiguration
-    ): Promise<void> {
-        // show the suggestions in the sidebar
-        const suggestionTree = new SuggestionTree(fileMapping, discoPoPResults) // TODO use lineMapping here
-        await DiscoPoPRunner.suggestionTreeDisposable?.dispose()
-        DiscoPoPRunner.suggestionTreeDisposable = vscode.window.createTreeView(
-            'sidebar-suggestions-view',
-            {
-                treeDataProvider: suggestionTree,
-                showCollapseAll: false,
-                canSelectMany: false,
-            }
-        )
-
-        // enable code lenses for all suggestions
-        const codeLensProvider = new DiscoPoPCodeLensProvider(
-            fileMapping,
-            lineMapping,
-            fullConfiguration,
-            discoPoPResults.getAllSuggestions()
-        )
-        await DiscoPoPRunner.codeLensProviderDisposable?.dispose()
-        DiscoPoPRunner.codeLensProviderDisposable =
-            vscode.languages.registerCodeLensProvider(
-                { scheme: 'file', language: 'cpp' },
-                codeLensProvider
-            )
     }
 }
