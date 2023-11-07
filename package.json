@@ -139,6 +139,12 @@
                 "icon": "$(copy)"
             },
             {
+                "title": "Edit Configuration Item",
+                "command": "discopop.editConfigurationItem",
+                "category": "DiscoPoP",
+                "icon": "$(edit)"
+            },
+            {
                 "title": "Run DiscoPoP and Hotspot Detection",
                 "command": "discopop.runDiscoPoPAndHotspotDetection",
                 "category": "DiscoPoP",
@@ -155,10 +161,14 @@
                 "icon": "$(play-circle)"
             },
             {
-                "title": "Edit Configuration Item",
-                "command": "discopop.editConfigurationItem",
-                "category": "DiscoPoP",
-                "icon": "$(edit)"
+                "title": "Load DiscoPoP Results",
+                "command": "discopop.loadDiscoPoPResults",
+                "icon": "$(issue-reopened)"
+            },
+            {
+                "title": "Load Hotspot Detection Results",
+                "command": "discopop.loadHotspotResults",
+                "icon": "$(issue-reopened)"
             },
             {
                 "title": "Enable Recommendations CodeLens",
@@ -242,6 +252,14 @@
                     "when": "false"
                 },
                 {
+                    "command": "discopop.loadDiscoPoPResults",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.loadHotspotResults",
+                    "when": "false"
+                },
+                {
                     "command": "discopop.applySingleSuggestion",
                     "when": "false"
                 },
@@ -311,21 +329,6 @@
                     "group": "context"
                 },
                 {
-                    "command": "discopop.runDiscoPoPAndHotspotDetection",
-                    "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
-                    "group": "inline@3"
-                },
-                {
-                    "command": "discopop.runDiscoPoP",
-                    "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
-                    "group": "inline@2"
-                },
-                {
-                    "command": "discopop.runHotspotDetection",
-                    "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
-                    "group": "inline@1"
-                },
-                {
                     "command": "discopop.editConfigurationItem",
                     "when": "view == sidebar-projects-view && viewItem==configurationItem",
                     "group": "inline"
@@ -333,6 +336,31 @@
                 {
                     "command": "discopop.runDiscoPoPAndHotspotDetection",
                     "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
+                    "group": "inline@4"
+                },
+                {
+                    "command": "discopop.runDiscoPoP",
+                    "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
+                    "group": "inline@3"
+                },
+                {
+                    "command": "discopop.runHotspotDetection",
+                    "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
+                    "group": "inline@2"
+                },
+                {
+                    "command": "discopop.loadDiscoPoPResults",
+                    "when": "view==sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "discopop.loadHotspotResults",
+                    "when": "view == sidebar-projects-view && (viewItem==configuration||viewItem==defaultConfiguration)",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "discopop.runDiscoPoPAndHotspotDetection",
+                    "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
                     "group": "runners"
                 },
                 {
@@ -344,6 +372,16 @@
                     "command": "discopop.runHotspotDetection",
                     "when": "view == sidebar-projects-view && (viewItem==configuration || viewItem==defaultConfiguration)",
                     "group": "runners"
+                },
+                {
+                    "command": "discopop.loadDiscoPoPResults",
+                    "when": "view == sidebar-projects-view && (viewItem==configuration ||viewItem==defaultConfiguration)",
+                    "group": "loaders"
+                },
+                {
+                    "command": "discopop.loadHotspotResults",
+                    "when": "view == sidebar-projects-view && (viewItem==configuration ||viewItem==defaultConfiguration)",
+                    "group": "loaders"
                 }
             ]
         }

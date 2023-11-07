@@ -15,6 +15,8 @@ export class Commands {
         'discopop.runDiscoPoPAndHotspotDetection'
     public static runDiscoPoP: string = 'discopop.runDiscoPoP'
     public static runHotspotDetection: string = 'discopop.runHotspotDetection'
+    public static loadDiscoPoPResults = 'discopop.loadDiscoPoPResults'
+    public static loadHotspotResults = 'discopop.loadHotspotResults'
 
     // configurationItem
     public static editConfigurationItem: string =
