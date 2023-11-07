@@ -28,6 +28,11 @@ export abstract class PatchManager {
         return this._runPatchApplicator(dotDiscoPoP, args)
     }
 
+    public static async clear(dotDiscoPoP: string): Promise<void> {
+        const args = '-c'
+        return this._runPatchApplicator(dotDiscoPoP, args)
+    }
+
     private static async _runPatchApplicator(
         dotDiscoPoP: string,
         args: string
