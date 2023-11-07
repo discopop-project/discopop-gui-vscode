@@ -69,12 +69,12 @@ export class DiscoPoPCodeLensProvider
     ): DiscoPoPCodeLens[] | Thenable<DiscoPoPCodeLens[]> {
         const lenses = []
         if (Config.codeLensEnabled() && !this.hidden) {
+            const fileId = this.fileMapping.getFileId(
+                document.fileName.toString()
+            )
             this.suggestions
                 // only suggestions for this file
                 .filter((suggestion) => {
-                    const fileId = this.fileMapping.getFileId(
-                        document.fileName.toString()
-                    )
                     return suggestion.fileId === fileId
                 })
                 // only suggestions that are not yet applied

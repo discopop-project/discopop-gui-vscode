@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 
-export class UIPrompts {
+export abstract class UIPrompts {
     // TODO add option for default values
     // TODO we should probably completely redo inputs...
     //  --> this could be a good starting point: https://github.com/microsoft/vscode-extension-samples/blob/main/quickinput-sample/src/quickOpen.ts
