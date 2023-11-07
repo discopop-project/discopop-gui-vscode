@@ -4,7 +4,10 @@ import { DiscoPoPDetailViewProvider } from './DiscoPoP/DiscoPoPDetailViewProvide
 import { HotspotDetailViewProvider } from './HotspotDetection/HotspotDetailViewProvider'
 import { Commands } from './Utils/Commands'
 import { DiscoPoPCodeLensProvider } from './DiscoPoP/DiscoPoPCodeLensProvider'
-import { SuggestionTree } from './DiscoPoP/DiscoPoPSuggestionTree'
+import {
+    DiscoPoPSuggestionNode,
+    SuggestionTree,
+} from './DiscoPoP/DiscoPoPSuggestionTree'
 import { PatchManager } from './DiscoPoP/PatchManager'
 import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
 import { FileMapping } from './FileMapping/FileMapping'
@@ -59,6 +62,7 @@ export class DiscoPoPExtension {
     ) {
         // show the suggestions in the sidebar
         const suggestionTree = new SuggestionTree(
+            fullConfig,
             dpResults.fileMapping,
             dpResults.discoPoPResults
         ) // TODO use lineMapping here
@@ -347,8 +351,13 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.applySingleSuggestion,
-                async () => {
-                    vscode.window.showErrorMessage('Not implemented yet.')
+                async (suggestionNode: DiscoPoPSuggestionNode) => {
+                    const suggestion = suggestionNode.suggestion
+                    const dotDiscoPoP =
+                        suggestionNode.fullConfig.getBuildDirectory() +
+                        '/.discopop'
+                    suggestion.applied = true // TODO this should be handled by the PatchManager
+                    PatchManager.applyPatch(dotDiscoPoP, suggestion.id)
                 }
             )
         )
