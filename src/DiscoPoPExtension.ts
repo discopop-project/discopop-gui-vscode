@@ -1,18 +1,22 @@
-import * as vscode from 'vscode';
-import { ProjectManager } from './ProjectManager/ProjectManager';
-import { DiscoPoPDetailViewProvider } from './DiscoPoP/DiscoPoPDetailViewProvider';
-import { HotspotDetailViewProvider } from './HotspotDetection/HotspotDetailViewProvider';
-import { Commands } from './Utils/Commands';
-import { DiscoPoPCodeLensProvider } from './DiscoPoP/DiscoPoPCodeLensProvider';
-import { SuggestionTree } from './DiscoPoP/DiscoPoPSuggestionTree';
-import { PatchManager } from './DiscoPoP/PatchManager';
-import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion';
-import { FileMapping } from './FileMapping/FileMapping';
-import { HotspotTree } from './HotspotDetection/HotspotTree';
-import { Hotspot } from './HotspotDetection/classes/Hotspot';
-import { Configuration, DefaultConfiguration } from './ProjectManager/Configuration';
-import { Decoration } from './Utils/Decorations';
-
+import * as vscode from 'vscode'
+import { ProjectManager } from './ProjectManager/ProjectManager'
+import { DiscoPoPDetailViewProvider } from './DiscoPoP/DiscoPoPDetailViewProvider'
+import { HotspotDetailViewProvider } from './HotspotDetection/HotspotDetailViewProvider'
+import { Commands } from './Utils/Commands'
+import { DiscoPoPCodeLensProvider } from './DiscoPoP/DiscoPoPCodeLensProvider'
+import { SuggestionTree } from './DiscoPoP/DiscoPoPSuggestionTree'
+import { PatchManager } from './DiscoPoP/PatchManager'
+import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
+import { FileMapping } from './FileMapping/FileMapping'
+import { HotspotTree } from './HotspotDetection/HotspotTree'
+import { Hotspot } from './HotspotDetection/classes/Hotspot'
+import {
+    Configuration,
+    DefaultConfiguration,
+} from './ProjectManager/Configuration'
+import { Decoration } from './Utils/Decorations'
+import { DiscoPoPRunnerResults } from './DiscoPoP/DiscoPoPRunner'
+import { HotspotDetectionRunnerResults } from './HotspotDetection/HotspotDetectionRunner'
 
 function _removeDecorations(
     editor: vscode.TextEditor,
@@ -23,11 +27,12 @@ function _removeDecorations(
     })
 }
 
-
 export class DiscoPoPExtension {
     private projectManager: ProjectManager
-    private dp_details: DiscoPoPDetailViewProvider = new DiscoPoPDetailViewProvider(undefined)
-    private hs_details: HotspotDetailViewProvider = new HotspotDetailViewProvider(undefined)
+    private dp_details: DiscoPoPDetailViewProvider =
+        new DiscoPoPDetailViewProvider(undefined)
+    private hs_details: HotspotDetailViewProvider =
+        new HotspotDetailViewProvider(undefined)
 
     // TODO I would like to keep the disposables inside the respective classes
     // const suggestionTree = new ...
@@ -35,10 +40,68 @@ export class DiscoPoPExtension {
     // const dp_codelensProvider = new DiscoPoPCodeLensProvider(undefined, undefined, undefined, undefined)
     private hotspotTreeDisposable: vscode.Disposable | undefined = undefined
     private suggestionTreeDisposable: vscode.Disposable | undefined = undefined
-    private codeLensProviderDisposable: vscode.Disposable | undefined = undefined
+    private codeLensProviderDisposable: vscode.Disposable | undefined =
+        undefined
 
     public constructor(private context: vscode.ExtensionContext) {
         this.projectManager = new ProjectManager(context)
+    }
+
+    public async showDiscoPoPResults(
+        dpResults: DiscoPoPRunnerResults,
+        fullConfig: DefaultConfiguration
+    ) {
+        // show the suggestions in the sidebar
+        const suggestionTree = new SuggestionTree(
+            dpResults.fileMapping,
+            dpResults.discoPoPResults
+        ) // TODO use lineMapping here
+        await this.suggestionTreeDisposable?.dispose()
+        this.suggestionTreeDisposable = vscode.window.createTreeView(
+            'sidebar-suggestions-view',
+            {
+                treeDataProvider: suggestionTree,
+                showCollapseAll: false,
+                canSelectMany: false,
+            }
+        )
+
+        // enable code lenses for all suggestions
+        // TODO we should not create a new code lens provider every time,
+        const codeLensProvider = new DiscoPoPCodeLensProvider(
+            dpResults.fileMapping,
+            dpResults.lineMapping,
+            fullConfig,
+            dpResults.discoPoPResults.getAllSuggestions()
+        )
+        await this.codeLensProviderDisposable?.dispose()
+        this.codeLensProviderDisposable =
+            vscode.languages.registerCodeLensProvider(
+                { scheme: 'file', language: 'cpp' }, // TODO only apply this provider for files listed in the fileMapping
+                codeLensProvider
+            )
+    }
+
+    public async showHotspotDetectionResults(
+        hsResults: HotspotDetectionRunnerResults
+    ) {
+        // show the hotspots in the sidebar
+        const hotspotTree = new HotspotTree(
+            hsResults.fileMapping,
+            undefined, // TODO s.lineMapping,
+            hsResults.hotspotDetectionResults
+        )
+        // TODO we should not create a new tree view every time,
+        // but rather update the existing one
+        await this.hotspotTreeDisposable?.dispose()
+        this.hotspotTreeDisposable = vscode.window.createTreeView(
+            'sidebar-hotspots-view',
+            {
+                treeDataProvider: hotspotTree,
+                showCollapseAll: false,
+                canSelectMany: false,
+            }
+        )
     }
 
     public activate() {
@@ -46,71 +109,40 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.runDiscoPoPAndHotspotDetection,
                 async (configuration: Configuration) => {
-                    configuration.runDiscoPoPAndHotspotDetection()
+                    const fullConfig = configuration.getFullConfiguration()
+
+                    // DiscoPoP
+                    const dpResults = await fullConfig.runDiscoPoP()
+                    await this.showDiscoPoPResults(dpResults, fullConfig)
+
+                    // HotspotDetection
+                    const hsResults = await configuration.runHotspotDetection()
+                    await this.showHotspotDetectionResults(hsResults)
                 }
             )
         )
-    
+
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.runDiscoPoP,
                 async (configuration: Configuration) => {
                     const fullConfig = configuration.getFullConfiguration()
                     const results = await fullConfig.runDiscoPoP()
-                    // show the suggestions in the sidebar
-                    const suggestionTree = new SuggestionTree(results.fileMapping, results.discoPoPResults) // TODO use lineMapping here
-                    await this.suggestionTreeDisposable?.dispose()
-                    this.suggestionTreeDisposable = vscode.window.createTreeView(
-                        'sidebar-suggestions-view',
-                        {
-                            treeDataProvider: suggestionTree,
-                            showCollapseAll: false,
-                            canSelectMany: false,
-                        }
-                    )
-    
-                    // enable code lenses for all suggestions
-                    // TODO we should not create a new code lens provider every time,
-                    const codeLensProvider = new DiscoPoPCodeLensProvider(
-                        results.fileMapping,
-                        results.lineMapping,
-                        fullConfig,
-                        results.discoPoPResults.getAllSuggestions()
-                    )
-                    await this.codeLensProviderDisposable?.dispose()
-                    this.codeLensProviderDisposable =
-                        vscode.languages.registerCodeLensProvider(
-                            { scheme: 'file', language: 'cpp'}, // TODO only apply this provider for files listed in the fileMapping
-                            codeLensProvider
-                        )
+                    this.showDiscoPoPResults(results, fullConfig)
                 }
             )
         )
-    
+
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.runHotspotDetection,
                 async (configuration: Configuration) => {
                     const results = await configuration.runHotspotDetection()
-                    // show the hotspots in the sidebar
-                    const hotspotTree = new HotspotTree(
-                        results.fileMapping,
-                        undefined, // TODO s.lineMapping,
-                        results.hotspotDetectionResults
-                    )
-                    // TODO we should not create a new tree view every time,
-                    // but rather update the existing one
-                    await this.hotspotTreeDisposable?.dispose()
-                    this.hotspotTreeDisposable =
-                        vscode.window.createTreeView('sidebar-hotspots-view', {
-                            treeDataProvider: hotspotTree,
-                            showCollapseAll: false,
-                            canSelectMany: false,
-                        })
+                    this.showHotspotDetectionResults(results)
                 }
             )
         )
-    
+
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.showSuggestionDetails,
@@ -125,11 +157,14 @@ export class DiscoPoPExtension {
                         vscode.ViewColumn.Active,
                         false
                     )
-                    const line = new vscode.Position(suggestion.startLine - 1, 0)
+                    const line = new vscode.Position(
+                        suggestion.startLine - 1,
+                        0
+                    )
                     editor.selections = [new vscode.Selection(line, line)]
                     const startLineRange = new vscode.Range(line, line)
                     editor.revealRange(startLineRange)
-    
+
                     // highlight the respective code lines
                     // TODO this does not work well with composite suggestions (e.g. simple_gpu)
                     // TODO we should remove the hightlight at some point (currently it disappears only when selecting another suggestion or reopening the file)
@@ -144,11 +179,13 @@ export class DiscoPoPExtension {
                         new vscode.Position(suggestion.startLine - 1, 0),
                         new vscode.Position(suggestion.endLine - 1, 0)
                     )
-                    editor.setDecorations(Decoration.SOFT, [{ range: entireRange }])
+                    editor.setDecorations(Decoration.SOFT, [
+                        { range: entireRange },
+                    ])
                 }
             )
         )
-    
+
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.showHotspotDetails,
@@ -167,10 +204,10 @@ export class DiscoPoPExtension {
                     editor.selections = [new vscode.Selection(line, line)]
                     const range = new vscode.Range(line, line)
                     editor.revealRange(range)
-    
+
                     // TODO: it would be nice to decorate all hotspots in the file at once and have some option to toggle them
                     // TODO: it would be nice to decorate until the end of the function/loop (but we do not know the line number of the end)
-    
+
                     // remove all previous decorations
                     _removeDecorations(
                         editor,
@@ -179,7 +216,7 @@ export class DiscoPoPExtension {
                         Decoration.NO,
                         Decoration.SOFT
                     )
-    
+
                     // highlight the hotspot
                     let decoration = Decoration.SOFT
                     switch (hotspot.hotness) {
@@ -202,7 +239,7 @@ export class DiscoPoPExtension {
                 }
             )
         )
-    
+
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.applySuggestions,
@@ -227,23 +264,26 @@ export class DiscoPoPExtension {
                                     }
                                 }),
                                 {
-                                    placeHolder: 'Select the suggestion to apply',
+                                    placeHolder:
+                                        'Select the suggestion to apply',
                                 }
                             )
                         if (!suggestionQuickPickItem) {
                             return
                         }
-    
+
                         suggestion = suggestions.find((suggestion) => {
                             return (
-                                `${suggestion.id}` === suggestionQuickPickItem.label
+                                `${suggestion.id}` ===
+                                suggestionQuickPickItem.label
                             )
                         })
                     }
-    
+
                     try {
                         await PatchManager.applyPatch(
-                            fullConfiguration.getBuildDirectory() + '/.discopop',
+                            fullConfiguration.getBuildDirectory() +
+                                '/.discopop',
                             suggestion.id
                         )
                         suggestion.applied = true // TODO this should be handled by the PatchManager
@@ -260,10 +300,10 @@ export class DiscoPoPExtension {
                         console.error(suggestion)
                         console.error(fullConfiguration)
                     }
-    
+
                     // TODO it would be nice to also show the suggestion as applied in the tree view
                     // --> themeIcon: record/pass
-    
+
                     // TODO before inserting, preview the changes and request confirmation
                     // --> we could peek the patch file as a preview https://github.com/microsoft/vscode/blob/8434c86e5665341c753b00c10425a01db4fb8580/src/vs/editor/contrib/gotoSymbol/goToCommands.ts#L760
                     // --> we should also set the detail view to the suggestion that is being applied
@@ -271,7 +311,7 @@ export class DiscoPoPExtension {
                 }
             )
         )
-    
+
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.applySingleSuggestion,
@@ -280,7 +320,7 @@ export class DiscoPoPExtension {
                 }
             )
         )
-    
+
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.rollbackSingleSuggestion,
@@ -291,7 +331,5 @@ export class DiscoPoPExtension {
         )
     }
 
-    public deactivate() {
-
-    }
+    public deactivate() {}
 }
