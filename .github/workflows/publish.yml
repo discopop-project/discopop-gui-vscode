@@ -6,7 +6,7 @@
 # the 3-Clause BSD License.  See the LICENSE file in the package base
 # directory for details.
 
-name: "Publish Extension"
+name: "Deploy Extension"
 
 on:
   push:
@@ -15,7 +15,6 @@ on:
     tags:
       - "*"
 
-name: Deploy Extension
 jobs:
   deploy:
     runs-on: ubuntu-latest
