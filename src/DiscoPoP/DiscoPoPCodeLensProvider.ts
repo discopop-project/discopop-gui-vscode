@@ -9,17 +9,10 @@ import { LineMapping } from '../LineMapping/LineMapping'
 export class DiscoPoPCodeLens extends vscode.CodeLens {
     public constructor(
         fullConfiguration: DefaultConfiguration,
-        suggestions: Suggestion[]
+        suggestions: Suggestion[],
+        line: number
     ) {
-        super(
-            // TODO use the line_mapping
-            new vscode.Range(
-                suggestions[0].startLine - 1,
-                0,
-                suggestions[0].startLine - 1,
-                0
-            )
-        )
+        super(new vscode.Range(line - 1, 0, line - 1, 0))
         this.command = {
             title:
                 `discovered potetential parallelism` +
@@ -81,34 +74,26 @@ export class DiscoPoPCodeLensProvider
                 .filter((suggestion) => {
                     return !suggestion.applied
                 })
-                // map line numbers
-                .map((suggestion) => {
-                    suggestion.startLine = this.lineMapping.getMappedLine(
+                // group by line
+                .reduce((acc, suggestion) => {
+                    const startLine = this.lineMapping.getMappedLine(
                         suggestion.fileId,
                         suggestion.startLine
                     )
-                    suggestion.endLine = this.lineMapping.getMappedLine(
-                        suggestion.fileId,
-                        suggestion.endLine
-                    )
-                    return suggestion
-                })
-                // group by line
-                .reduce((acc, suggestion) => {
-                    const line = suggestion.startLine
-                    if (acc.has(line)) {
-                        acc.get(line).push(suggestion)
+                    if (acc.has(startLine)) {
+                        acc.get(startLine).push(suggestion)
                     } else {
-                        acc.set(line, [suggestion])
+                        acc.set(startLine, [suggestion])
                     }
                     return acc
-                }, new Map<Number, Suggestion[]>())
+                }, new Map<number, Suggestion[]>())
                 // get CodeLens for each suggestion
                 .forEach((suggestions, line) => {
                     lenses.push(
                         new DiscoPoPCodeLens(
                             this.fullConfiguration,
-                            suggestions
+                            suggestions,
+                            line
                         )
                     )
                 })
