@@ -3,6 +3,7 @@
     "displayName": "DiscoPoP",
     "description": "An extension for the Parallelism Discovery tool DiscoPoP.",
     "author": "TU Darmstadt - Laboratory for Parallel Programming",
+    "icon": "media/discopop_icon.png",
     "version": "0.0.1",
     "publisher": "TUDarmstadt-LaboratoryforParallelProgramming",
     "repository": {
