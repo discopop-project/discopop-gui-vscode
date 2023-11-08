@@ -2,12 +2,12 @@
     "name": "discopop-gui",
     "displayName": "discopop-gui",
     "description": "An extension for the Parallelism Discovery tool DiscoPoP.",
-    "author": "Emir Azazi",
-    "version": "1.0.2",
-    "publisher": "easoqi",
+    "author": "TU Darmstadt - Laboratory for Parallel Programming",
+    "version": "0.1",
+    "publisher": "TUDarmstadt-LaboratoryforParallelProgramming",
     "repository": {
         "type": "git",
-        "url": "https://github.com/emirazazi/discopop-gui-vscode"
+        "url": "https://github.com/discopop-project/discopop-gui-vscode"
     },
     "engines": {
         "vscode": "^1.68.0"
