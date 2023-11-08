@@ -1,9 +1,9 @@
 {
-    "name": "discopop-gui",
-    "displayName": "discopop-gui",
+    "name": "discopop",
+    "displayName": "DiscoPoP",
     "description": "An extension for the Parallelism Discovery tool DiscoPoP.",
     "author": "TU Darmstadt - Laboratory for Parallel Programming",
-    "version": "0.1",
+    "version": "0.0.1",
     "publisher": "TUDarmstadt-LaboratoryforParallelProgramming",
     "repository": {
         "type": "git",
