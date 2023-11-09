@@ -42,7 +42,7 @@ export class LineMapping {
         }
     }
 
-    public getMappedLine(fileID: number, lineNr: number): number {
+    public getMappedLineNr(fileID: number, lineNr: number): number {
         const fileIDMapping = this.lineMapping.get(fileID)
         if (fileIDMapping) {
             const lineNrMapping = fileIDMapping.get(lineNr)
