@@ -12,10 +12,10 @@ export abstract class Suggestion {
     ) {}
 
     public getMappedStartLine(lineMapping: LineMapping): number {
-        return lineMapping.getMappedLine(this.fileId, this.startLine)
+        return lineMapping.getMappedLineNr(this.fileId, this.startLine)
     }
 
     public getMappedEndLine(lineMapping: LineMapping): number {
-        return lineMapping.getMappedLine(this.fileId, this.endLine)
+        return lineMapping.getMappedLineNr(this.fileId, this.endLine)
     }
 }

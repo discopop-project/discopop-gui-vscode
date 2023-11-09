@@ -190,12 +190,19 @@ export class DiscoPoPExtension {
                         vscode.ViewColumn.Active,
                         false
                     )
-                    const line = new vscode.Position(
-                        suggestion.startLine - 1,
+                    const startLine = new vscode.Position(
+                        suggestion.getMappedStartLine(
+                            this.dpResults.lineMapping
+                        ) - 1,
                         0
                     )
-                    editor.selections = [new vscode.Selection(line, line)]
-                    const startLineRange = new vscode.Range(line, line)
+                    editor.selections = [
+                        new vscode.Selection(startLine, startLine),
+                    ]
+                    const startLineRange = new vscode.Range(
+                        startLine,
+                        startLine
+                    )
                     editor.revealRange(startLineRange)
 
                     // highlight the respective code lines
@@ -209,8 +216,13 @@ export class DiscoPoPExtension {
                         Decoration.SOFT
                     )
                     const entireRange = new vscode.Range(
-                        new vscode.Position(suggestion.startLine - 1, 0),
-                        new vscode.Position(suggestion.endLine - 1, 0)
+                        startLine,
+                        new vscode.Position(
+                            suggestion.getMappedEndLine(
+                                this.dpResults.lineMapping
+                            ) - 1,
+                            0
+                        )
                     )
                     editor.setDecorations(Decoration.SOFT, [
                         { range: entireRange },
@@ -234,7 +246,16 @@ export class DiscoPoPExtension {
                         vscode.ViewColumn.Active,
                         false
                     )
-                    const line = new vscode.Position(hotspot.lineNum - 1, 0)
+                    let line = new vscode.Position(hotspot.lineNum - 1, 0)
+                    if (this.dpResults) {
+                        line = new vscode.Position(
+                            this.dpResults.lineMapping.getMappedLineNr(
+                                hotspot.fid,
+                                hotspot.lineNum
+                            ) - 1,
+                            0
+                        )
+                    }
                     editor.selections = [new vscode.Selection(line, line)]
                     const range = new vscode.Range(line, line)
                     editor.revealRange(range)
