@@ -153,7 +153,7 @@ export class DiscoPoPExtension {
                 Commands.loadDiscoPoPResults,
                 async (configuration: Configuration) => {
                     const fullConfig = configuration.getFullConfiguration()
-                    const results = await DiscoPoPRunner.parse({
+                    this.dpResults = await DiscoPoPRunner.parse({
                         fullConfiguration: fullConfig,
                     })
                     await this.showDiscoPoPResults(fullConfig)
