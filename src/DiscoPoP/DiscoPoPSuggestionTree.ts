@@ -1,7 +1,6 @@
 import * as vscode from 'vscode'
 import { Suggestion } from './classes/Suggestion/Suggestion'
 import { FileMapping } from '../FileMapping/FileMapping'
-import { DiscoPoPResults } from './classes/DiscoPoPResults'
 import { Commands } from '../Utils/Commands'
 import { SimpleTree, SimpleTreeNode } from '../Utils/SimpleTree'
 import { DefaultConfiguration } from '../ProjectManager/Configuration'
@@ -86,10 +85,10 @@ export class SuggestionTree extends SimpleTree<
     public constructor(
         fullConfig: DefaultConfiguration,
         fileMapping: FileMapping,
-        discoPoPResults: DiscoPoPResults
+        suggestionsByType: Map<string, Suggestion[]>
     ) {
         const nodes: DiscoPoPSuggestionGroup[] = []
-        Array.from(discoPoPResults.suggestionsByType.entries()).forEach(
+        Array.from(suggestionsByType.entries()).forEach(
             ([type, suggestions]) => {
                 nodes.push(
                     new DiscoPoPSuggestionGroup(

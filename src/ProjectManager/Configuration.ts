@@ -2,10 +2,7 @@ import * as vscode from 'vscode'
 import { ConfigurationItem } from './ConfigurationItem'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Project } from './Project'
-import {
-    DiscoPoPRunner,
-    DiscoPoPRunnerResults,
-} from '../DiscoPoP/DiscoPoPRunner'
+import { DiscoPoPRunner, DiscoPoPResults } from '../DiscoPoP/DiscoPoPRunner'
 import {
     HotspotDetectionRunner,
     HotspotDetectionRunnerResults,
@@ -132,7 +129,7 @@ export class Configuration extends ProjectManagerTreeItem {
         return this.parent
     }
 
-    async runDiscoPoP(): Promise<DiscoPoPRunnerResults> {
+    async runDiscoPoP(): Promise<DiscoPoPResults> {
         this.iconPath = new vscode.ThemeIcon('gear~spin')
         this.refresh()
 
