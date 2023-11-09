@@ -24,10 +24,28 @@ export interface DiscoPoPRunnerParseArguments {
     fullConfiguration: DefaultConfiguration // TODO replace with only the necessary fields
 }
 
-export interface DiscoPoPResults {
-    suggestionsByType: Map<string, Suggestion[]>
-    fileMapping: FileMapping
-    lineMapping: LineMapping
+export class DiscoPoPResults {
+    public constructor(
+        public dotDiscoPoP: string,
+        public suggestionsByType: Map<string, Suggestion[]>,
+        public fileMapping: FileMapping,
+        public lineMapping: LineMapping
+    ) {}
+
+    public getSuggestionById(id: number): Suggestion | undefined {
+        for (const suggestions of this.suggestionsByType.values()) {
+            for (const suggestion of suggestions) {
+                if (suggestion.id === id) {
+                    return suggestion
+                }
+            }
+        }
+        return undefined
+    }
+
+    // TODO getSuggestionsForFileId(fileId: number): Suggestion[] { ... }
+    // TODO getSuggestionsForFile(file: string): Suggestion[] { ... }
+    // TODO getSuggestionsForType(type: string): Suggestion[] { ... }
 }
 
 export abstract class DiscoPoPRunner {
@@ -165,11 +183,13 @@ export abstract class DiscoPoPRunner {
 
         await withProgressRunner.run()
 
-        return {
-            suggestionsByType: suggestionsByType!,
-            fileMapping: fileMapping!,
-            lineMapping: lineMapping!,
-        }
+        return new DiscoPoPResults(
+            dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory() +
+                '/.discopop',
+            suggestionsByType!,
+            fileMapping!,
+            lineMapping!
+        )
     }
 
     /**
