@@ -36,6 +36,8 @@ function _removeDecorations(
 
 export class DiscoPoPExtension {
     private projectManager: ProjectManager
+    private dpResults: DiscoPoPResults | undefined = undefined
+    private hsResults: HotspotDetectionRunnerResults | undefined = undefined
     private dp_details: DiscoPoPDetailViewProvider =
         new DiscoPoPDetailViewProvider(undefined)
     private hs_details: HotspotDetailViewProvider =
@@ -54,16 +56,9 @@ export class DiscoPoPExtension {
         this.projectManager = new ProjectManager(context)
     }
 
-    public async showDiscoPoPResults(
-        dpResults: DiscoPoPResults,
-        fullConfig: DefaultConfiguration
-    ) {
+    public async showDiscoPoPResults(fullConfig: DefaultConfiguration) {
         // show the suggestions in the sidebar
-        const suggestionTree = new SuggestionTree(
-            fullConfig,
-            dpResults.fileMapping,
-            dpResults.suggestionsByType
-        ) // TODO use lineMapping here
+        const suggestionTree = new SuggestionTree(this.dpResults)
         await this.suggestionTreeDisposable?.dispose()
         this.suggestionTreeDisposable = vscode.window.createTreeView(
             'sidebar-suggestions-view',
@@ -77,10 +72,10 @@ export class DiscoPoPExtension {
         // enable code lenses for all suggestions
         // TODO we should not create a new code lens provider every time,
         const codeLensProvider = new DiscoPoPCodeLensProvider(
-            dpResults.fileMapping,
-            dpResults.lineMapping,
+            this.dpResults.fileMapping,
+            this.dpResults.lineMapping,
             fullConfig.getDiscoPoPBuildDirectory() + '/.discopop',
-            Array.from(dpResults.suggestionsByType.values()).flat()
+            Array.from(this.dpResults.suggestionsByType.values()).flat()
         )
         await this.codeLensProviderDisposable?.dispose()
         this.codeLensProviderDisposable =
@@ -120,12 +115,12 @@ export class DiscoPoPExtension {
                     const fullConfig = configuration.getFullConfiguration()
 
                     // DiscoPoP
-                    const dpResults = await fullConfig.runDiscoPoP()
-                    await this.showDiscoPoPResults(dpResults, fullConfig)
+                    this.dpResults = await fullConfig.runDiscoPoP()
+                    await this.showDiscoPoPResults(fullConfig)
 
                     // HotspotDetection
-                    const hsResults = await configuration.runHotspotDetection()
-                    await this.showHotspotDetectionResults(hsResults)
+                    this.hsResults = await configuration.runHotspotDetection()
+                    await this.showHotspotDetectionResults(this.hsResults)
                 }
             )
         )
@@ -135,8 +130,8 @@ export class DiscoPoPExtension {
                 Commands.runDiscoPoP,
                 async (configuration: Configuration) => {
                     const fullConfig = configuration.getFullConfiguration()
-                    const results = await fullConfig.runDiscoPoP()
-                    this.showDiscoPoPResults(results, fullConfig)
+                    this.dpResults = await fullConfig.runDiscoPoP()
+                    await this.showDiscoPoPResults(fullConfig)
                 }
             )
         )
@@ -159,7 +154,7 @@ export class DiscoPoPExtension {
                     const results = await DiscoPoPRunner.parse({
                         fullConfiguration: fullConfig,
                     })
-                    this.showDiscoPoPResults(results, fullConfig)
+                    await this.showDiscoPoPResults(fullConfig)
                 }
             )
         )
@@ -180,9 +175,13 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.showSuggestionDetails,
-                async (suggestion: Suggestion, fileMapping: FileMapping) => {
+                async (suggestionId: number) => {
+                    const suggestion =
+                        this.dpResults.getSuggestionById(suggestionId)
                     this.dp_details.replaceContents(suggestion.pureJSONData)
-                    const filePath = fileMapping.getFilePath(suggestion.fileId)
+                    const filePath = this.dpResults.fileMapping.getFilePath(
+                        suggestion.fileId
+                    )
                     const document = await vscode.workspace.openTextDocument(
                         filePath
                     )
@@ -216,7 +215,8 @@ export class DiscoPoPExtension {
                     editor.setDecorations(Decoration.SOFT, [
                         { range: entireRange },
                     ])
-                }
+                },
+                this
             )
         )
 
@@ -347,9 +347,7 @@ export class DiscoPoPExtension {
                 Commands.applySingleSuggestion,
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
                     const suggestion = suggestionNode.suggestion
-                    const dotDiscoPoP =
-                        suggestionNode.fullConfig.getDiscoPoPBuildDirectory() +
-                        '/.discopop'
+                    const dotDiscoPoP = this.dpResults.dotDiscoPoP
                     suggestion.applied = true // TODO this should be handled by the PatchManager
                     PatchManager.applyPatch(dotDiscoPoP, suggestion.id).catch(
                         getDefaultErrorHandler('Failed to apply suggestion')
@@ -364,9 +362,7 @@ export class DiscoPoPExtension {
                 Commands.rollbackSingleSuggestion,
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
                     const suggestion = suggestionNode.suggestion
-                    const dotDiscoPoP =
-                        suggestionNode.fullConfig.getDiscoPoPBuildDirectory() +
-                        '/.discopop'
+                    const dotDiscoPoP = this.dpResults.dotDiscoPoP
                     suggestion.applied = false // TODO this should be handled by the PatchManager
                     PatchManager.rollbackPatch(
                         dotDiscoPoP,

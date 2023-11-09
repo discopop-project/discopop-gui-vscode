@@ -1,17 +1,14 @@
 import { LineMapping } from '../../../LineMapping/LineMapping'
 
 export abstract class Suggestion {
-    applied: boolean = false
-
     constructor(
-        // parsed fields
         public id: number,
         public type: string,
         public fileId: number,
         public startLine: number,
         public endLine: number,
-        // complete JSON data
-        public pureJSONData: any
+        public pureJSONData: any,
+        public applied: boolean = false
     ) {}
 
     public getMappedStartLine(lineMapping: LineMapping): number {

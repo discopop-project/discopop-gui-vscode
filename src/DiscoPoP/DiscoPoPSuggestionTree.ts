@@ -4,6 +4,7 @@ import { FileMapping } from '../FileMapping/FileMapping'
 import { Commands } from '../Utils/Commands'
 import { SimpleTree, SimpleTreeNode } from '../Utils/SimpleTree'
 import { DefaultConfiguration } from '../ProjectManager/Configuration'
+import { DiscoPoPResults } from './DiscoPoPRunner'
 
 /**
  * A suggestion group is a group of suggestions of the same type.
@@ -13,20 +14,11 @@ import { DefaultConfiguration } from '../ProjectManager/Configuration'
 export class DiscoPoPSuggestionGroup
     implements SimpleTreeNode<DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode>
 {
-    children: DiscoPoPSuggestionGroup[] | DiscoPoPSuggestionNode[]
-
     public constructor(
         public label: string,
-        children: Suggestion[],
-        public fileMapping: FileMapping,
-        public readonly fullConfig: DefaultConfiguration
+        public children: DiscoPoPSuggestionGroup[] | DiscoPoPSuggestionNode[]
     ) {
         this.label = label
-        this.children = children.map(
-            (child) =>
-                new DiscoPoPSuggestionNode(this.fullConfig, child, fileMapping)
-        )
-        this.fileMapping = fileMapping
     }
 
     public getView(): vscode.TreeItem {
@@ -49,9 +41,8 @@ export class DiscoPoPSuggestionGroup
  */
 export class DiscoPoPSuggestionNode implements SimpleTreeNode<undefined> {
     public constructor(
-        public readonly fullConfig: DefaultConfiguration,
         public readonly suggestion: Suggestion,
-        public readonly fileMapping: FileMapping
+        public file: string
     ) {}
 
     public getView(): vscode.TreeItem {
@@ -59,17 +50,16 @@ export class DiscoPoPSuggestionNode implements SimpleTreeNode<undefined> {
             `${this.suggestion.id}`,
             vscode.TreeItemCollapsibleState.None
         )
-        const filePath = this.fileMapping.getFilePath(this.suggestion.fileId)
-        const fileName = filePath.split('/').pop()
-        view.resourceUri = vscode.Uri.file(filePath) // TODO is this good?
+        const fileName = this.file.split('/').pop()
+        view.resourceUri = vscode.Uri.file(this.file) // TODO is this good?
         view.description = `${fileName}:${this.suggestion.startLine}`
-        view.tooltip = filePath + ':' + this.suggestion.startLine
+        view.tooltip = this.file + ':' + this.suggestion.startLine
         view.iconPath = new vscode.ThemeIcon('lightbulb')
         view.contextValue = 'suggestion'
         view.command = {
             command: Commands.showSuggestionDetails,
             title: 'Show Suggestion Details',
-            arguments: [this.suggestion, this.fileMapping],
+            arguments: [this.suggestion.id],
         }
         return view
     }
@@ -82,20 +72,21 @@ export class DiscoPoPSuggestionNode implements SimpleTreeNode<undefined> {
 export class SuggestionTree extends SimpleTree<
     DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode
 > {
-    public constructor(
-        fullConfig: DefaultConfiguration,
-        fileMapping: FileMapping,
-        suggestionsByType: Map<string, Suggestion[]>
-    ) {
+    public constructor(discoPoPResults: DiscoPoPResults) {
         const nodes: DiscoPoPSuggestionGroup[] = []
-        Array.from(suggestionsByType.entries()).forEach(
+        Array.from(discoPoPResults.suggestionsByType.entries()).forEach(
             ([type, suggestions]) => {
                 nodes.push(
                     new DiscoPoPSuggestionGroup(
                         type,
-                        suggestions,
-                        fileMapping,
-                        fullConfig
+                        suggestions.map((suggestion) => {
+                            return new DiscoPoPSuggestionNode(
+                                suggestion,
+                                discoPoPResults.fileMapping.getFilePath(
+                                    suggestion.fileId
+                                )
+                            )
+                        })
                     )
                 )
             }
