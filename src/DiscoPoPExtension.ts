@@ -74,6 +74,7 @@ export class DiscoPoPExtension {
         const codeLensProvider = new DiscoPoPCodeLensProvider(
             this.dpResults.fileMapping,
             this.dpResults.lineMapping,
+            this.dpResults.appliedStatus,
             fullConfig.getDiscoPoPBuildDirectory() + '/.discopop',
             Array.from(this.dpResults.suggestionsByType.values()).flat()
         )
@@ -115,6 +116,7 @@ export class DiscoPoPExtension {
                     const fullConfig = configuration.getFullConfiguration()
 
                     // DiscoPoP
+                    this.dpResults.finalize()
                     this.dpResults = await fullConfig.runDiscoPoP()
                     await this.showDiscoPoPResults(fullConfig)
 
@@ -338,7 +340,6 @@ export class DiscoPoPExtension {
                             dotDiscoPoP,
                             suggestion.id
                         )
-                        suggestion.applied = true // TODO this should be handled by the PatchManager
                     } catch (err) {
                         if (err instanceof Error) {
                             vscode.window.showErrorMessage(err.message)
@@ -369,7 +370,6 @@ export class DiscoPoPExtension {
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
                     const suggestion = suggestionNode.suggestion
                     const dotDiscoPoP = this.dpResults.dotDiscoPoP
-                    suggestion.applied = true // TODO this should be handled by the PatchManager
                     PatchManager.applyPatch(dotDiscoPoP, suggestion.id).catch(
                         getDefaultErrorHandler('Failed to apply suggestion')
                     )
@@ -384,7 +384,6 @@ export class DiscoPoPExtension {
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
                     const suggestion = suggestionNode.suggestion
                     const dotDiscoPoP = this.dpResults.dotDiscoPoP
-                    suggestion.applied = false // TODO this should be handled by the PatchManager
                     PatchManager.rollbackPatch(
                         dotDiscoPoP,
                         suggestion.id

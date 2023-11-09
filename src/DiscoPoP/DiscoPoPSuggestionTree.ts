@@ -42,26 +42,39 @@ export class DiscoPoPSuggestionGroup
 export class DiscoPoPSuggestionNode implements SimpleTreeNode<undefined> {
     public constructor(
         public readonly suggestion: Suggestion,
-        public file: string
-    ) {}
-
-    public getView(): vscode.TreeItem {
-        const view = new vscode.TreeItem(
+        public file: string,
+        applied: boolean
+    ) {
+        this.view = new vscode.TreeItem(
             `${this.suggestion.id}`,
             vscode.TreeItemCollapsibleState.None
         )
         const fileName = this.file.split('/').pop()
-        view.resourceUri = vscode.Uri.file(this.file) // TODO is this good?
-        view.description = `${fileName}:${this.suggestion.startLine}`
-        view.tooltip = this.file + ':' + this.suggestion.startLine
-        view.iconPath = new vscode.ThemeIcon('lightbulb')
-        view.contextValue = 'suggestion'
-        view.command = {
+        this.view.resourceUri = vscode.Uri.file(this.file) // TODO is this good?
+        this.view.description = `${fileName}:${this.suggestion.startLine}`
+        this.view.tooltip = this.file + ':' + this.suggestion.startLine
+        this.view.command = {
             command: Commands.showSuggestionDetails,
             title: 'Show Suggestion Details',
             arguments: [this.suggestion.id],
         }
-        return view
+        this.setApplied(applied)
+    }
+
+    public view: vscode.TreeItem
+
+    public getView(): vscode.TreeItem {
+        return this.view
+    }
+
+    public setApplied(applied: boolean): void {
+        if (applied) {
+            this.view.iconPath = new vscode.ThemeIcon('verified-filled')
+            this.view.contextValue = 'suggestion_applied'
+        } else {
+            this.view.iconPath = new vscode.ThemeIcon('lightbulb')
+            this.view.contextValue = 'suggestion'
+        }
     }
 
     public getChildren(): undefined {
@@ -84,6 +97,9 @@ export class SuggestionTree extends SimpleTree<
                                 suggestion,
                                 discoPoPResults.fileMapping.getFilePath(
                                     suggestion.fileId
+                                ),
+                                discoPoPResults.appliedStatus.isApplied(
+                                    suggestion.id
                                 )
                             )
                         })
@@ -92,5 +108,33 @@ export class SuggestionTree extends SimpleTree<
             }
         )
         super(nodes)
+        discoPoPResults.appliedStatus.onDidChange((appliedStatus) => {
+            this.updateAppliedStatus(appliedStatus)
+            this.refresh()
+        })
+    }
+
+    public updateAppliedStatus(appliedStatus) {
+        this.roots.forEach((root) => {
+            this._callCallbackForAllNodes(root, (node) => {
+                if (node instanceof DiscoPoPSuggestionNode) {
+                    node.setApplied(appliedStatus.isApplied(node.suggestion.id))
+                }
+            })
+        })
+    }
+
+    private _callCallbackForAllNodes(
+        node: DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode,
+        callback: (
+            node: DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode
+        ) => void
+    ): void {
+        callback(node)
+        if (node instanceof DiscoPoPSuggestionGroup) {
+            node.children.forEach((child) => {
+                this._callCallbackForAllNodes(child, callback)
+            })
+        }
     }
 }

@@ -15,6 +15,7 @@ import {
 import { getDefaultErrorHandler } from '../Utils/ErrorHandler'
 import { LineMapping } from '../LineMapping/LineMapping'
 import { Suggestion } from './classes/Suggestion/Suggestion'
+import { DiscoPoPAppliedSuggestionsWatcher } from './DiscoPoPAppliedSuggestionsWatcher'
 
 export interface DiscoPoPRunnerRunArguments {
     fullConfiguration: DefaultConfiguration // TODO replace with only the necessary fields
@@ -29,7 +30,8 @@ export class DiscoPoPResults {
         public dotDiscoPoP: string,
         public suggestionsByType: Map<string, Suggestion[]>,
         public fileMapping: FileMapping,
-        public lineMapping: LineMapping
+        public lineMapping: LineMapping,
+        public appliedStatus: DiscoPoPAppliedSuggestionsWatcher
     ) {}
 
     public getSuggestionById(id: number): Suggestion | undefined {
@@ -41,6 +43,11 @@ export class DiscoPoPResults {
             }
         }
         return undefined
+    }
+
+    public finalize() {
+        this.lineMapping.dispose()
+        this.appliedStatus.dispose()
     }
 
     // TODO getSuggestionsForFileId(fileId: number): Suggestion[] { ... }
@@ -144,7 +151,7 @@ export abstract class DiscoPoPRunner {
         let fileMapping: FileMapping | undefined = undefined
         steps.push({
             message: 'Parsing FileMapping...',
-            increment: 3,
+            increment: 25,
             operation: async () => {
                 fileMapping = FileMappingParser.parseFile(
                     `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/FileMapping.txt`
@@ -155,7 +162,7 @@ export abstract class DiscoPoPRunner {
         let suggestionsByType: Map<string, Suggestion[]> | undefined = undefined
         steps.push({
             message: 'Parsing suggestions...',
-            increment: 3,
+            increment: 25,
             operation: async () => {
                 suggestionsByType = DiscoPoPParser.parseFile(
                     `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/explorer/patterns.json`
@@ -166,10 +173,33 @@ export abstract class DiscoPoPRunner {
         let lineMapping: LineMapping | undefined = undefined
         steps.push({
             message: 'Synchronizing LineMapping...',
-            increment: 1,
+            increment: 25,
             operation: async () => {
                 const lineMappingFile = `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/line_mapping.json`
                 lineMapping = new LineMapping(lineMappingFile)
+            },
+        })
+
+        let appliedStatus: DiscoPoPAppliedSuggestionsWatcher | undefined =
+            undefined
+        steps.push({
+            message: 'Synchronizing applied status...',
+            increment: 25,
+            operation: async () => {
+                const appliedSuggestionsFile = `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/patch_applicator/applied_suggestions.json`
+
+                // create the file if it does not exist: .discopop/patch_applicator/applied_suggestions.json
+                if (!fs.existsSync(appliedSuggestionsFile)) {
+                    fs.mkdirSync(
+                        `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/patch_applicator`,
+                        { recursive: true }
+                    )
+                    fs.writeFileSync(appliedSuggestionsFile, '{"applied":[]}')
+                } // TODO this should be done by the patch_generator
+
+                appliedStatus = new DiscoPoPAppliedSuggestionsWatcher(
+                    appliedSuggestionsFile
+                )
             },
         })
 
@@ -188,7 +218,8 @@ export abstract class DiscoPoPRunner {
                 '/.discopop',
             suggestionsByType!,
             fileMapping!,
-            lineMapping!
+            lineMapping!,
+            appliedStatus!
         )
     }
 

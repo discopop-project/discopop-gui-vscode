@@ -1,4 +1,5 @@
 import { LineMapping } from '../../../LineMapping/LineMapping'
+import { DiscoPoPAppliedSuggestionsWatcher } from '../../DiscoPoPAppliedSuggestionsWatcher'
 
 export abstract class Suggestion {
     constructor(
@@ -7,8 +8,7 @@ export abstract class Suggestion {
         public fileId: number,
         public startLine: number,
         public endLine: number,
-        public pureJSONData: any,
-        public applied: boolean = false
+        public pureJSONData: any
     ) {}
 
     public getMappedStartLine(lineMapping: LineMapping): number {
@@ -17,5 +17,11 @@ export abstract class Suggestion {
 
     public getMappedEndLine(lineMapping: LineMapping): number {
         return lineMapping.getMappedLineNr(this.fileId, this.endLine)
+    }
+
+    public isApplied(
+        appliedStatus: DiscoPoPAppliedSuggestionsWatcher
+    ): boolean {
+        return appliedStatus.isApplied(this.id)
     }
 }

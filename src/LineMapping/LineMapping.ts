@@ -21,13 +21,17 @@ export class LineMapping {
     // Event that is fired when the line mapping file is changed
     private _eventEmitter = new EventEmitter()
 
-    public onDidChangeLineMappingFile(callback: () => void) {
+    public onDidChange(callback: () => void) {
         this._eventEmitter.on('change', callback)
     }
 
     private parseLineMappingFile() {
         console.log('Parsing line mapping file')
-        this.lineMapping = new Map()
+
+        // clear existing mapping
+        this.lineMapping.clear()
+
+        // read the file and populate the mapping again
         const lineMappingString = fs.readFileSync(this.lineMappingFile, 'utf-8')
         const lineMappingJSON = JSON.parse(lineMappingString)
         for (const [fileID, lineMapping] of Object.entries(lineMappingJSON)) {

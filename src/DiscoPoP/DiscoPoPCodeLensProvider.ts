@@ -5,6 +5,7 @@ import { FileMapping } from '../FileMapping/FileMapping'
 import { Commands } from '../Utils/Commands'
 import { DefaultConfiguration } from '../ProjectManager/Configuration'
 import { LineMapping } from '../LineMapping/LineMapping'
+import { DiscoPoPAppliedSuggestionsWatcher } from './DiscoPoPAppliedSuggestionsWatcher'
 
 export class DiscoPoPCodeLens extends vscode.CodeLens {
     public constructor(
@@ -44,6 +45,7 @@ export class DiscoPoPCodeLensProvider
     constructor(
         private fileMapping: FileMapping,
         private lineMapping: LineMapping,
+        private appliedStatus: DiscoPoPAppliedSuggestionsWatcher,
         private dotDiscoPoP: string,
         suggestions: Suggestion[] = []
     ) {
@@ -64,7 +66,12 @@ export class DiscoPoPCodeLensProvider
         })
 
         // update lenses when lineMapping changes
-        this.lineMapping.onDidChangeLineMappingFile(() => {
+        this.lineMapping.onDidChange(() => {
+            this._onDidChangeCodeLenses.fire()
+        })
+
+        // update lenses when appliedStatus changes
+        this.appliedStatus.onDidChange(() => {
             this._onDidChangeCodeLenses.fire()
         })
     }
@@ -82,7 +89,7 @@ export class DiscoPoPCodeLensProvider
                 .get(fileId)
                 // only suggestions that are not yet applied
                 .filter((suggestion) => {
-                    return !suggestion.applied
+                    return !this.appliedStatus.isApplied(suggestion.id)
                 })
                 // group by line
                 .reduce((acc, suggestion) => {
