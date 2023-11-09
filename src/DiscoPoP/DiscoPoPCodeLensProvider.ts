@@ -8,18 +8,24 @@ import { LineMapping } from '../LineMapping/LineMapping'
 
 export class DiscoPoPCodeLens extends vscode.CodeLens {
     public constructor(
-        fullConfiguration: DefaultConfiguration,
-        suggestions: Suggestion[],
+        private dotDiscoPoP: string,
+        private suggestions: Suggestion[],
         line: number
     ) {
         super(new vscode.Range(line - 1, 0, line - 1, 0))
+    }
+
+    public resolve(): this {
         this.command = {
             title:
                 `discovered potetential parallelism` +
-                (suggestions.length > 1 ? ` (${suggestions.length})` : ''),
+                (this.suggestions.length > 1
+                    ? ` (${this.suggestions.length})`
+                    : ''),
             command: Commands.applySuggestions,
-            arguments: [fullConfiguration, suggestions],
+            arguments: [this.dotDiscoPoP, this.suggestions],
         }
+        return this
     }
 }
 
@@ -27,6 +33,7 @@ export class DiscoPoPCodeLensProvider
     implements vscode.CodeLensProvider<DiscoPoPCodeLens>
 {
     public hidden: boolean = false // TODO hide suggestions if disabled in settings, or if disabled in this editor
+    private suggestionsByFileId: Map<number, Suggestion[]>
 
     // emitter and its event
     public _onDidChangeCodeLenses: vscode.EventEmitter<void> =
@@ -37,13 +44,19 @@ export class DiscoPoPCodeLensProvider
     constructor(
         private fileMapping: FileMapping,
         private lineMapping: LineMapping,
-        private fullConfiguration: DefaultConfiguration,
-        private suggestions: Suggestion[] = []
+        private dotDiscoPoP: string,
+        suggestions: Suggestion[] = []
     ) {
         this.fileMapping = fileMapping
         this.lineMapping = lineMapping
-        this.suggestions = suggestions
-        this.fullConfiguration = fullConfiguration
+        this.suggestionsByFileId = suggestions.reduce((acc, suggestion) => {
+            if (acc.has(suggestion.fileId)) {
+                acc.get(suggestion.fileId).push(suggestion)
+            } else {
+                acc.set(suggestion.fileId, [suggestion])
+            }
+            return acc
+        }, new Map<number, Suggestion[]>())
 
         // update lenses when settings change (codeLenses visibility might have changed)
         vscode.workspace.onDidChangeConfiguration((_) => {
@@ -65,25 +78,25 @@ export class DiscoPoPCodeLensProvider
             const fileId = this.fileMapping.getFileId(
                 document.fileName.toString()
             )
-            this.suggestions
-                // only suggestions for this file
-                .filter((suggestion) => {
-                    return suggestion.fileId === fileId
-                })
+            this.suggestionsByFileId
+                .get(fileId)
                 // only suggestions that are not yet applied
                 .filter((suggestion) => {
                     return !suggestion.applied
                 })
                 // group by line
                 .reduce((acc, suggestion) => {
-                    const startLine = this.lineMapping.getMappedLine(
-                        suggestion.fileId,
-                        suggestion.startLine
-                    )
-                    if (acc.has(startLine)) {
-                        acc.get(startLine).push(suggestion)
+                    if (
+                        acc.has(suggestion.getMappedStartLine(this.lineMapping))
+                    ) {
+                        acc.get(
+                            suggestion.getMappedStartLine(this.lineMapping)
+                        ).push(suggestion)
                     } else {
-                        acc.set(startLine, [suggestion])
+                        acc.set(
+                            suggestion.getMappedStartLine(this.lineMapping),
+                            [suggestion]
+                        )
                     }
                     return acc
                 }, new Map<number, Suggestion[]>())
@@ -91,7 +104,7 @@ export class DiscoPoPCodeLensProvider
                 .forEach((suggestions, line) => {
                     lenses.push(
                         new DiscoPoPCodeLens(
-                            this.fullConfiguration,
+                            this.dotDiscoPoP,
                             suggestions,
                             line
                         )
@@ -105,8 +118,8 @@ export class DiscoPoPCodeLensProvider
         codeLens: DiscoPoPCodeLens,
         token: vscode.CancellationToken
     ) {
-        if (Config.codeLensEnabled) {
-            return codeLens
+        if (Config.codeLensEnabled()) {
+            return codeLens.resolve()
         }
         return null
     }

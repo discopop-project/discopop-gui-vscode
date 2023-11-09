@@ -18,10 +18,7 @@ import {
     DefaultConfiguration,
 } from './ProjectManager/Configuration'
 import { Decoration } from './Utils/Decorations'
-import {
-    DiscoPoPRunner,
-    DiscoPoPRunnerResults,
-} from './DiscoPoP/DiscoPoPRunner'
+import { DiscoPoPRunner, DiscoPoPResults } from './DiscoPoP/DiscoPoPRunner'
 import {
     HotspotDetectionRunner,
     HotspotDetectionRunnerResults,
@@ -58,14 +55,14 @@ export class DiscoPoPExtension {
     }
 
     public async showDiscoPoPResults(
-        dpResults: DiscoPoPRunnerResults,
+        dpResults: DiscoPoPResults,
         fullConfig: DefaultConfiguration
     ) {
         // show the suggestions in the sidebar
         const suggestionTree = new SuggestionTree(
             fullConfig,
             dpResults.fileMapping,
-            dpResults.discoPoPResults
+            dpResults.suggestionsByType
         ) // TODO use lineMapping here
         await this.suggestionTreeDisposable?.dispose()
         this.suggestionTreeDisposable = vscode.window.createTreeView(
@@ -82,8 +79,8 @@ export class DiscoPoPExtension {
         const codeLensProvider = new DiscoPoPCodeLensProvider(
             dpResults.fileMapping,
             dpResults.lineMapping,
-            fullConfig,
-            dpResults.discoPoPResults.getAllSuggestions()
+            fullConfig.getDiscoPoPBuildDirectory() + '/.discopop',
+            Array.from(dpResults.suggestionsByType.values()).flat()
         )
         await this.codeLensProviderDisposable?.dispose()
         this.codeLensProviderDisposable =
@@ -281,10 +278,7 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.applySuggestions,
-                async (
-                    fullConfiguration: DefaultConfiguration,
-                    suggestions: Suggestion[]
-                ) => {
+                async (dotDiscoPoP: string, suggestions: Suggestion[]) => {
                     let suggestion: Suggestion | undefined = undefined
                     if (suggestions.length === 1) {
                         suggestion = suggestions[0]
@@ -320,8 +314,7 @@ export class DiscoPoPExtension {
 
                     try {
                         await PatchManager.applyPatch(
-                            fullConfiguration.getDiscoPoPBuildDirectory() +
-                                '/.discopop',
+                            dotDiscoPoP,
                             suggestion.id
                         )
                         suggestion.applied = true // TODO this should be handled by the PatchManager
@@ -336,7 +329,6 @@ export class DiscoPoPExtension {
                         console.error('FAILED TO APPLY PATCH:')
                         console.error(err)
                         console.error(suggestion)
-                        console.error(fullConfiguration)
                     }
 
                     // TODO it would be nice to also show the suggestion as applied in the tree view

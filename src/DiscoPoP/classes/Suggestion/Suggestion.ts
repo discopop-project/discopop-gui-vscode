@@ -1,3 +1,5 @@
+import { LineMapping } from '../../../LineMapping/LineMapping'
+
 export abstract class Suggestion {
     applied: boolean = false
 
@@ -11,4 +13,12 @@ export abstract class Suggestion {
         // complete JSON data
         public pureJSONData: any
     ) {}
+
+    public getMappedStartLine(lineMapping: LineMapping): number {
+        return lineMapping.getMappedLine(this.fileId, this.startLine)
+    }
+
+    public getMappedEndLine(lineMapping: LineMapping): number {
+        return lineMapping.getMappedLine(this.fileId, this.endLine)
+    }
 }

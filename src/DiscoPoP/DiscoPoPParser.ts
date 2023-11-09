@@ -1,5 +1,4 @@
 import * as fs from 'fs'
-import { DiscoPoPResults } from './classes/DiscoPoPResults'
 import { Suggestion } from './classes/Suggestion/Suggestion'
 import { DoAllSuggestion } from './classes/Suggestion/DoAllSuggestion'
 import { ReductionSuggestion } from './classes/Suggestion/ReductionSuggestion'
@@ -10,17 +9,17 @@ export abstract class DiscoPoPParser {
         throw new Error('This class should not be instantiated')
     }
 
-    public static parseFile(path: string): DiscoPoPResults {
+    public static parseFile(path: string): Map<string, Suggestion[]> {
         const suggestionsString = fs.readFileSync(path, 'utf-8')
         return DiscoPoPParser.parseString(suggestionsString)
     }
 
-    public static parseString(text: string): DiscoPoPResults {
+    public static parseString(text: string): Map<string, Suggestion[]> {
         const suggestions = JSON.parse(text)
         return DiscoPoPParser.parseJSON(suggestions)
     }
 
-    public static parseJSON(json: any): DiscoPoPResults {
+    public static parseJSON(json: any): Map<string, Suggestion[]> {
         // TODO validate the json object
         const suggestionsByType: Map<string, Suggestion[]> = new Map()
         for (const [type, suggestions] of Object.entries(json) as [
@@ -81,6 +80,6 @@ export abstract class DiscoPoPParser {
             }
             suggestionsByType.set(type, suggestionList)
         }
-        return new DiscoPoPResults(suggestionsByType)
+        return suggestionsByType
     }
 }
