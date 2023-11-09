@@ -48,7 +48,8 @@ export abstract class PatchManager {
                                 'discopop_patch_applicator failed: ' +
                                     err.message +
                                     '\n' +
-                                    stderr
+                                    stderr +
+                                    stdout
                             )
                         )
                     }

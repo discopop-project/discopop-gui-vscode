@@ -295,7 +295,7 @@
                 },
                 {
                     "command": "discopop.rollbackSingleSuggestion",
-                    "when": "view == sidebar-suggestions-view && viewItem==suggestion",
+                    "when": "view == sidebar-suggestions-view && viewItem==suggestion_applied",
                     "group": "inline",
                     "icon": "$(close)"
                 },
