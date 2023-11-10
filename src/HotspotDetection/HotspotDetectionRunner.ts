@@ -14,6 +14,7 @@ import { FileMapping } from '../FileMapping/FileMapping'
 import { HotspotDetectionResults } from './HotspotDetectionResults'
 import { HotspotDetectionParser } from './HotspotDetectionParser'
 import { HotspotTree } from './HotspotTree'
+import { UserCancellationError } from '../Utils/CancellationError'
 
 export interface HotspotDetectionRunnerRunArguments {
     configuration: Configuration // TODO only the relevent properties
@@ -42,7 +43,9 @@ export abstract class HotspotDetectionRunner {
         )
         return runningFinishedSuccessfully
             ? HotspotDetectionRunner.parse(args)
-            : Promise.reject(new Error('Hotspot Detection was cancelled.'))
+            : Promise.reject(
+                  new UserCancellationError('Hotspot Detection was cancelled.')
+              )
     }
 
     public static async run(
