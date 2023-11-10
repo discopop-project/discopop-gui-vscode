@@ -188,15 +188,6 @@ export abstract class DiscoPoPRunner {
             operation: async () => {
                 const appliedSuggestionsFile = `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/patch_applicator/applied_suggestions.json`
 
-                // create the file if it does not exist: .discopop/patch_applicator/applied_suggestions.json
-                if (!fs.existsSync(appliedSuggestionsFile)) {
-                    fs.mkdirSync(
-                        `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/patch_applicator`,
-                        { recursive: true }
-                    )
-                    fs.writeFileSync(appliedSuggestionsFile, '{"applied":[]}')
-                } // TODO this should be done by the patch_generator
-
                 appliedStatus = new DiscoPoPAppliedSuggestionsWatcher(
                     appliedSuggestionsFile
                 )
