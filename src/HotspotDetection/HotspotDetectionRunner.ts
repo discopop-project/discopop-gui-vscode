@@ -37,11 +37,17 @@ export abstract class HotspotDetectionRunner {
         args: HotspotDetectionRunnerRunArguments &
             HotspotDetectionRunnerParseArguments
     ): Promise<HotspotDetectionRunnerResults> {
-        await HotspotDetectionRunner.run(args)
-        return HotspotDetectionRunner.parse(args)
+        const runningFinishedSuccessfully = await HotspotDetectionRunner.run(
+            args
+        )
+        return runningFinishedSuccessfully
+            ? HotspotDetectionRunner.parse(args)
+            : Promise.reject(new Error('Hotspot Detection was cancelled.'))
     }
 
-    public static async run(args: HotspotDetectionRunnerRunArguments) {
+    public static async run(
+        args: HotspotDetectionRunnerRunArguments
+    ): Promise<boolean> {
         const state: undefined = undefined
         const steps: WithProgressOperation[] = []
 
@@ -89,10 +95,12 @@ export abstract class HotspotDetectionRunner {
         steps.push({
             message: 'Running cmake...',
             increment: 10,
-            operation: async () => {
+            operation: async (token) => {
                 const cmakeWrapperScript = `${Config.hotspotDetectionBuild()}/scripts/CMAKE_wrapper.sh`
+                let outerResolve: () => void
                 return new Promise<void>((resolve, reject) => {
-                    exec(
+                    outerResolve = resolve
+                    const childProcess = exec(
                         `${cmakeWrapperScript} ${args.configuration.getProjectPath()}`,
                         {
                             cwd: args.configuration.getHotspotDetectionBuildDirectory(),
@@ -112,6 +120,13 @@ export abstract class HotspotDetectionRunner {
                             }
                         }
                     )
+                    token.onCancellationRequested(async () => {
+                        console.log(
+                            'HotspotDetectionRunner::cancellation requested::CMAKE'
+                        )
+                        await childProcess.kill() // SIGINT or SIGTERM?
+                        outerResolve?.()
+                    })
                 })
             },
         })
@@ -119,9 +134,11 @@ export abstract class HotspotDetectionRunner {
         steps.push({
             message: 'Running make...',
             increment: 10,
-            operation: async () => {
+            operation: async (token) => {
+                let outerResolve: () => void
                 return new Promise<void>((resolve, reject) => {
-                    exec(
+                    outerResolve = resolve
+                    const childProcess = exec(
                         `make > make.log 2>&1`,
                         {
                             cwd: args.configuration.getHotspotDetectionBuildDirectory(),
@@ -141,11 +158,17 @@ export abstract class HotspotDetectionRunner {
                             }
                         }
                     )
+                    token.onCancellationRequested(async () => {
+                        console.log(
+                            'HotspotDetectionRunner::cancellation requested::MAKE'
+                        )
+                        await childProcess.kill() // SIGINT or SIGTERM?
+                        outerResolve?.()
+                    })
                 })
             },
         })
 
-        // TODO we need to get args from the configuration
         const executable_args =
             args.configuration.getExecutableArgumentsHotspotDetection()
 
@@ -155,9 +178,11 @@ export abstract class HotspotDetectionRunner {
                     executable_args.length
                 })`,
                 increment: 50 / executable_args.length,
-                operation: async () => {
+                operation: async (token) => {
+                    let outerResolve: () => void
                     return new Promise<void>((resolve, reject) => {
-                        exec(
+                        outerResolve = resolve
+                        const childProcess = exec(
                             `${args.configuration.getHotspotDetectionBuildDirectory()}/${args.configuration.getExecutableName()} ${execArgs}`,
                             {
                                 cwd: args.configuration.getHotspotDetectionBuildDirectory(),
@@ -178,6 +203,13 @@ export abstract class HotspotDetectionRunner {
                                 }
                             }
                         )
+                        token.onCancellationRequested(async () => {
+                            console.log(
+                                'HotspotDetectionRunner::cancellation requested::Executable'
+                            )
+                            await childProcess.kill() // SIGINT or SIGTERM?
+                            outerResolve?.()
+                        })
                     })
                 },
             })
@@ -186,9 +218,11 @@ export abstract class HotspotDetectionRunner {
         steps.push({
             message: 'Detecting Hotspots...',
             increment: 10,
-            operation: async () => {
+            operation: async (token) => {
+                let outerResolve: () => void
                 return new Promise<void>((resolve, reject) => {
-                    exec(
+                    outerResolve = resolve
+                    const childProcess = exec(
                         `hotspot_analyzer`,
                         {
                             cwd: `${args.configuration.getHotspotDetectionBuildDirectory()}/.discopop`,
@@ -208,6 +242,13 @@ export abstract class HotspotDetectionRunner {
                             }
                         }
                     )
+                    token.onCancellationRequested(async () => {
+                        console.log(
+                            'HotspotDetectionRunner::cancellation requested::hotspot_analyzer'
+                        )
+                        await childProcess.kill() // SIGINT or SIGTERM?
+                        outerResolve?.()
+                    })
                 })
             },
         })
@@ -215,12 +256,12 @@ export abstract class HotspotDetectionRunner {
         const withProgressRunner = new WithProgressRunner<typeof state>(
             'Running Hotspot Detection...',
             vscode.ProgressLocation.Notification,
-            false, // TODO true is currently NOT supported
+            true,
             steps,
             getDefaultErrorHandler('Hotspot Detection failed. ')
         )
 
-        await withProgressRunner.run()
+        return withProgressRunner.run()
     }
 
     public static async parse(

@@ -142,6 +142,9 @@ export class Configuration extends ProjectManagerTreeItem {
             this.iconPath = new vscode.ThemeIcon('gear')
             this.refresh()
             throw error
+        } finally {
+            this.iconPath = new vscode.ThemeIcon('gear')
+            this.refresh()
         }
     }
 
@@ -149,14 +152,19 @@ export class Configuration extends ProjectManagerTreeItem {
         this.iconPath = new vscode.ThemeIcon('gear~spin')
         this.refresh()
 
-        const results = await HotspotDetectionRunner.runAndParse({
-            configuration: this,
-        })
-
-        this.iconPath = new vscode.ThemeIcon('gear')
-        this.refresh()
-
-        return results
+        try {
+            const results = await HotspotDetectionRunner.runAndParse({
+                configuration: this,
+            })
+            return results
+        } catch (error) {
+            this.iconPath = new vscode.ThemeIcon('gear')
+            this.refresh()
+            throw error
+        } finally {
+            this.iconPath = new vscode.ThemeIcon('gear')
+            this.refresh()
+        }
     }
 
     // getters and setters for the configuration items (and name)
