@@ -172,17 +172,21 @@
                 "icon": "$(history)"
             },
             {
+                "title": "Toggle CodeLens Setting",
+                "command": "discopop.toggleCodeLens",
+                "category": "DiscoPoP",
+                "icon": "$(eye)"
+            },
+            {
                 "title": "Enable Recommendations CodeLens",
                 "command": "discopop.enableCodeLens",
                 "category": "DiscoPoP",
-                "enablement": "false",
                 "icon": "$(eye)"
             },
             {
                 "title": "Disable Recommendations CodeLens",
                 "command": "discopop.disableCodeLens",
                 "category": "DiscoPoP",
-                "enablement": "false",
                 "icon": "$(eye-closed)"
             },
             {
@@ -284,6 +288,18 @@
                     "command": "discopop.addProject",
                     "when": "view == sidebar-projects-view",
                     "group": "navigation"
+                }
+            ],
+            "editor/title": [
+                {
+                    "command": "discopop.enableCodeLens",
+                    "group": "navigation",
+                    "when": "discopop.codeLensEnabled == disabled"
+                },
+                {
+                    "command": "discopop.disableCodeLens",
+                    "group": "navigation",
+                    "when": "discopop.codeLensEnabled === enabled"
                 }
             ],
             "view/item/context": [

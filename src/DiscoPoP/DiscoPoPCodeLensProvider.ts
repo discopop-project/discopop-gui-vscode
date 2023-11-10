@@ -33,7 +33,9 @@ export class DiscoPoPCodeLens extends vscode.CodeLens {
 export class DiscoPoPCodeLensProvider
     implements vscode.CodeLensProvider<DiscoPoPCodeLens>
 {
-    public hidden: boolean = false // TODO hide suggestions if disabled in settings, or if disabled in this editor
+    private codeLensProviderDisposable: vscode.Disposable = undefined
+
+    public hidden: boolean = false
     private suggestionsByFileId: Map<number, Suggestion[]>
 
     // hide codelenses while we wait for the lineMapping and appliedStatus to be updated
@@ -71,6 +73,11 @@ export class DiscoPoPCodeLensProvider
 
         // update lenses when settings change (codeLenses visibility might have changed)
         vscode.workspace.onDidChangeConfiguration((_) => {
+            if (Config.codeLensEnabled()) {
+                this._register()
+            } else {
+                this.dispose()
+            }
             this._onDidChangeCodeLenses.fire()
         })
 
@@ -83,6 +90,30 @@ export class DiscoPoPCodeLensProvider
         this.appliedStatus.onDidChange(() => {
             this.stopWaitingForAppliedStatus()
         })
+
+        // immediately register
+        this._register()
+    }
+
+    private _register() {
+        this.codeLensProviderDisposable?.dispose()
+        this.codeLensProviderDisposable =
+            vscode.languages.registerCodeLensProvider(
+                // TODO only apply this provider for files listed in the fileMapping (or even better: only for files that have suggestions)
+                { scheme: 'file', language: 'cpp' },
+                this
+            )
+        this.show()
+    }
+
+    public dispose() {
+        vscode.commands.executeCommand(
+            'setContext',
+            'discopop.codeLensEnabled',
+            'undefined'
+        )
+        this.codeLensProviderDisposable?.dispose()
+        this.codeLensProviderDisposable = undefined
     }
 
     /**
@@ -93,6 +124,10 @@ export class DiscoPoPCodeLensProvider
         this.waitForLineMapping = waitForLineMapping
         this.waitForAppliedStatus = waitForAppliedStatus
         this._onDidChangeCodeLenses.fire()
+
+        if (this.hidden) {
+            return
+        }
 
         // indicate to the user that we are recomputing the codelenses
         vscode.window.withProgress(
@@ -137,6 +172,26 @@ export class DiscoPoPCodeLensProvider
             this.resolveProgress?.()
             this._onDidChangeCodeLenses.fire()
         }
+    }
+
+    public hide() {
+        vscode.commands.executeCommand(
+            'setContext',
+            'discopop.codeLensEnabled',
+            'disabled'
+        )
+        this.hidden = true
+        this._onDidChangeCodeLenses.fire()
+    }
+
+    public show() {
+        vscode.commands.executeCommand(
+            'setContext',
+            'discopop.codeLensEnabled',
+            'enabled'
+        )
+        this.hidden = false
+        this._onDidChangeCodeLenses.fire()
     }
 
     public provideCodeLenses(

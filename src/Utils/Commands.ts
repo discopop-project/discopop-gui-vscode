@@ -35,8 +35,8 @@ export class Commands {
     public static rollbackAllSuggestions: string =
         'discopop.rollbackAllSuggestions'
 
-    // enable/disable/change settings
-    // TODO
-    // public static enableCodeLens: string = 'discopop.enableCodeLens'
-    //public static disableCodeLens: string = 'discopop.disableCodeLens'
+    // codeLens
+    public static toggleCodeLens: string = 'discopop.toggleCodeLens' // global setting
+    public static enableCodeLens: string = 'discopop.enableCodeLens' // temporarily enable codeLens
+    public static disableCodeLens: string = 'discopop.disableCodeLens' // temporarily disable codeLens
 }
