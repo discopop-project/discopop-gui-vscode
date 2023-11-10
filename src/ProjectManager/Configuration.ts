@@ -133,14 +133,16 @@ export class Configuration extends ProjectManagerTreeItem {
         this.iconPath = new vscode.ThemeIcon('gear~spin')
         this.refresh()
 
-        const results = await DiscoPoPRunner.runAndParse({
-            fullConfiguration: this.getFullConfiguration(),
-        })
-
-        this.iconPath = new vscode.ThemeIcon('gear')
-        this.refresh()
-
-        return results
+        try {
+            const results = await DiscoPoPRunner.runAndParse({
+                fullConfiguration: this.getFullConfiguration(),
+            })
+            return results
+        } catch (error) {
+            this.iconPath = new vscode.ThemeIcon('gear')
+            this.refresh()
+            throw error
+        }
     }
 
     async runHotspotDetection(): Promise<HotspotDetectionRunnerResults> {
