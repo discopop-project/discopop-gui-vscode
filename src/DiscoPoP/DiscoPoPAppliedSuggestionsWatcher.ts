@@ -43,8 +43,6 @@ export class DiscoPoPAppliedSuggestionsWatcher {
             const id = Number(idString)
             this.appliedSuggestions.add(id)
         }
-
-        this._debug()
     }
 
     public getAppledSuggestions(): Set<number> {
@@ -58,12 +56,5 @@ export class DiscoPoPAppliedSuggestionsWatcher {
     public dispose() {
         fs.unwatchFile(this.appliedSuggestionsFile)
         this.appliedSuggestions.clear()
-    }
-
-    private _debug() {
-        console.log(
-            `Currently ${this.appliedSuggestions.size} suggestions are applied`,
-            this.appliedSuggestions
-        )
     }
 }
