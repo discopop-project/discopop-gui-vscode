@@ -36,6 +36,15 @@ export class DiscoPoPCodeLensProvider
     public hidden: boolean = false // TODO hide suggestions if disabled in settings, or if disabled in this editor
     private suggestionsByFileId: Map<number, Suggestion[]>
 
+    // hide codelenses while we wait for the lineMapping and appliedStatus to be updated
+    private waitForLineMapping: boolean = false
+    private waitForAppliedStatus: boolean = false
+    private progress: vscode.Progress<{
+        message?: string
+        increment?: number
+    }> = undefined
+    private resolveProgress: () => void = undefined
+
     // emitter and its event
     public _onDidChangeCodeLenses: vscode.EventEmitter<void> =
         new vscode.EventEmitter<void>()
@@ -67,13 +76,60 @@ export class DiscoPoPCodeLensProvider
 
         // update lenses when lineMapping changes
         this.lineMapping.onDidChange(() => {
-            this._onDidChangeCodeLenses.fire()
+            this.stopWaitingForLineMapping()
         })
 
         // update lenses when appliedStatus changes
         this.appliedStatus.onDidChange(() => {
-            this._onDidChangeCodeLenses.fire()
+            this.stopWaitingForAppliedStatus()
         })
+    }
+
+    /**
+     * hides all suggestions and waits for the lineMapping and appliedStatus to be updated.
+     * Only then shows the suggestions again.
+     */
+    public wait(waitForLineMapping = true, waitForAppliedStatus = true) {
+        this.waitForLineMapping = waitForLineMapping
+        this.waitForAppliedStatus = waitForAppliedStatus
+        this._onDidChangeCodeLenses.fire()
+
+        // indicate to the user that we are recomputing the codelenses
+        vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.Window,
+                title: 'DiscoPoP: Recomputing CodeLenses',
+                cancellable: false,
+            },
+            (progress, token) => {
+                this.progress = progress
+                return new Promise<void>((resolve, reject) => {
+                    this.resolveProgress = resolve
+                })
+            }
+        )
+    }
+
+    public stopWaitingForLineMapping() {
+        this.waitForLineMapping = false
+        this.progress.report({ message: 'lineMapping updated', increment: 50 })
+        this._updateIfWaitingFinised()
+    }
+
+    public stopWaitingForAppliedStatus() {
+        this.waitForAppliedStatus = false
+        this.progress.report({
+            message: 'appliedStatus updated',
+            increment: 50,
+        })
+        this._updateIfWaitingFinised()
+    }
+
+    private _updateIfWaitingFinised() {
+        if (!this.waitForLineMapping && !this.waitForAppliedStatus) {
+            this.resolveProgress()
+            this._onDidChangeCodeLenses.fire()
+        }
     }
 
     public provideCodeLenses(
@@ -81,7 +137,12 @@ export class DiscoPoPCodeLensProvider
         _token: vscode.CancellationToken
     ): DiscoPoPCodeLens[] | Thenable<DiscoPoPCodeLens[]> {
         const lenses = []
-        if (Config.codeLensEnabled() && !this.hidden) {
+        if (
+            Config.codeLensEnabled() &&
+            !this.hidden &&
+            !this.waitForLineMapping &&
+            !this.waitForAppliedStatus
+        ) {
             const fileId = this.fileMapping.getFileId(
                 document.fileName.toString()
             )

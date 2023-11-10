@@ -43,11 +43,12 @@ export class DiscoPoPExtension {
     private hs_details: HotspotDetailViewProvider =
         new HotspotDetailViewProvider(undefined)
 
-    // TODO I would like to keep the disposables inside the respective classes
-    // const suggestionTree = new ...
-    // const hotspotTree = new ...
-    // const dp_codelensProvider = new DiscoPoPCodeLensProvider(undefined, undefined, undefined, undefined)
+    // TODO I would like to keep all disposables inside the respective classes and let them manage it
+    // private suggestionTree = new ...
+    // private hotspotTree = new ...
+    private codeLensProvider: DiscoPoPCodeLensProvider = undefined
     private hotspotTreeDisposable: vscode.Disposable | undefined = undefined
+
     private suggestionTreeDisposable: vscode.Disposable | undefined = undefined
     private codeLensProviderDisposable: vscode.Disposable | undefined =
         undefined
@@ -71,7 +72,7 @@ export class DiscoPoPExtension {
 
         // enable code lenses for all suggestions
         // TODO we should not create a new code lens provider every time,
-        const codeLensProvider = new DiscoPoPCodeLensProvider(
+        this.codeLensProvider = new DiscoPoPCodeLensProvider(
             this.dpResults.fileMapping,
             this.dpResults.lineMapping,
             this.dpResults.appliedStatus,
@@ -82,7 +83,7 @@ export class DiscoPoPExtension {
         this.codeLensProviderDisposable =
             vscode.languages.registerCodeLensProvider(
                 { scheme: 'file', language: 'cpp' }, // TODO only apply this provider for files listed in the fileMapping
-                codeLensProvider
+                this.codeLensProvider
             )
     }
 
@@ -336,6 +337,7 @@ export class DiscoPoPExtension {
                     }
 
                     try {
+                        this.codeLensProvider?.wait()
                         await PatchManager.applyPatch(
                             dotDiscoPoP,
                             suggestion.id
@@ -368,12 +370,12 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.applySingleSuggestion,
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
+                    this.codeLensProvider?.wait()
                     const suggestion = suggestionNode.suggestion
                     const dotDiscoPoP = this.dpResults.dotDiscoPoP
                     PatchManager.applyPatch(dotDiscoPoP, suggestion.id).catch(
                         getDefaultErrorHandler('Failed to apply suggestion')
                     )
-                    // TODO also update the tree view
                 }
             )
         )
@@ -384,6 +386,7 @@ export class DiscoPoPExtension {
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
                     const suggestion = suggestionNode.suggestion
                     const dotDiscoPoP = this.dpResults.dotDiscoPoP
+                    this.codeLensProvider?.wait()
                     PatchManager.rollbackPatch(
                         dotDiscoPoP,
                         suggestion.id
