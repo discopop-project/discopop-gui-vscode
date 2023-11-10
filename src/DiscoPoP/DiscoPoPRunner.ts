@@ -16,6 +16,7 @@ import { getDefaultErrorHandler } from '../Utils/ErrorHandler'
 import { LineMapping } from '../LineMapping/LineMapping'
 import { Suggestion } from './classes/Suggestion/Suggestion'
 import { DiscoPoPAppliedSuggestionsWatcher } from './DiscoPoPAppliedSuggestionsWatcher'
+import { UserCancellationError } from '../Utils/CancellationError'
 
 export interface DiscoPoPRunnerRunArguments {
     fullConfiguration: DefaultConfiguration // TODO replace with only the necessary fields
@@ -68,7 +69,9 @@ export abstract class DiscoPoPRunner {
         )
         return runningFinishedSuccessfully
             ? DiscoPoPRunner.parse(dpRunnerArgs)
-            : Promise.reject(new Error('DiscoPoP run was cancelled.'))
+            : Promise.reject(
+                  new UserCancellationError('DiscoPoP run was cancelled.')
+              )
     }
 
     public static async run(

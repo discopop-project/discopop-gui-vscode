@@ -24,6 +24,7 @@ import {
     HotspotDetectionRunnerResults,
 } from './HotspotDetection/HotspotDetectionRunner'
 import { getDefaultErrorHandler } from './Utils/ErrorHandler'
+import { UserCancellationError } from './Utils/CancellationError'
 
 function _removeDecorations(
     editor: vscode.TextEditor,
@@ -116,14 +117,23 @@ export class DiscoPoPExtension {
                 async (configuration: Configuration) => {
                     const fullConfig = configuration.getFullConfiguration()
 
-                    // DiscoPoP
-                    this.dpResults.finalize()
-                    this.dpResults = await fullConfig.runDiscoPoP()
-                    await this.showDiscoPoPResults(fullConfig)
+                    try {
+                        // DiscoPoP
+                        this.dpResults?.finalize()
+                        this.dpResults = await fullConfig.runDiscoPoP()
+                        await this.showDiscoPoPResults(fullConfig)
 
-                    // HotspotDetection
-                    this.hsResults = await configuration.runHotspotDetection()
-                    await this.showHotspotDetectionResults(this.hsResults)
+                        // HotspotDetection
+                        this.hsResults =
+                            await configuration.runHotspotDetection()
+                        await this.showHotspotDetectionResults(this.hsResults)
+                    } catch (error) {
+                        if (error instanceof UserCancellationError) {
+                            error.showErrorMessageNotification()
+                        } else {
+                            throw error
+                        }
+                    }
                 }
             )
         )
@@ -132,9 +142,18 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.runDiscoPoP,
                 async (configuration: Configuration) => {
-                    const fullConfig = configuration.getFullConfiguration()
-                    this.dpResults = await fullConfig.runDiscoPoP()
-                    await this.showDiscoPoPResults(fullConfig)
+                    try {
+                        const fullConfig = configuration.getFullConfiguration()
+                        this.dpResults?.finalize()
+                        this.dpResults = await fullConfig.runDiscoPoP()
+                        await this.showDiscoPoPResults(fullConfig)
+                    } catch (error) {
+                        if (error instanceof UserCancellationError) {
+                            error.showErrorMessageNotification()
+                        } else {
+                            throw error
+                        }
+                    }
                 }
             )
         )
@@ -143,8 +162,17 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.runHotspotDetection,
                 async (configuration: Configuration) => {
-                    const results = await configuration.runHotspotDetection()
-                    this.showHotspotDetectionResults(results)
+                    try {
+                        const results =
+                            await configuration.runHotspotDetection()
+                        this.showHotspotDetectionResults(results)
+                    } catch (error) {
+                        if (error instanceof UserCancellationError) {
+                            error.showErrorMessageNotification()
+                        } else {
+                            throw error
+                        }
+                    }
                 }
             )
         )
