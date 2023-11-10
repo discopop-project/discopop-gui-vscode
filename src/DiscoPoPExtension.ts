@@ -51,8 +51,6 @@ export class DiscoPoPExtension {
     private hotspotTreeDisposable: vscode.Disposable | undefined = undefined
 
     private suggestionTreeDisposable: vscode.Disposable | undefined = undefined
-    private codeLensProviderDisposable: vscode.Disposable | undefined =
-        undefined
 
     public constructor(private context: vscode.ExtensionContext) {
         this.projectManager = new ProjectManager(context)
@@ -73,6 +71,7 @@ export class DiscoPoPExtension {
 
         // enable code lenses for all suggestions
         // TODO we should not create a new code lens provider every time,
+        this.codeLensProvider?.dispose()
         this.codeLensProvider = new DiscoPoPCodeLensProvider(
             this.dpResults.fileMapping,
             this.dpResults.lineMapping,
@@ -80,12 +79,6 @@ export class DiscoPoPExtension {
             fullConfig.getDiscoPoPBuildDirectory() + '/.discopop',
             Array.from(this.dpResults.suggestionsByType.values()).flat()
         )
-        await this.codeLensProviderDisposable?.dispose()
-        this.codeLensProviderDisposable =
-            vscode.languages.registerCodeLensProvider(
-                { scheme: 'file', language: 'cpp' }, // TODO only apply this provider for files listed in the fileMapping
-                this.codeLensProvider
-            )
     }
 
     public async showHotspotDetectionResults(
@@ -111,6 +104,12 @@ export class DiscoPoPExtension {
     }
 
     public activate() {
+        vscode.commands.executeCommand(
+            'setContext',
+            'discopop.codeLensEnabled',
+            'undefined'
+        )
+
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.runDiscoPoPAndHotspotDetection,
@@ -394,6 +393,7 @@ export class DiscoPoPExtension {
             )
         )
 
+        // used by tree view
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.applySingleSuggestion,
@@ -408,6 +408,7 @@ export class DiscoPoPExtension {
             )
         )
 
+        // used by tree view
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.rollbackSingleSuggestion,
@@ -422,6 +423,38 @@ export class DiscoPoPExtension {
                         getDefaultErrorHandler('Failed to rollback suggestion')
                     )
                     // TODO also update the tree view
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.toggleCodeLens,
+                async () => {
+                    const currentValue = vscode.workspace
+                        .getConfiguration('discopop')
+                        .get('recommendationsCodeLens', true)
+                    vscode.workspace
+                        .getConfiguration('discopop')
+                        .update('recommendationsCodeLens', !currentValue, true)
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.enableCodeLens,
+                async () => {
+                    this.codeLensProvider?.show()
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.disableCodeLens,
+                async () => {
+                    this.codeLensProvider?.hide()
                 }
             )
         )
