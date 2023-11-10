@@ -34,9 +34,12 @@ export class WithProgressRunner<State> {
     /**
      * Runs all operations in the order they were given.
      * Reports progress to the user.
-     * @returns the final state
+     * @throws if any of the operations throws
+     * @returns true if the user did not cancel the operation, false if the operation was cancelled
      */
-    public async run() {
+    public async run(): Promise<boolean> {
+        let currentOperation: WithProgressOperation
+        let cancellationRequested = false
         await vscode.window.withProgress(
             {
                 location: this.location,
@@ -44,14 +47,28 @@ export class WithProgressRunner<State> {
                 cancellable: this.cancellable,
             },
             async (progress, token) => {
+                const cancellationDisposable = token.onCancellationRequested(
+                    () => {
+                        cancellationRequested = true
+                    }
+                )
                 try {
-                    for (const operation of this.operations) {
+                    for (currentOperation of this.operations) {
                         progress.report({
                             increment: this.nextIncrement,
-                            message: operation.message,
+                            message: currentOperation.message,
                         })
-                        await operation.operation()
-                        this.nextIncrement = operation.increment
+                        await currentOperation.operation(token)
+                        if (cancellationRequested) {
+                            console.log(
+                                'WithProgressRunner: cancellation requested::',
+                                this.title,
+                                '::',
+                                currentOperation.message
+                            )
+                            break
+                        }
+                        this.nextIncrement = currentOperation.increment
                     }
 
                     progress.report({
@@ -65,16 +82,19 @@ export class WithProgressRunner<State> {
                     }
                 } catch (error) {
                     this.errorHandler(error)
+                } finally {
+                    await cancellationDisposable.dispose()
                 }
             }
         )
+        return !cancellationRequested
     }
 }
 
 export interface WithProgressOperation {
     message: string
     increment: number
-    operation: () => Promise<void>
+    operation: (token: vscode.CancellationToken) => Promise<void>
 }
 
 // TODO normalize the increment values so that they add up to 100
