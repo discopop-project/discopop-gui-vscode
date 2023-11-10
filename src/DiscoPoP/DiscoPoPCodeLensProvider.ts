@@ -102,6 +102,13 @@ export class DiscoPoPCodeLensProvider
                 cancellable: false,
             },
             (progress, token) => {
+                // if the user applies suggestions very quickly by using the tree view we hide the previous progress bar
+                this.progress?.report({
+                    message: 'another suggestion was applied',
+                    increment: 100,
+                })
+                this.resolveProgress?.()
+
                 this.progress = progress
                 return new Promise<void>((resolve, reject) => {
                     this.resolveProgress = resolve
@@ -112,13 +119,13 @@ export class DiscoPoPCodeLensProvider
 
     public stopWaitingForLineMapping() {
         this.waitForLineMapping = false
-        this.progress.report({ message: 'lineMapping updated', increment: 50 })
+        this.progress?.report({ message: 'lineMapping updated', increment: 50 })
         this._updateIfWaitingFinised()
     }
 
     public stopWaitingForAppliedStatus() {
         this.waitForAppliedStatus = false
-        this.progress.report({
+        this.progress?.report({
             message: 'appliedStatus updated',
             increment: 50,
         })
@@ -127,7 +134,7 @@ export class DiscoPoPCodeLensProvider
 
     private _updateIfWaitingFinised() {
         if (!this.waitForLineMapping && !this.waitForAppliedStatus) {
-            this.resolveProgress()
+            this.resolveProgress?.()
             this._onDidChangeCodeLenses.fire()
         }
     }
