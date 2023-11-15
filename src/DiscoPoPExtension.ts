@@ -88,6 +88,13 @@ export class DiscoPoPExtension {
             fullConfig.getDiscoPoPBuildDirectory() + '/.discopop',
             Array.from(this.dpResults.suggestionsByType.values()).flat()
         )
+
+        // set context
+        vscode.commands.executeCommand(
+            'setContext',
+            'discopop.suggestionsAvailable',
+            true
+        )
     }
 
     public async showHotspotDetectionResults(
@@ -117,6 +124,12 @@ export class DiscoPoPExtension {
             'setContext',
             'discopop.codeLensEnabled',
             'undefined'
+        )
+
+        vscode.commands.executeCommand(
+            'setContext',
+            'discopop.suggestionsAvailable',
+            false
         )
 
         this.context.subscriptions.push(
@@ -330,6 +343,19 @@ export class DiscoPoPExtension {
                             )
                     }
                     editor.setDecorations(decoration, [{ range }])
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.rollbackAllSuggestions,
+                async () => {
+                    const dotDiscoPoP = this.dpResults?.dotDiscoPoP
+                    this.codeLensProvider?.wait()
+                    await PatchManager.clear(dotDiscoPoP).catch(
+                        getDefaultErrorHandler('Failed to rollback suggestions')
+                    )
                 }
             )
         )
