@@ -29,7 +29,7 @@ export abstract class PatchManager {
     }
 
     public static async clear(dotDiscoPoP: string): Promise<void> {
-        const args = '-c'
+        const args = '-C'
         return this._runPatchApplicator(dotDiscoPoP, args)
     }
 
@@ -38,6 +38,14 @@ export abstract class PatchManager {
         args: string
     ): Promise<void> {
         return new Promise<void>((resolve, reject) => {
+            if (!dotDiscoPoP) {
+                reject(
+                    new Error(
+                        'discopop_patch_applicator called while .discopop directory is not set.'
+                    )
+                )
+                return
+            }
             exec(
                 `discopop_patch_applicator ${args}`,
                 { cwd: dotDiscoPoP },

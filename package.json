@@ -288,6 +288,11 @@
                     "command": "discopop.addProject",
                     "when": "view == sidebar-projects-view",
                     "group": "navigation"
+                },
+                {
+                    "command": "discopop.rollbackAllSuggestions",
+                    "when": "view == sidebar-suggestions-view && discopop.suggestionsAvailable",
+                    "group": "navigation"
                 }
             ],
             "editor/title": [
