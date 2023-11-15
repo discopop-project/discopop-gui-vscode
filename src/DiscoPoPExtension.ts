@@ -5,6 +5,7 @@ import { HotspotDetailViewProvider } from './HotspotDetection/HotspotDetailViewP
 import { Commands } from './Utils/Commands'
 import { DiscoPoPCodeLensProvider } from './DiscoPoP/DiscoPoPCodeLensProvider'
 import {
+    DiscoPoPSuggestionGroup,
     DiscoPoPSuggestionNode,
     SuggestionTree,
 } from './DiscoPoP/DiscoPoPSuggestionTree'
@@ -25,6 +26,7 @@ import {
 } from './HotspotDetection/HotspotDetectionRunner'
 import { getDefaultErrorHandler } from './Utils/ErrorHandler'
 import { UserCancellationError } from './Utils/CancellationError'
+import { SimpleTreeNode } from './Utils/SimpleTree'
 
 function _removeDecorations(
     editor: vscode.TextEditor,
@@ -50,7 +52,11 @@ export class DiscoPoPExtension {
     private codeLensProvider: DiscoPoPCodeLensProvider = undefined
     private hotspotTreeDisposable: vscode.Disposable | undefined = undefined
 
-    private suggestionTreeDisposable: vscode.Disposable | undefined = undefined
+    private suggestionTreeView:
+        | vscode.TreeView<
+              SimpleTreeNode<DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode>
+          >
+        | undefined = undefined
 
     public constructor(private context: vscode.ExtensionContext) {
         this.projectManager = new ProjectManager(context)
@@ -59,8 +65,8 @@ export class DiscoPoPExtension {
     public async showDiscoPoPResults(fullConfig: DefaultConfiguration) {
         // show the suggestions in the sidebar
         const suggestionTree = new SuggestionTree(this.dpResults)
-        await this.suggestionTreeDisposable?.dispose()
-        this.suggestionTreeDisposable = vscode.window.createTreeView(
+        await this.suggestionTreeView?.dispose()
+        this.suggestionTreeView = vscode.window.createTreeView(
             'sidebar-suggestions-view',
             {
                 treeDataProvider: suggestionTree,
@@ -68,6 +74,9 @@ export class DiscoPoPExtension {
                 canSelectMany: false,
             }
         )
+        this.suggestionTreeView.title = `Suggestions (${Array.from(
+            this.dpResults.suggestionsByType.entries()
+        ).reduce((acc, [type, suggestions]) => acc + suggestions.length, 0)})`
 
         // enable code lenses for all suggestions
         // TODO we should not create a new code lens provider every time,
@@ -141,8 +150,8 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.runDiscoPoP,
                 async (configuration: Configuration) => {
+                    const fullConfig = configuration.getFullConfiguration()
                     try {
-                        const fullConfig = configuration.getFullConfiguration()
                         this.dpResults?.finalize()
                         this.dpResults = await fullConfig.runDiscoPoP()
                         await this.showDiscoPoPResults(fullConfig)
