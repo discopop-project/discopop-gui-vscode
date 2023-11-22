@@ -1,11 +1,11 @@
 import * as vscode from 'vscode'
+import { Commands } from '../Utils/Commands'
+import { SimpleTree } from '../Utils/SimpleTree'
+import { UIPrompts } from '../Utils/UIPrompts'
+import { CMakeConfiguration } from './Configuration'
+import { ConfigurationItem } from './ConfigurationItem'
 import { Project } from './Project'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
-import { Commands } from '../Utils/Commands'
-import { UIPrompts } from '../Utils/UIPrompts'
-import { Configuration } from './Configuration'
-import { ConfigurationItem } from './ConfigurationItem'
-import { SimpleTree } from '../Utils/SimpleTree'
 
 export class ProjectManager extends SimpleTree<ProjectManagerTreeItem> {
     private projectViewer: vscode.TreeView<ProjectManagerTreeItem> | undefined
@@ -282,7 +282,7 @@ export class ProjectManager extends SimpleTree<ProjectManagerTreeItem> {
                     )
 
                     // create the configuration
-                    const configuration = new Configuration(
+                    const configuration = new CMakeConfiguration(
                         configurationName,
                         projectPath,
                         executableName,
@@ -333,7 +333,7 @@ export class ProjectManager extends SimpleTree<ProjectManagerTreeItem> {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.renameConfiguration,
-                async (configuration: Configuration) => {
+                async (configuration: CMakeConfiguration) => {
                     const value = await vscode.window.showInputBox({
                         prompt: 'Please enter the new name of the Configuration',
                         value: configuration.getName(),
@@ -350,13 +350,13 @@ export class ProjectManager extends SimpleTree<ProjectManagerTreeItem> {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.copyConfiguration,
-                async (configuration: Configuration) => {
+                async (configuration: CMakeConfiguration) => {
                     const value = await vscode.window.showInputBox({
                         prompt: 'Please enter the name of the new Configuration',
                         value: configuration.getName() + ' (copy)',
                     })
                     if (value) {
-                        const newConfiguration = new Configuration(
+                        const newConfiguration = new CMakeConfiguration(
                             value,
                             configuration.getProjectPath(),
                             configuration.getExecutableName(),
@@ -377,7 +377,7 @@ export class ProjectManager extends SimpleTree<ProjectManagerTreeItem> {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.removeConfiguration,
-                async (configuration: Configuration) => {
+                async (configuration: CMakeConfiguration) => {
                     if (
                         await UIPrompts.actionConfirmed(
                             'Are you sure you want to remove this configuration?'

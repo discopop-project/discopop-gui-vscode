@@ -1,23 +1,36 @@
 import * as fs from 'fs'
-import { HotspotDetectionResults } from './HotspotDetectionResults'
+import * as vscode from 'vscode'
+import { FileMapping } from '../FileMapping/FileMapping'
+import { FileMappingParser } from '../FileMapping/FileMappingParser'
+import ErrorHandler from '../Utils/ErrorHandler'
+import {
+    WithProgressOperation,
+    WithProgressRunner,
+} from '../Utils/WithProgressRunner'
 import { Hotspot } from './classes/Hotspot'
+import { HotspotDetectionResults } from './classes/HotspotDetectionResults'
+
+export interface HotspotDetectionParserArguments {
+    filemappingPath: string
+    hotspotsJsonPath: string
+}
 
 export abstract class HotspotDetectionParser {
     private constructor() {
         throw new Error('This class should not be instantiated')
     }
 
-    public static parseFile(path: string): HotspotDetectionResults {
+    private static _parseHotspotsJsonFile(path: string): Hotspot[] {
         const str = fs.readFileSync(path, 'utf-8')
-        return HotspotDetectionParser.parseString(str)
+        return HotspotDetectionParser._parseHotspotsJsonString(str)
     }
 
-    public static parseString(text: string): HotspotDetectionResults {
+    private static _parseHotspotsJsonString(text: string): Hotspot[] {
         const hotspots = JSON.parse(text)
-        return HotspotDetectionParser.parseJSON(hotspots)
+        return HotspotDetectionParser._parseHotspotsJsonJSON(hotspots)
     }
 
-    public static parseJSON(json: any): HotspotDetectionResults {
+    private static _parseHotspotsJsonJSON(json: any): Hotspot[] {
         // TODO validate the json object
         const hotspotList: Hotspot[] = []
         for (const hotspot of json.code_regions as any[]) {
@@ -29,6 +42,44 @@ export abstract class HotspotDetectionParser {
 
             hotspotList.push(new Hotspot(fid, lineNum, hotness, avr, hotspot))
         }
-        return new HotspotDetectionResults(hotspotList)
+        return hotspotList
+    }
+
+    public static async parse(
+        args: HotspotDetectionParserArguments
+    ): Promise<HotspotDetectionResults> {
+        const steps: WithProgressOperation[] = []
+
+        let fileMapping: FileMapping | undefined = undefined
+        let hotspots: Hotspot[] | undefined = undefined
+
+        steps.push({
+            message: 'Parsing results (FileMapping)...',
+            increment: 5,
+            operation: async () => {
+                fileMapping = FileMappingParser.parseFile(args.filemappingPath)
+            },
+        })
+
+        steps.push({
+            message: 'Parsing results (Hotspots)...',
+            increment: 5,
+            operation: async () => {
+                hotspots = HotspotDetectionParser._parseHotspotsJsonFile(
+                    args.hotspotsJsonPath
+                )
+            },
+        })
+
+        const withProgressRunner = new WithProgressRunner(
+            'Parsing Hotspot Detection Results...',
+            vscode.ProgressLocation.Notification,
+            false,
+            steps,
+            ErrorHandler
+        )
+
+        await withProgressRunner.run()
+        return new HotspotDetectionResults(fileMapping, hotspots)
     }
 }
