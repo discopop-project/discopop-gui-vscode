@@ -1,10 +1,11 @@
-import { FileMapping } from '../FileMapping/FileMapping'
-import { Hotspot } from './classes/Hotspot'
+import { FileMapping } from '../../FileMapping/FileMapping'
+import { Hotspot } from './Hotspot'
 
 export class HotspotDetectionResults {
-    public constructor(public readonly hotspots: Hotspot[]) {}
-
-    // convenience methods to sort and filter results:
+    public constructor(
+        public fileMapping: FileMapping,
+        public hotspots: Hotspot[]
+    ) {}
 
     private static _sortByKey = (
         hotspots: Hotspot[],
@@ -42,12 +43,10 @@ export class HotspotDetectionResults {
 
     public getHotspotsByFilePath(
         fileName: string,
-        fileMapping: FileMapping,
-        // TODO lineMapping: LineMapping,
         filterByHotness?: 'YES' | 'NO' | 'MAYBE',
         sortByKey?: keyof Hotspot
     ): Hotspot[] {
-        const fid = fileMapping.getFileId(fileName)
+        const fid = this.fileMapping.getFileId(fileName)
         return this.getHotspotsByFileID(fid, filterByHotness, sortByKey)
     }
 }

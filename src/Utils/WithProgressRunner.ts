@@ -98,7 +98,3 @@ export interface WithProgressOperation {
 }
 
 // TODO normalize the increment values so that they add up to 100
-
-// TODO I think we can get rid of the state altogether
-// the caller can do this himself
-// we only have to ensure, that each step is finished before going to the next one

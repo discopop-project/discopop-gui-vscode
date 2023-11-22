@@ -1,11 +1,10 @@
 import * as vscode from 'vscode'
-import { Config } from '../Utils/Config'
-import { Suggestion } from './classes/Suggestion/Suggestion'
 import { FileMapping } from '../FileMapping/FileMapping'
-import { Commands } from '../Utils/Commands'
-import { DefaultConfiguration } from '../ProjectManager/Configuration'
 import { LineMapping } from '../LineMapping/LineMapping'
+import { Commands } from '../Utils/Commands'
+import { Config } from '../Utils/Config'
 import { DiscoPoPAppliedSuggestionsWatcher } from './DiscoPoPAppliedSuggestionsWatcher'
+import { Suggestion } from './classes/Suggestion/Suggestion'
 
 export class DiscoPoPCodeLens extends vscode.CodeLens {
     public constructor(

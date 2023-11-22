@@ -1,51 +1,22 @@
-import * as vscode from 'vscode'
+import { exec } from 'child_process'
 import * as fs from 'fs'
+import * as vscode from 'vscode'
+import { CMakeConfiguration } from '../ProjectManager/Configuration'
+import { Config } from '../Utils/Config'
+import ErrorHandler from '../Utils/ErrorHandler'
 import { UIPrompts } from '../Utils/UIPrompts'
-import { Configuration } from '../ProjectManager/Configuration'
 import {
     WithProgressOperation,
     WithProgressRunner,
 } from '../Utils/WithProgressRunner'
-import { getDefaultErrorHandler } from '../Utils/ErrorHandler'
-import { exec } from 'child_process'
-import { Config } from '../Utils/Config'
-import { FileMappingParser } from '../FileMapping/FileMappingParser'
-import { FileMapping } from '../FileMapping/FileMapping'
-import { HotspotDetectionResults } from './HotspotDetectionResults'
-import { HotspotDetectionParser } from './HotspotDetectionParser'
-import { HotspotTree } from './HotspotTree'
-import { UserCancellationError } from '../Utils/CancellationError'
 
 export interface HotspotDetectionRunnerRunArguments {
-    configuration: Configuration // TODO only the relevent properties
-}
-
-export interface HotspotDetectionRunnerParseArguments {
-    configuration: Configuration // TODO only the relevent properties
-}
-
-export interface HotspotDetectionRunnerResults {
-    fileMapping: FileMapping
-    hotspotDetectionResults: HotspotDetectionResults
+    configuration: CMakeConfiguration // TODO only the relevent properties
 }
 
 export abstract class HotspotDetectionRunner {
     private constructor() {
         throw new Error('This class cannot be instantiated')
-    }
-
-    public static async runAndParse(
-        args: HotspotDetectionRunnerRunArguments &
-            HotspotDetectionRunnerParseArguments
-    ): Promise<HotspotDetectionRunnerResults> {
-        const runningFinishedSuccessfully = await HotspotDetectionRunner.run(
-            args
-        )
-        return runningFinishedSuccessfully
-            ? HotspotDetectionRunner.parse(args)
-            : Promise.reject(
-                  new UserCancellationError('Hotspot Detection was cancelled.')
-              )
     }
 
     public static async run(
@@ -261,58 +232,9 @@ export abstract class HotspotDetectionRunner {
             vscode.ProgressLocation.Notification,
             true,
             steps,
-            getDefaultErrorHandler('Hotspot Detection failed. ')
+            ErrorHandler
         )
 
         return withProgressRunner.run()
-    }
-
-    public static async parse(
-        args: HotspotDetectionRunnerParseArguments
-    ): Promise<HotspotDetectionRunnerResults> {
-        const steps: WithProgressOperation[] = []
-
-        let fileMapping: FileMapping | undefined = undefined
-        let hotspotDetectionResults: HotspotDetectionResults | undefined =
-            undefined
-
-        steps.push({
-            message: 'Parsing results (FileMapping)...',
-            increment: 5,
-            operation: async () => {
-                fileMapping = FileMappingParser.parseFile(
-                    args.configuration.getHotspotDetectionBuildDirectory() +
-                        '/.discopop/common_data/FileMapping.txt'
-                )
-            },
-        })
-
-        steps.push({
-            message: 'Parsing results (Hotspots)...',
-            increment: 5,
-            operation: async () => {
-                hotspotDetectionResults = HotspotDetectionParser.parseFile(
-                    args.configuration.getHotspotDetectionBuildDirectory() +
-                        '/.discopop/hotspot_detection/Hotspots.json'
-                )
-            },
-        })
-
-        // TODO make sure the numbers add up to 100 in both run and parse functions
-        // better even: normalize in the WithProgressRunner!
-
-        const withProgressRunner = new WithProgressRunner(
-            'Parsing Hotspot Detection Results...',
-            vscode.ProgressLocation.Notification,
-            false, // TODO true is currently NOT supported
-            steps,
-            getDefaultErrorHandler('Hotspot Detection failed. ')
-        )
-
-        await withProgressRunner.run()
-        return {
-            fileMapping: fileMapping!,
-            hotspotDetectionResults: hotspotDetectionResults!,
-        }
     }
 }

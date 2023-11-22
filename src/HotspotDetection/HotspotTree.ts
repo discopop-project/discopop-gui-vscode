@@ -1,10 +1,10 @@
 import * as vscode from 'vscode'
-import { SimpleTree, SimpleTreeNode } from '../Utils/SimpleTree'
 import { FileMapping } from '../FileMapping/FileMapping'
-import { HotspotDetectionResults } from './HotspotDetectionResults'
-import { Hotspot } from './classes/Hotspot'
-import { Commands } from '../Utils/Commands'
 import { LineMapping } from '../LineMapping/LineMapping'
+import { Commands } from '../Utils/Commands'
+import { SimpleTree, SimpleTreeNode } from '../Utils/SimpleTree'
+import { Hotspot } from './classes/Hotspot'
+import { HotspotDetectionResults } from './classes/HotspotDetectionResults'
 
 // inner nodes
 export class HotspotGroup
@@ -58,7 +58,6 @@ export class HotspotNode implements SimpleTreeNode<undefined> {
 
 export class HotspotTree extends SimpleTree<HotspotGroup | HotspotNode> {
     constructor(
-        fileMapping: FileMapping,
         lineMapping: LineMapping,
         hotspotDetectionResults: HotspotDetectionResults
     ) {
@@ -77,9 +76,21 @@ export class HotspotTree extends SimpleTree<HotspotGroup | HotspotNode> {
                 }
             )
         super([
-            new HotspotGroup('YES', groups.YES, fileMapping),
-            new HotspotGroup('NO', groups.NO, fileMapping),
-            new HotspotGroup('MAYBE', groups.MAYBE, fileMapping),
+            new HotspotGroup(
+                'YES',
+                groups.YES,
+                hotspotDetectionResults.fileMapping
+            ),
+            new HotspotGroup(
+                'NO',
+                groups.NO,
+                hotspotDetectionResults.fileMapping
+            ),
+            new HotspotGroup(
+                'MAYBE',
+                groups.MAYBE,
+                hotspotDetectionResults.fileMapping
+            ),
         ])
     }
 }
