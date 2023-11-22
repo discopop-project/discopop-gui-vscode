@@ -1,17 +1,17 @@
 import * as vscode from 'vscode'
+import { CMakeConfiguration } from './Configuration'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
-import { Configuration } from './Configuration'
 
 export class ConfigurationItem<
     T extends string | string[]
 > extends ProjectManagerTreeItem {
     description?: string
-    protected parent: Configuration
+    protected parent: CMakeConfiguration
     private value: T | undefined
 
     // e.g. "project path", "path/to/project", "The path to the project"
     constructor(
-        parent: Configuration,
+        parent: CMakeConfiguration,
         name: string,
         value: T | undefined,
         tooltip: string | undefined
@@ -55,11 +55,11 @@ export class ConfigurationItem<
         return this
     }
 
-    setParent(parent: Configuration) {
+    setParent(parent: CMakeConfiguration) {
         this.parent = parent
     }
 
-    getParent(): Configuration | undefined {
+    getParent(): CMakeConfiguration | undefined {
         return this.parent
     }
 

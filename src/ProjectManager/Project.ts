@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { Configuration, DefaultConfiguration } from './Configuration'
+import { CMakeConfiguration, DefaultConfiguration } from './Configuration'
 import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 
 /**
@@ -10,7 +10,7 @@ import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 export class Project extends ProjectManagerTreeItem {
     private name: string
     private defaultConfiguration: DefaultConfiguration
-    private configurations: Configuration[] = []
+    private configurations: CMakeConfiguration[] = []
 
     // for UI:
     contextValue = 'project' // identify type of the treeItem
@@ -38,12 +38,12 @@ export class Project extends ProjectManagerTreeItem {
         this.defaultConfiguration.setParent(this)
     }
 
-    addConfiguration(configuration: Configuration) {
+    addConfiguration(configuration: CMakeConfiguration) {
         configuration.setParent(this)
         this.configurations.push(configuration)
     }
 
-    removeConfiguration(configuration: Configuration) {
+    removeConfiguration(configuration: CMakeConfiguration) {
         this.configurations = this.configurations.filter(
             (c) => c !== configuration
         )
@@ -53,7 +53,7 @@ export class Project extends ProjectManagerTreeItem {
         return this.defaultConfiguration
     }
 
-    getConfigurations(): Configuration[] {
+    getConfigurations(): CMakeConfiguration[] {
         return [this.defaultConfiguration, ...this.configurations]
     }
 
@@ -102,7 +102,9 @@ export class Project extends ProjectManagerTreeItem {
             defaultConfiguration.getCMakeArguments()
         )
         project.configurations.forEach((configuration: any) => {
-            result.addConfiguration(Configuration.fromJSONObject(configuration))
+            result.addConfiguration(
+                CMakeConfiguration.fromJSONObject(configuration)
+            )
         })
         return result
     }

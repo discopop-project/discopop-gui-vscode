@@ -1,85 +1,95 @@
-import * as fs from 'fs'
+import * as vscode from 'vscode'
+import { FileMapping } from '../FileMapping/FileMapping'
+import { FileMappingParser } from '../FileMapping/FileMappingParser'
+import { LineMapping } from '../LineMapping/LineMapping'
+import { DefaultConfiguration } from '../ProjectManager/Configuration'
+import ErrorHandler from '../Utils/ErrorHandler'
+import {
+    WithProgressOperation,
+    WithProgressRunner,
+} from '../Utils/WithProgressRunner'
+import { DiscoPoPAppliedSuggestionsWatcher } from './DiscoPoPAppliedSuggestionsWatcher'
+import { DiscoPoPPatternParser } from './DiscoPoPPatternParser'
+import { DiscoPoPResults } from './classes/DiscoPoPResults'
 import { Suggestion } from './classes/Suggestion/Suggestion'
-import { DoAllSuggestion } from './classes/Suggestion/DoAllSuggestion'
-import { ReductionSuggestion } from './classes/Suggestion/ReductionSuggestion'
-import { GenericSuggestion } from './classes/Suggestion/GenericSuggestion'
+
+export interface DiscoPoPParserArguments {
+    fullConfiguration: DefaultConfiguration // TODO replace with only the necessary fields
+}
 
 export abstract class DiscoPoPParser {
     private constructor() {
         throw new Error('This class should not be instantiated')
     }
 
-    public static parseFile(path: string): Map<string, Suggestion[]> {
-        const suggestionsString = fs.readFileSync(path, 'utf-8')
-        return DiscoPoPParser.parseString(suggestionsString)
-    }
+    public static async parse(
+        dpRunnerParseArgs: DiscoPoPParserArguments
+    ): Promise<DiscoPoPResults> {
+        const steps: WithProgressOperation[] = []
 
-    public static parseString(text: string): Map<string, Suggestion[]> {
-        const suggestions = JSON.parse(text)
-        return DiscoPoPParser.parseJSON(suggestions)
-    }
+        let fileMapping: FileMapping | undefined = undefined
+        steps.push({
+            message: 'Parsing FileMapping...',
+            increment: 25,
+            operation: async () => {
+                fileMapping = FileMappingParser.parseFile(
+                    `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/FileMapping.txt`
+                )
+            },
+        })
 
-    public static parseJSON(json: any): Map<string, Suggestion[]> {
-        // TODO validate the json object
-        const suggestionsByType: Map<string, Suggestion[]> = new Map()
-        for (const [type, suggestions] of Object.entries(json) as [
-            string,
-            any[]
-        ][]) {
-            const suggestionList: Suggestion[] = []
-            for (const suggestion of suggestions) {
-                // read general fields
-                const pattern_id: number = suggestion.pattern_id
-                const node_id: string = suggestion.node_id // fileID:CUID
-                const [start_file, start_line] = (
-                    suggestion.start_line as string
-                ).split(':') // fileID:lineNr
-                const [_, end_line] = (suggestion.end_line as string).split(':') // fileID:lineNr
+        let suggestionsByType: Map<string, Suggestion[]> | undefined = undefined
+        steps.push({
+            message: 'Parsing suggestions...',
+            increment: 25,
+            operation: async () => {
+                suggestionsByType = DiscoPoPPatternParser.parseFile(
+                    `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/explorer/patterns.json`
+                )
+            },
+        })
 
-                if (type === 'do_all') {
-                    // parse do_all specific fields here, if needed
-                    // ...
+        let lineMapping: LineMapping | undefined = undefined
+        steps.push({
+            message: 'Synchronizing LineMapping...',
+            increment: 25,
+            operation: async () => {
+                const lineMappingFile = `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/line_mapping.json`
+                lineMapping = new LineMapping(lineMappingFile)
+            },
+        })
 
-                    suggestionList.push(
-                        new DoAllSuggestion(
-                            pattern_id,
-                            Number(start_file),
-                            Number(start_line),
-                            Number(end_line),
-                            suggestion
-                            // we can parse more fields from the patterns.json file and use them, if we need to
-                        )
-                    )
-                } else if (type === 'reduction') {
-                    // parse reduction specific fields here, if needed
-                    // ...
+        let appliedStatus: DiscoPoPAppliedSuggestionsWatcher | undefined =
+            undefined
+        steps.push({
+            message: 'Synchronizing applied status...',
+            increment: 25,
+            operation: async () => {
+                const appliedSuggestionsFile = `${dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory()}/.discopop/patch_applicator/applied_suggestions.json`
 
-                    suggestionList.push(
-                        new ReductionSuggestion(
-                            pattern_id,
-                            Number(start_file),
-                            Number(start_line),
-                            Number(end_line),
-                            suggestion
-                            // we can parse more fields from the patterns.json file and use them, if we need to
-                        )
-                    )
-                } else {
-                    // unknown suggestion types are represented by GenericSuggestion:
-                    suggestionList.push(
-                        new GenericSuggestion(
-                            pattern_id,
-                            type,
-                            Number(start_file),
-                            Number(start_line),
-                            Number(end_line),
-                            suggestion
-                        )
-                    )
-                }
-            }
-            suggestionsByType.set(type, suggestionList)
-        }
-        return suggestionsByType
+                appliedStatus = new DiscoPoPAppliedSuggestionsWatcher(
+                    appliedSuggestionsFile
+                )
+            },
+        })
+
+        const withProgressRunner = new WithProgressRunner(
+            'Parsing DiscoPoP results',
+            vscode.ProgressLocation.Notification,
+            false, // TODO: true is currently NOT supported
+            steps,
+            ErrorHandler
+        )
+
+        await withProgressRunner.run()
+
+        return new DiscoPoPResults(
+            dpRunnerParseArgs.fullConfiguration.getDiscoPoPBuildDirectory() +
+                '/.discopop',
+            suggestionsByType!,
+            fileMapping!,
+            lineMapping!,
+            appliedStatus!
+        )
     }
 }

@@ -1,6 +1,6 @@
 import { exec } from 'child_process'
 
-export abstract class PatchManager {
+export abstract class PatchApplicator {
     private constructor() {
         throw new Error(
             'PatchManager is a static class and cannot be instantiated.'
@@ -15,7 +15,7 @@ export abstract class PatchManager {
     public static async applyPatch(
         dotDiscoPoP: string,
         id: number
-    ): Promise<void> {
+    ): Promise<number> {
         const args = `-a ${id}`
         return this._runPatchApplicator(dotDiscoPoP, args)
     }
@@ -23,12 +23,12 @@ export abstract class PatchManager {
     public static async rollbackPatch(
         dotDiscoPoP: string,
         id: number
-    ): Promise<void> {
+    ): Promise<number> {
         const args = `-r ${id}`
         return this._runPatchApplicator(dotDiscoPoP, args)
     }
 
-    public static async clear(dotDiscoPoP: string): Promise<void> {
+    public static async clear(dotDiscoPoP: string): Promise<number> {
         const args = '-C'
         return this._runPatchApplicator(dotDiscoPoP, args)
     }
@@ -36,40 +36,26 @@ export abstract class PatchManager {
     private static async _runPatchApplicator(
         dotDiscoPoP: string,
         args: string
-    ): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            if (!dotDiscoPoP) {
-                reject(
-                    new Error(
-                        'discopop_patch_applicator called while .discopop directory is not set.'
-                    )
-                )
-                return
-            }
+    ): Promise<number> {
+        return new Promise<number>((resolve, reject) => {
             exec(
                 `discopop_patch_applicator ${args}`,
                 { cwd: dotDiscoPoP },
                 (err, stdout, stderr) => {
                     if (err) {
-                        reject(
-                            new Error(
-                                'discopop_patch_applicator failed: ' +
-                                    err.message +
-                                    '\n' +
-                                    stderr +
-                                    stdout
-                            )
-                        )
-                    }
-                    // TODO this should be indicated by the exit code in the future...
-                    else if (stdout.includes('not successful.')) {
-                        reject(
-                            new Error(
-                                'discopop_patch_applicator failed: ' + stdout
-                            )
-                        )
+                        switch (err.code) {
+                            case 0:
+                            case 1:
+                            case 2:
+                            case 3:
+                            default:
+                                console.log(
+                                    'patch applicator returned:' + err.code
+                                )
+                        }
+                        reject(err)
                     } else {
-                        resolve()
+                        resolve(err.code)
                     }
                 }
             )

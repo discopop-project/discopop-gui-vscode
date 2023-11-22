@@ -1,14 +1,15 @@
 import * as vscode from 'vscode'
+import { DiscoPoPParser } from '../DiscoPoP/DiscoPoPParser'
+import { DiscoPoPRunner } from '../DiscoPoP/DiscoPoPRunner'
+import { DiscoPoPResults } from '../DiscoPoP/classes/DiscoPoPResults'
+import { HotspotDetectionParser } from '../HotspotDetection/HotspotDetectionParser'
+import { HotspotDetectionRunner } from '../HotspotDetection/HotspotDetectionRunner'
+import { HotspotDetectionResults } from '../HotspotDetection/classes/HotspotDetectionResults'
 import { ConfigurationItem } from './ConfigurationItem'
-import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 import { Project } from './Project'
-import { DiscoPoPRunner, DiscoPoPResults } from '../DiscoPoP/DiscoPoPRunner'
-import {
-    HotspotDetectionRunner,
-    HotspotDetectionRunnerResults,
-} from '../HotspotDetection/HotspotDetectionRunner'
+import { ProjectManagerTreeItem } from './ProjectManagerTreeItem'
 
-export class Configuration extends ProjectManagerTreeItem {
+export class CMakeConfiguration extends ProjectManagerTreeItem {
     parent: Project | undefined
 
     private _name: string
@@ -129,34 +130,61 @@ export class Configuration extends ProjectManagerTreeItem {
         return this.parent
     }
 
-    async runDiscoPoP(): Promise<DiscoPoPResults> {
+    async runAndParseDiscoPoP(): Promise<DiscoPoPResults> {
+        const fullConfiguration = this.getFullConfiguration()
+
         this.iconPath = new vscode.ThemeIcon('gear~spin')
         this.refresh()
 
         try {
-            const results = await DiscoPoPRunner.runAndParse({
-                fullConfiguration: this.getFullConfiguration(),
+            const runCompleted = await DiscoPoPRunner.run({
+                projectPath: fullConfiguration.getProjectPath(),
+                buildArguments: fullConfiguration.getCMakeArguments(),
+                executableName: fullConfiguration.getExecutableName(),
+                executableArguments:
+                    fullConfiguration.getExecutableArgumentsDiscoPoP(),
+                buildPath: fullConfiguration.getDiscoPoPBuildDirectory(),
+                dotDiscoPoPPath:
+                    fullConfiguration.getDiscoPoPBuildDirectory() +
+                    '/.discopop',
             })
-            return results
-        } catch (error) {
-            this.iconPath = new vscode.ThemeIcon('gear')
-            this.refresh()
-            throw error
+
+            if (!runCompleted) {
+                throw new Error('DiscoPoP failed to run')
+            }
+
+            return DiscoPoPParser.parse({
+                fullConfiguration,
+            })
+            // note that errors are not caught, but propagated to the caller
         } finally {
             this.iconPath = new vscode.ThemeIcon('gear')
             this.refresh()
         }
     }
 
-    async runHotspotDetection(): Promise<HotspotDetectionRunnerResults> {
+    async runAndParseHotspotDetection(): Promise<HotspotDetectionResults> {
+        const fullConfiguration = this.getFullConfiguration()
         this.iconPath = new vscode.ThemeIcon('gear~spin')
         this.refresh()
 
         try {
-            const results = await HotspotDetectionRunner.runAndParse({
-                configuration: this,
+            const runCompleted = await HotspotDetectionRunner.run({
+                configuration: fullConfiguration,
             })
-            return results
+
+            if (!runCompleted) {
+                throw new Error('Hotspot Detection failed to run')
+            }
+
+            return HotspotDetectionParser.parse({
+                filemappingPath:
+                    fullConfiguration.getHotspotDetectionBuildDirectory() +
+                    '/.discopop/common_data/FileMapping.txt',
+                hotspotsJsonPath:
+                    fullConfiguration.getHotspotDetectionBuildDirectory() +
+                    '/.discopop/hotspot_detection/Hotspots.json',
+            })
         } catch (error) {
             this.iconPath = new vscode.ThemeIcon('gear')
             this.refresh()
@@ -252,8 +280,8 @@ export class Configuration extends ProjectManagerTreeItem {
         }
     }
 
-    static fromJSONObject(object: any): Configuration {
-        const conf = new Configuration(
+    static fromJSONObject(object: any): CMakeConfiguration {
+        const conf = new CMakeConfiguration(
             object.name,
             object.projectPath,
             object.executableName,
@@ -269,7 +297,7 @@ export class Configuration extends ProjectManagerTreeItem {
     }
 }
 
-export class DefaultConfiguration extends Configuration {
+export class DefaultConfiguration extends CMakeConfiguration {
     // in a default configuration, all fields are mandatory and cannot be undefined
     constructor(
         projectPath: string,
@@ -292,7 +320,7 @@ export class DefaultConfiguration extends Configuration {
     }
 
     static fromConfiguration(
-        configuration: Configuration
+        configuration: CMakeConfiguration
     ): DefaultConfiguration {
         return new DefaultConfiguration(
             configuration.getProjectPath(),

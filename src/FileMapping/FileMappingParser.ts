@@ -1,5 +1,5 @@
-import { FileMapping } from './FileMapping'
 import * as fs from 'fs'
+import { FileMapping } from './FileMapping'
 
 /**
  * provides methods to parse the contents of a FileMapping.txt file

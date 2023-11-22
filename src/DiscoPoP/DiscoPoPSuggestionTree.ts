@@ -1,10 +1,8 @@
 import * as vscode from 'vscode'
-import { Suggestion } from './classes/Suggestion/Suggestion'
-import { FileMapping } from '../FileMapping/FileMapping'
 import { Commands } from '../Utils/Commands'
 import { SimpleTree, SimpleTreeNode } from '../Utils/SimpleTree'
-import { DefaultConfiguration } from '../ProjectManager/Configuration'
-import { DiscoPoPResults } from './DiscoPoPRunner'
+import { DiscoPoPResults } from './classes/DiscoPoPResults'
+import { Suggestion } from './classes/Suggestion/Suggestion'
 
 /**
  * A suggestion group is a group of suggestions of the same type.
