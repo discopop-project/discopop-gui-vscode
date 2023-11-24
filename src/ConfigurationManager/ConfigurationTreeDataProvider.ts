@@ -1,14 +1,21 @@
+import { ExtensionContext } from 'vscode'
 import { SimpleTree } from '../Utils/SimpleTree'
 import { Configuration, ConfigurationObserver } from './Configuration'
-import { ConfigurationCMake } from './ConfigurationCMake'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
+import configurationFromJSON from './ConfigurationDeserializer'
+import { ConfigurationCMake } from './ConfigurationCMake'
 
 export class ConfigurationTreeDataProvider
     extends SimpleTree<ConfigurationTreeItem>
     implements ConfigurationObserver
 {
-    public constructor() {
+    public constructor(private _context: ExtensionContext) {
         super([])
+        this._loadConfigurationsFromStableStorage()
+        // this.roots.push(new ConfigurationCMake(
+        //     'New Configuration',
+        //     "/home/bg/simpleProject/simpleCmake", "/home/bg/simpleProject/simpleCmake/build", "", "hello_world", "dpArgs", ["hdArgs1", "hdArgs2", "hdArgs3"], this  ))
+        this.refresh()
     }
 
     public getConfigurations(): Configuration[] {
@@ -24,24 +31,32 @@ export class ConfigurationTreeDataProvider
         this.refresh()
     }
 
-    public storeConfigurationsToStableStorage(): void {
-        // TODO
+    public refresh() {
+        this._storeConfigurationsToStableStorage()
+        super.refresh()
     }
 
-    public loadConfigurationsFromStableStorage(): void {
-        // TODO
-        this.roots.push(
-            new ConfigurationCMake(
-                'test',
-                'test',
-                'test',
-                'test',
-                'test',
-                'test',
-                ['test1', 'test2'],
-                this
-            )
+    private static stableStorageKey = 'configurations'
+
+    private _storeConfigurationsToStableStorage(): void {
+        const projects = this.roots.map((c) => (c as Configuration).toJSON())
+        const projectsString = JSON.stringify(projects)
+        this._context.globalState.update(
+            ConfigurationTreeDataProvider.stableStorageKey,
+            projectsString
         )
+    }
+
+    private _loadConfigurationsFromStableStorage(): void {
+        const projectsString = this._context.globalState.get<string>(
+            ConfigurationTreeDataProvider.stableStorageKey,
+            '[]'
+        )
+        const projectsJSON = JSON.parse(projectsString) as any[]
+        const projects = projectsJSON.map((project) =>
+            configurationFromJSON(project, this)
+        )
+        this.roots = projects
         this.refresh()
     }
 
