@@ -13,10 +13,10 @@ import {
 export interface DiscoPoPRunnerArguments {
     projectPath: string
     buildPath: string
+    buildArguments: string
     dotDiscoPoPPath: string
     executableName: string
     executableArguments: string
-    buildArguments: string
 }
 
 export abstract class DiscoPoPRunner {
