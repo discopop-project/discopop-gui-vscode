@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
+import { Editable } from './Editable'
 
 export type SupportedType = string | number | boolean
 
@@ -9,12 +10,12 @@ export interface PropertyObserver {
 
 // TODO it would be nice to allow making a property optional
 export abstract class Property<T extends SupportedType | SupportedType[]>
-    implements ConfigurationTreeItem
+    implements ConfigurationTreeItem, Editable
 {
     public constructor(
         protected title: string,
         protected _value: T | T[],
-        protected _tooltip: string,
+        protected tooltip: string,
         onPropertyChanged: PropertyObserver
     ) {
         this.observers.push(onPropertyChanged)
@@ -36,6 +37,7 @@ export abstract class Property<T extends SupportedType | SupportedType[]>
     public refresh() {
         this.observers.forEach((observer) => observer.onPropertyChanged(this))
     }
+    public abstract edit(): void
 }
 
 export abstract class PropertyElement<
@@ -44,10 +46,10 @@ export abstract class PropertyElement<
     public constructor(
         protected title: string,
         protected _value: T,
-        protected _tooltip: string,
+        protected tooltip: string,
         onPropertyChanged: PropertyObserver
     ) {
-        super(title, _value, _tooltip, onPropertyChanged)
+        super(title, _value, tooltip, onPropertyChanged)
     }
 
     public get value(): T {
@@ -64,16 +66,20 @@ export abstract class PropertyElement<
         treeItem.description = this.value.toString()
         treeItem.iconPath = new vscode.ThemeIcon('symbol-field')
         treeItem.contextValue = 'propertyElement'
-        treeItem.tooltip = this._tooltip
+        treeItem.tooltip = this.tooltip
         return treeItem
     }
 
     public getChildren(): ConfigurationTreeItem[] | undefined {
         return undefined
     }
+
+    public abstract edit(): void
 }
 
-export class PropertyArray<T extends SupportedType> extends Property<T[]> {
+export abstract class PropertyArray<T extends SupportedType> extends Property<
+    T[]
+> {
     protected _properties: PropertyElement<T>[] = []
 
     public constructor(
@@ -85,10 +91,10 @@ export class PropertyArray<T extends SupportedType> extends Property<T[]> {
             tooltip: string,
             onPropertyChanged: PropertyObserver
         ) => PropertyElement<T>,
-        protected _tooltip: string,
+        protected tooltip: string,
         private _onPropertyChanged: PropertyObserver
     ) {
-        super(title, _value, _tooltip, _onPropertyChanged)
+        super(title, _value, tooltip, _onPropertyChanged)
         this._properties = _value.map(
             (v) => new c('', v, undefined, _onPropertyChanged)
         )
@@ -111,11 +117,22 @@ export class PropertyArray<T extends SupportedType> extends Property<T[]> {
         this.refresh()
     }
 
-    public removeValue(value: T): void {
-        this._properties = this._properties.filter(
-            (p) =>
-                p.value !== value && p.removeObserver(this._onPropertyChanged)
-        )
+    public removeValue(value: T, removeOnlyFirstOccurence = true): void {
+        let removed = false
+        this._properties = this._properties.filter((p) => {
+            // keep it, if we already removed an element and we only want to remove the first occurence
+            if (removed && removeOnlyFirstOccurence) {
+                return true
+            }
+            // remove it, if we found the element to remove
+            if (p.value === value) {
+                removed = true
+                p.removeObserver(this._onPropertyChanged)
+                return false
+            }
+            // keep other elements
+            return true
+        })
         this.refresh()
     }
 
@@ -126,6 +143,53 @@ export class PropertyArray<T extends SupportedType> extends Property<T[]> {
         this.refresh()
     }
 
+    public abstract addElement(): void
+
+    public removeElement(): void {
+        vscode.window
+            .showQuickPick(
+                this._properties.map((p) => p.value.toString()),
+                {
+                    placeHolder: 'Select an element to remove',
+                }
+            )
+            .then((value) => {
+                if (value !== undefined) {
+                    this.removeValue(value as T)
+                }
+            })
+    }
+
+    public clear(): void {
+        this._properties.forEach((p) =>
+            p.removeObserver(this._onPropertyChanged)
+        )
+        this._properties = []
+        this.refresh()
+    }
+
+    public edit(): void {
+        vscode.window
+            .showQuickPick(['Add', 'Remove', 'Clear', 'Cancel'], {
+                placeHolder: 'Select an action',
+            })
+            .then((value) => {
+                switch (value) {
+                    case 'Add':
+                        this.addElement()
+                        break
+                    case 'Remove':
+                        this.removeElement()
+                        break
+                    case 'Clear':
+                        this.clear()
+                        break
+                    case 'Cancel':
+                        break
+                }
+            })
+    }
+
     public getView(): vscode.TreeItem {
         const treeItem = new vscode.TreeItem(
             this.title,
@@ -133,7 +197,7 @@ export class PropertyArray<T extends SupportedType> extends Property<T[]> {
         )
         treeItem.iconPath = new vscode.ThemeIcon('symbol-class')
         treeItem.contextValue = 'propertyArray'
-        treeItem.tooltip = this._tooltip
+        treeItem.tooltip = this.tooltip
         return treeItem
     }
 
@@ -144,9 +208,46 @@ export class PropertyArray<T extends SupportedType> extends Property<T[]> {
 
 // convenience classes:
 // also they could in the future override the getView methode e.g. to provide different icons/contextValues/...
-export class StringProperty extends PropertyElement<string> {}
-export class NumberProperty extends PropertyElement<number> {}
-export class BooleanProperty extends PropertyElement<boolean> {}
-export class StringArrayProperty extends PropertyArray<string> {}
-export class NumberArrayProperty extends PropertyArray<number> {}
-export class BooleanArrayProperty extends PropertyArray<boolean> {}
+export class StringProperty extends PropertyElement<string> {
+    public edit(): void {
+        // let the user input a new value using a vscode input box
+        vscode.window
+            .showInputBox({
+                value: this.value,
+                prompt:
+                    'Please enter a new value for ' +
+                    this.title +
+                    ' (' +
+                    this.tooltip +
+                    ')',
+                placeHolder: this.title,
+            })
+            .then((value) => {
+                if (value !== undefined) {
+                    this.value = value
+                }
+            })
+    }
+}
+// export class NumberProperty extends PropertyElement<number> {}
+// export class BooleanProperty extends PropertyElement<boolean> {}
+export class StringArrayProperty extends PropertyArray<string> {
+    public async addElement(): Promise<void> {
+        // let the user input a new value using a vscode input box
+        const value = await vscode.window.showInputBox({
+            value: '',
+            prompt:
+                'Please enter a new value for ' +
+                this.title +
+                ' (' +
+                this.tooltip +
+                ')',
+            placeHolder: this.title,
+        })
+        if (value !== undefined) {
+            this.pushValue(value)
+        }
+    }
+}
+// export class NumberArrayProperty extends PropertyArray<number> {}
+// export class BooleanArrayProperty extends PropertyArray<boolean> {}

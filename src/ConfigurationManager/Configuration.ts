@@ -1,11 +1,13 @@
+import * as vscode from 'vscode'
 import { TreeItem, ThemeIcon, TreeItemCollapsibleState } from 'vscode'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
+import { Editable } from './Editable'
 
 export interface ConfigurationObserver {
     onConfigurationChange(configuration: Configuration): void
 }
 
-export abstract class Configuration implements ConfigurationTreeItem {
+export abstract class Configuration implements ConfigurationTreeItem, Editable {
     public constructor(
         private _name: string,
         onConfigurationChange?: ConfigurationObserver
@@ -33,6 +35,16 @@ export abstract class Configuration implements ConfigurationTreeItem {
     public set name(value: string) {
         this._name = value
         this.refresh()
+    }
+
+    public async edit(): Promise<void> {
+        // let the user input a new name for the configuration using a vscode input box
+        const value = await vscode.window.showInputBox({
+            prompt: 'Enter a new name',
+        })
+        if (value !== undefined) {
+            this.name = value
+        }
     }
 
     private _running: boolean
