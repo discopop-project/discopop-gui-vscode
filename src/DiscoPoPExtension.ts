@@ -1,4 +1,5 @@
 import * as vscode from 'vscode'
+import { ConfigurationTreeDataProvider } from './ConfigurationManager/ConfigurationTreeDataProvider'
 import { DiscoPoPCodeLensProvider } from './DiscoPoP/DiscoPoPCodeLensProvider'
 import { DiscoPoPDetailViewProvider } from './DiscoPoP/DiscoPoPDetailViewProvider'
 import { DiscoPoPParser as DiscoPoPResultsParser } from './DiscoPoP/DiscoPoPParser'
@@ -58,7 +59,14 @@ export class DiscoPoPExtension {
         | undefined = undefined
 
     public constructor(private context: vscode.ExtensionContext) {
-        this.projectManager = new ProjectManager(context)
+        //this.projectManager = new ProjectManager(context)
+        const configProvider = new ConfigurationTreeDataProvider()
+        configProvider.loadConfigurationsFromStableStorage()
+        const projectViewer = vscode.window.createTreeView(
+            'sidebar-projects-view',
+            { treeDataProvider: configProvider }
+        )
+        this.context.subscriptions.push(projectViewer)
     }
 
     public async showDiscoPoPResults(fullConfig: DefaultConfiguration) {
