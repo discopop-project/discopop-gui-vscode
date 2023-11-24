@@ -1,7 +1,6 @@
 import { exec } from 'child_process'
 import * as fs from 'fs'
 import * as vscode from 'vscode'
-import { CMakeConfiguration } from '../ProjectManager/Configuration'
 import { Config } from '../Utils/Config'
 import ErrorHandler from '../Utils/ErrorHandler'
 import { UIPrompts } from '../Utils/UIPrompts'
@@ -11,7 +10,12 @@ import {
 } from '../Utils/WithProgressRunner'
 
 export interface HotspotDetectionRunnerRunArguments {
-    configuration: CMakeConfiguration // TODO only the relevent properties
+    projectPath: string
+    buildPath: string
+    buildArguments: string
+    dotDiscoPoPPath: string
+    executableName: string
+    executableArguments: string[]
 }
 
 export abstract class HotspotDetectionRunner {
@@ -37,29 +41,16 @@ export abstract class HotspotDetectionRunner {
             message: 'Preparing build directory...',
             increment: 5,
             operation: async () => {
-                if (
-                    !fs.existsSync(
-                        args.configuration.getHotspotDetectionBuildDirectory()
-                    )
-                ) {
-                    fs.mkdirSync(
-                        args.configuration.getHotspotDetectionBuildDirectory(),
-                        { recursive: true }
-                    )
+                if (!fs.existsSync(args.buildPath)) {
+                    fs.mkdirSync(args.buildPath, { recursive: true })
                 } else if (
                     Config.skipOverwriteConfirmation() ||
                     (await UIPrompts.actionConfirmed(
                         'The build directory already exists. Do you want to overwrite it?\n(You can disable this dialog in the extension settings)'
                     ))
                 ) {
-                    fs.rmSync(
-                        args.configuration.getHotspotDetectionBuildDirectory(),
-                        { recursive: true }
-                    )
-                    fs.mkdirSync(
-                        args.configuration.getHotspotDetectionBuildDirectory(),
-                        { recursive: true }
-                    )
+                    fs.rmSync(args.buildPath, { recursive: true })
+                    fs.mkdirSync(args.buildPath, { recursive: true })
                 } else {
                     throw new Error('Operation cancelled by user')
                 }
@@ -75,9 +66,9 @@ export abstract class HotspotDetectionRunner {
                 return new Promise<void>((resolve, reject) => {
                     outerResolve = resolve
                     const childProcess = exec(
-                        `${cmakeWrapperScript} ${args.configuration.getProjectPath()}`,
+                        `${cmakeWrapperScript} ${args.projectPath}`,
                         {
-                            cwd: args.configuration.getHotspotDetectionBuildDirectory(),
+                            cwd: args.buildPath,
                         },
                         (err, stdout, stderr) => {
                             if (err) {
@@ -115,7 +106,7 @@ export abstract class HotspotDetectionRunner {
                     const childProcess = exec(
                         `make > make.log 2>&1`,
                         {
-                            cwd: args.configuration.getHotspotDetectionBuildDirectory(),
+                            cwd: args.buildPath,
                         },
                         (err, stdout, stderr) => {
                             if (err) {
@@ -143,23 +134,20 @@ export abstract class HotspotDetectionRunner {
             },
         })
 
-        const executable_args =
-            args.configuration.getExecutableArgumentsHotspotDetection()
-
-        executable_args.forEach((execArgs, index) => {
+        args.executableArguments.forEach((execArgs, index) => {
             steps.push({
                 message: `Running Executable... (${index + 1}/${
-                    executable_args.length
+                    args.executableArguments.length
                 })`,
-                increment: 50 / executable_args.length,
+                increment: 50 / args.executableArguments.length,
                 operation: async (token) => {
                     let outerResolve: () => void
                     return new Promise<void>((resolve, reject) => {
                         outerResolve = resolve
                         const childProcess = exec(
-                            `${args.configuration.getHotspotDetectionBuildDirectory()}/${args.configuration.getExecutableName()} ${execArgs}`,
+                            `${args.buildPath}/${args.executableName} ${execArgs}`,
                             {
-                                cwd: args.configuration.getHotspotDetectionBuildDirectory(),
+                                cwd: args.buildPath,
                             },
                             (err, stdout, stderr) => {
                                 if (err) {
@@ -199,7 +187,7 @@ export abstract class HotspotDetectionRunner {
                     const childProcess = exec(
                         `hotspot_analyzer`,
                         {
-                            cwd: `${args.configuration.getHotspotDetectionBuildDirectory()}/.discopop`,
+                            cwd: args.dotDiscoPoPPath,
                         },
                         (err, stdout, stderr) => {
                             if (err) {

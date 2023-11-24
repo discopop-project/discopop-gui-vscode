@@ -1,8 +1,14 @@
 import * as vscode from 'vscode'
+import {
+    DiscoPoPRunCapableConfiguration,
+    DiscoPoPViewCapableConfiguration,
+    HotspotDetectionRunCapableConfiguration,
+    HotspotDetectionViewCapableConfiguration,
+} from './ConfigurationManager/Configuration'
 import { ConfigurationTreeDataProvider } from './ConfigurationManager/ConfigurationTreeDataProvider'
 import { DiscoPoPCodeLensProvider } from './DiscoPoP/DiscoPoPCodeLensProvider'
 import { DiscoPoPDetailViewProvider } from './DiscoPoP/DiscoPoPDetailViewProvider'
-import { DiscoPoPParser as DiscoPoPResultsParser } from './DiscoPoP/DiscoPoPParser'
+import { DiscoPoPParser } from './DiscoPoP/DiscoPoPParser'
 import {
     DiscoPoPSuggestionGroup,
     DiscoPoPSuggestionNode,
@@ -17,11 +23,6 @@ import { HotspotDetectionParser } from './HotspotDetection/HotspotDetectionParse
 import { HotspotTree } from './HotspotDetection/HotspotTree'
 import { Hotspot } from './HotspotDetection/classes/Hotspot'
 import { HotspotDetectionResults } from './HotspotDetection/classes/HotspotDetectionResults'
-import {
-    CMakeConfiguration,
-    DefaultConfiguration,
-} from './ProjectManager/Configuration'
-import { ProjectManager } from './ProjectManager/ProjectManager'
 import { UserCancellationError } from './Utils/CancellationError'
 import { Commands } from './Utils/Commands'
 import { Decoration } from './Utils/Decorations'
@@ -38,7 +39,7 @@ function _removeDecorations(
 }
 
 export class DiscoPoPExtension {
-    private projectManager: ProjectManager
+    private configurationTreeDataProvider: ConfigurationTreeDataProvider
     private dpResults: DiscoPoPResults | undefined = undefined
     private hsResults: HotspotDetectionResults | undefined = undefined
     private dp_details: DiscoPoPDetailViewProvider =
@@ -60,16 +61,16 @@ export class DiscoPoPExtension {
 
     public constructor(private context: vscode.ExtensionContext) {
         //this.projectManager = new ProjectManager(context)
-        const configProvider = new ConfigurationTreeDataProvider()
-        configProvider.loadConfigurationsFromStableStorage()
+        this.configurationTreeDataProvider = new ConfigurationTreeDataProvider()
+        this.configurationTreeDataProvider.loadConfigurationsFromStableStorage()
         const projectViewer = vscode.window.createTreeView(
             'sidebar-projects-view',
-            { treeDataProvider: configProvider }
+            { treeDataProvider: this.configurationTreeDataProvider }
         )
         this.context.subscriptions.push(projectViewer)
     }
 
-    public async showDiscoPoPResults(fullConfig: DefaultConfiguration) {
+    public async showDiscoPoPResults() {
         // show the suggestions in the sidebar
         const suggestionTree = new SuggestionTree(this.dpResults)
         await this.suggestionTreeView?.dispose()
@@ -92,7 +93,7 @@ export class DiscoPoPExtension {
             this.dpResults.fileMapping,
             this.dpResults.lineMapping,
             this.dpResults.appliedStatus,
-            fullConfig.getDiscoPoPBuildDirectory() + '/.discopop',
+            this.dpResults.dotDiscoPoP,
             Array.from(this.dpResults.suggestionsByType.values()).flat()
         )
 
@@ -104,13 +105,11 @@ export class DiscoPoPExtension {
         )
     }
 
-    public async showHotspotDetectionResults(
-        hsResults: HotspotDetectionResults
-    ) {
+    public async showHotspotDetectionResults() {
         // show the hotspots in the sidebar
         const hotspotTree = new HotspotTree(
             undefined, // TODO s.lineMapping,
-            hsResults
+            this.hsResults
         )
         // TODO we should not create a new tree view every time,
         // but rather update the existing one
@@ -141,19 +140,40 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.runDiscoPoPAndHotspotDetection,
-                async (configuration: CMakeConfiguration) => {
-                    const fullConfig = configuration.getFullConfiguration()
-
+                async (
+                    configuration: DiscoPoPRunCapableConfiguration &
+                        HotspotDetectionRunCapableConfiguration
+                ) => {
                     try {
                         // DiscoPoP
                         this.dpResults?.dispose()
-                        this.dpResults = await fullConfig.runAndParseDiscoPoP()
-                        await this.showDiscoPoPResults(fullConfig)
+                        if (await configuration.runDiscoPoP()) {
+                            this.dpResults = await DiscoPoPParser.parse({
+                                dotDiscoPoP:
+                                    configuration.getDotDiscoPoPForDiscoPoP(),
+                            })
+                            await this.showDiscoPoPResults()
+                        } else {
+                            console.error('DiscoPoP failed to run')
+                        }
 
                         // HotspotDetection
-                        this.hsResults =
-                            await configuration.runAndParseHotspotDetection()
-                        await this.showHotspotDetectionResults(this.hsResults)
+                        // this.hsResults?.dispose() // TODO refactor to do this like with DiscoPoP ?
+                        if (await configuration.runHotspotDetection()) {
+                            this.hsResults = await HotspotDetectionParser.parse(
+                                {
+                                    filemappingPath:
+                                        configuration.getDotDiscoPoPForHotspotDetection() +
+                                        '/common_data/FileMapping.txt',
+                                    hotspotsJsonPath:
+                                        configuration.getDotDiscoPoPForHotspotDetection() +
+                                        '/hotspot_detection/Hotspots.json',
+                                }
+                            )
+                            await this.showHotspotDetectionResults()
+                        } else {
+                            console.error('HotspotDetection failed to run')
+                        }
                     } catch (error) {
                         if (error instanceof UserCancellationError) {
                             error.showErrorMessageNotification()
@@ -168,12 +188,19 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.runDiscoPoP,
-                async (configuration: CMakeConfiguration) => {
-                    const fullConfig = configuration.getFullConfiguration()
+                async (configuration: DiscoPoPRunCapableConfiguration) => {
                     try {
+                        // DiscoPoP
                         this.dpResults?.dispose()
-                        this.dpResults = await fullConfig.runAndParseDiscoPoP()
-                        await this.showDiscoPoPResults(fullConfig)
+                        if (await configuration.runDiscoPoP()) {
+                            this.dpResults = await DiscoPoPParser.parse({
+                                dotDiscoPoP:
+                                    configuration.getDotDiscoPoPForDiscoPoP(),
+                            })
+                            await this.showDiscoPoPResults()
+                        } else {
+                            console.error('DiscoPoP failed to run')
+                        }
                     } catch (error) {
                         if (error instanceof UserCancellationError) {
                             error.showErrorMessageNotification()
@@ -188,11 +215,26 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.runHotspotDetection,
-                async (configuration: CMakeConfiguration) => {
+                async (
+                    configuration: HotspotDetectionRunCapableConfiguration
+                ) => {
                     try {
-                        const results =
-                            await configuration.runAndParseHotspotDetection()
-                        this.showHotspotDetectionResults(results)
+                        // this.hsResults?.dispose() // TODO refactor to do this like with DiscoPoP ?
+                        if (await configuration.runHotspotDetection()) {
+                            this.hsResults = await HotspotDetectionParser.parse(
+                                {
+                                    filemappingPath:
+                                        configuration.getDotDiscoPoPForHotspotDetection() +
+                                        '/common_data/FileMapping.txt',
+                                    hotspotsJsonPath:
+                                        configuration.getDotDiscoPoPForHotspotDetection() +
+                                        '/hotspot_detection/Hotspots.json',
+                                }
+                            )
+                            await this.showHotspotDetectionResults()
+                        } else {
+                            console.error('HotspotDetection failed to run')
+                        }
                     } catch (error) {
                         if (error instanceof UserCancellationError) {
                             error.showErrorMessageNotification()
@@ -207,30 +249,30 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.loadDiscoPoPResults,
-                async (configuration: CMakeConfiguration) => {
-                    const fullConfig = configuration.getFullConfiguration()
-                    this.dpResults = await DiscoPoPResultsParser.parse({
-                        fullConfiguration: fullConfig,
+                async (configuration: DiscoPoPViewCapableConfiguration) => {
+                    this.dpResults = await DiscoPoPParser.parse({
+                        dotDiscoPoP: configuration.getDotDiscoPoPForDiscoPoP(),
                     })
-                    await this.showDiscoPoPResults(fullConfig)
+                    await this.showDiscoPoPResults() // TODO move the above three lines into this function and pass required data
                 }
             )
         )
 
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
-                Commands.loadHotspotResults,
-                async (configuration: CMakeConfiguration) => {
-                    const fullConfig = configuration.getFullConfiguration()
-                    const results = await HotspotDetectionParser.parse({
+                Commands.loadHotspotResults, // TODO we should only have a single load button for both DiscoPoP and HotspotDetection
+                async (
+                    configuration: HotspotDetectionViewCapableConfiguration
+                ) => {
+                    this.hsResults = await HotspotDetectionParser.parse({
                         filemappingPath:
-                            configuration.getHotspotDetectionBuildDirectory() +
-                            '/.discopop/common_data/FileMapping.txt',
+                            configuration.getDotDiscoPoPForHotspotDetection() +
+                            '/common_data/FileMapping.txt',
                         hotspotsJsonPath:
-                            configuration.getHotspotDetectionBuildDirectory() +
-                            '/.discopop/hotspot_detection/Hotspots.json',
+                            configuration.getDotDiscoPoPForHotspotDetection() +
+                            '/hotspot_detection/Hotspots.json',
                     })
-                    this.showHotspotDetectionResults(results)
+                    await this.showHotspotDetectionResults() // TODO move the above 8 lines into the function and pass required data
                 }
             )
         )
