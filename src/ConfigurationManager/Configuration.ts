@@ -1,14 +1,19 @@
 import { TreeItem, ThemeIcon, TreeItemCollapsibleState } from 'vscode'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
-import { ConfigurationCMake } from './ConfigurationCMake'
 
 export interface ConfigurationObserver {
     onConfigurationChange(configuration: Configuration): void
 }
 
 export abstract class Configuration implements ConfigurationTreeItem {
-    public constructor(private _name: string) {
+    public constructor(
+        private _name: string,
+        onConfigurationChange?: ConfigurationObserver
+    ) {
         this._running = false
+        if (onConfigurationChange !== undefined) {
+            this.addObserver(onConfigurationChange)
+        }
     }
     getView(): TreeItem {
         const treeItem = new TreeItem(
@@ -62,28 +67,6 @@ export abstract class Configuration implements ConfigurationTreeItem {
      * The developer MUST also update the static method Configuration.fromJSON
      */
     abstract toJSON(): any
-    public static fromJSON(
-        json: any,
-        observer: ConfigurationObserver
-    ): Configuration {
-        switch (json.configurationType) {
-            case ConfigurationType.CMake:
-                return new ConfigurationCMake(
-                    json.name,
-                    json.projectPath,
-                    json.buildPath,
-                    json.buildArguments,
-                    json.executableName,
-                    json.executableArgumentsForDiscoPoP,
-                    json.executableArgumentsForHotspotDetection,
-                    observer
-                )
-            case ConfigurationType.ViewOnly:
-            case ConfigurationType.Script:
-            default:
-                throw new Error('Unknown configuration type')
-        }
-    }
 }
 
 export interface DiscoPoPViewCapableConfiguration {

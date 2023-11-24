@@ -30,10 +30,9 @@ export class ConfigurationCMake
         executableName: string,
         executableArgumentsForDiscoPoP: string,
         executableArgumentsForHotspotDetection: string[],
-        onConfigurationChange: ConfigurationObserver
+        onConfigurationChange?: ConfigurationObserver
     ) {
-        super(name)
-        this.addObserver(onConfigurationChange)
+        super(name, onConfigurationChange)
         this._projectPath = new StringProperty(
             'Project Path',
             projectPath,
@@ -179,7 +178,7 @@ export class ConfigurationCMake
         this.running = true
         const completed = await DiscoPoPRunner.run({
             projectPath: this.projectPath,
-            buildPath: this.buildPath,
+            buildPath: this.buildPath + '/DiscoPoP',
             buildArguments: this.buildArguments,
             executableName: this.executableName,
             executableArguments: this.executableArgumentsForDiscoPoP,
