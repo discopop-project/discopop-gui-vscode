@@ -2,6 +2,7 @@ import * as vscode from 'vscode'
 
 // The following interface and class simplify the creation of TreeViews
 
+/** T is the type of the children */
 export interface SimpleTreeNode<T extends SimpleTreeNode<T> | undefined> {
     /** Returns the view for this tree node */
     getView(): vscode.TreeItem

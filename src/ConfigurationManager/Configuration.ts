@@ -1,57 +1,53 @@
-export interface Configuration {
-    name: string
-    runDiscoPoP?(): Promise<boolean>
-    runHotspotDetection?(): Promise<boolean>
+import { TreeItem } from 'vscode'
+import { ConfigurationTreeItem } from './ConfigurationTreeItem'
+import { ConfigurationCMake } from './ConfigurationCMake'
 
-    getDotDiscoPoPForDiscoPoP?(): string
-    getDotDiscoPoPForHotspotDetection?(): string
+export abstract class Configuration implements ConfigurationTreeItem {
+    abstract getView(): TreeItem
+    abstract getChildren(): ConfigurationTreeItem[] | undefined
+    abstract configurationType: ConfigurationType
+    /**
+     * MUST write the configurationType as one of the properties of the generated JSON object.
+     * The developer MUST also update the static method Configuration.fromJSON
+     */
+    abstract toJSON(): any
+    public static fromJSON(json: any): Configuration {
+        switch (json.configurationType) {
+            case ConfigurationType.CMake:
+                return new ConfigurationCMake(
+                    json.name,
+                    json.projectPath,
+                    json.buildPath,
+                    json.buildArguments,
+                    json.executableName,
+                    json.executableArgumentsForDiscoPoP,
+                    json.executableArgumentsForHotspotDetection
+                )
+            default:
+                throw new Error('Unknown configuration type')
+        }
+    }
 }
 
-export interface DiscoPoPConfiguration extends Configuration {
-    runDiscoPoP(): Promise<boolean>
+export interface DiscoPoPViewCapableConfiguration {
     getDotDiscoPoPForDiscoPoP(): string
 }
+export interface DiscoPoPRunCapableConfiguration
+    extends DiscoPoPViewCapableConfiguration {
+    runDiscoPoP(): void
+}
 
-export interface HotspotDetectionConfiguration extends Configuration {
-    runHotspotDetection(): Promise<boolean>
+export interface HotspotDetectionViewCapableConfiguration {
     getDotDiscoPoPForHotspotDetection(): string
 }
 
-export interface DiscoPoPAndHotspotDetectionConfiguration
-    extends Configuration {
-    runDiscoPoP(): Promise<boolean>
-    runHotspotDetection(): Promise<boolean>
-
-    getDotDiscoPoPForDiscoPoP(): string
-    getDotDiscoPoPForHotspotDetection(): string
+export interface HotspotDetectionRunCapableConfiguration
+    extends HotspotDetectionViewCapableConfiguration {
+    runHotspotDetection(): void
 }
 
-export class CMakeConfiguration
-    implements DiscoPoPAndHotspotDetectionConfiguration
-{
-    public constructor(
-        public name: string,
-        public projectRoot: string,
-        public buildDirectory: string,
-        public executableName: string,
-        public executableArgumentsDiscoPoP: string,
-        public executableArgumentsHotspotDetection: string[],
-        public buildArguments: string
-    ) {}
-
-    public async runDiscoPoP(): Promise<boolean> {
-        throw new Error('Method not implemented.') // TODO
-    }
-
-    public async runHotspotDetection(): Promise<boolean> {
-        throw new Error('Method not implemented.') // TODO
-    }
-
-    public getDotDiscoPoPForDiscoPoP(): string {
-        return `${this.buildDirectory}/.discopop`
-    }
-
-    public getDotDiscoPoPForHotspotDetection(): string {
-        return `${this.buildDirectory}/.discopop`
-    }
+export enum ConfigurationType {
+    CMake = 'CMake',
+    //ViewOnly = "ViewOnly",
+    //Script = "Script",
 }
