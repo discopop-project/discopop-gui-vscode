@@ -14,6 +14,7 @@ import {
     SupportedType,
 } from './Property'
 import { DiscoPoPRunner } from '../DiscoPoP/DiscoPoPRunner'
+import { HotspotDetectionRunner } from '../HotspotDetection/HotspotDetectionRunner'
 
 export class ConfigurationCMake
     extends Configuration
@@ -192,10 +193,17 @@ export class ConfigurationCMake
         return this.buildPath + '/HotspotDetection/.discopop' // TODO shared with discopop
     }
 
-    public runHotspotDetection(): Promise<boolean> {
-        throw new Error('Method not implemented (runHotspotDetection).')
+    public async runHotspotDetection(): Promise<boolean> {
         this.running = true
-        // TODO
+        const completed = await HotspotDetectionRunner.run({
+            projectPath: this.projectPath,
+            buildPath: this.buildPath + '/HotspotDetection',
+            buildArguments: this.buildArguments,
+            executableName: this.executableName,
+            executableArguments: this.executableArgumentsForHotspotDetection,
+            dotDiscoPoPPath: this.getDotDiscoPoPForHotspotDetection(),
+        })
         this.running = false
+        return completed
     }
 }
