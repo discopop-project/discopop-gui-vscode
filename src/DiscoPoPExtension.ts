@@ -28,6 +28,7 @@ import { Commands } from './Utils/Commands'
 import { Decoration } from './Utils/Decorations'
 import ErrorHandler from './Utils/ErrorHandler'
 import { SimpleTreeNode } from './Utils/SimpleTree'
+import { Editable } from './ConfigurationManager/Editable'
 
 function _removeDecorations(
     editor: vscode.TextEditor,
@@ -140,6 +141,15 @@ export class DiscoPoPExtension {
 
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
+                Commands.editConfigurationOrProperty,
+                async (editable: Editable) => {
+                    await editable.edit()
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
                 Commands.runDiscoPoPAndHotspotDetection,
                 async (
                     configuration: DiscoPoPRunCapableConfiguration &
@@ -215,6 +225,16 @@ export class DiscoPoPExtension {
 
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
+                Commands.addConfiguration,
+                async () => {
+                    // guide the user through the configuration creation process
+                    this.configurationTreeDataProvider.createAndAddConfiguration()
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
                 Commands.runHotspotDetection,
                 async (
                     configuration: HotspotDetectionRunCapableConfiguration
@@ -249,22 +269,18 @@ export class DiscoPoPExtension {
 
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
-                Commands.loadDiscoPoPResults,
-                async (configuration: DiscoPoPViewCapableConfiguration) => {
+                Commands.loadResults,
+                async (
+                    configuration: DiscoPoPViewCapableConfiguration &
+                        HotspotDetectionViewCapableConfiguration
+                ) => {
+                    // DiscoPoP
                     this.dpResults = await DiscoPoPParser.parse({
                         dotDiscoPoP: configuration.getDotDiscoPoPForDiscoPoP(),
                     })
                     await this.showDiscoPoPResults() // TODO move the above three lines into this function and pass required data
-                }
-            )
-        )
 
-        this.context.subscriptions.push(
-            vscode.commands.registerCommand(
-                Commands.loadHotspotResults, // TODO we should only have a single load button for both DiscoPoP and HotspotDetection
-                async (
-                    configuration: HotspotDetectionViewCapableConfiguration
-                ) => {
+                    // HotspotDetection
                     this.hsResults = await HotspotDetectionParser.parse({
                         filemappingPath:
                             configuration.getDotDiscoPoPForHotspotDetection() +
