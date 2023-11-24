@@ -61,8 +61,9 @@ export class DiscoPoPExtension {
 
     public constructor(private context: vscode.ExtensionContext) {
         //this.projectManager = new ProjectManager(context)
-        this.configurationTreeDataProvider = new ConfigurationTreeDataProvider()
-        this.configurationTreeDataProvider.loadConfigurationsFromStableStorage()
+        this.configurationTreeDataProvider = new ConfigurationTreeDataProvider(
+            context
+        )
         const projectViewer = vscode.window.createTreeView(
             'sidebar-projects-view',
             { treeDataProvider: this.configurationTreeDataProvider }
