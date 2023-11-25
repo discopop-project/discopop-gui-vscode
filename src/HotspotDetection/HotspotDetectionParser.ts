@@ -54,7 +54,7 @@ export abstract class HotspotDetectionParser {
         let hotspots: Hotspot[] | undefined = undefined
 
         steps.push({
-            message: 'Parsing results (FileMapping)...',
+            message: 'FileMapping',
             increment: 5,
             operation: async () => {
                 fileMapping = FileMappingParser.parseFile(args.filemappingPath)
@@ -62,7 +62,7 @@ export abstract class HotspotDetectionParser {
         })
 
         steps.push({
-            message: 'Parsing results (Hotspots)...',
+            message: 'Hotspots',
             increment: 5,
             operation: async () => {
                 hotspots = HotspotDetectionParser._parseHotspotsJsonFile(
@@ -72,7 +72,7 @@ export abstract class HotspotDetectionParser {
         })
 
         const withProgressRunner = new WithProgressRunner(
-            'Parsing Hotspot Detection Results...',
+            'Parsing Hotspot Detection Results',
             vscode.ProgressLocation.Notification,
             false,
             steps,

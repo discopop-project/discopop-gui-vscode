@@ -1,11 +1,14 @@
 import * as vscode from 'vscode'
 import {
+    Configuration,
     DiscoPoPRunCapableConfiguration,
     DiscoPoPViewCapableConfiguration,
     HotspotDetectionRunCapableConfiguration,
     HotspotDetectionViewCapableConfiguration,
 } from './ConfigurationManager/Configuration'
+import configurationFromJSON from './ConfigurationManager/ConfigurationDeserializer'
 import { ConfigurationTreeDataProvider } from './ConfigurationManager/ConfigurationTreeDataProvider'
+import { Editable } from './ConfigurationManager/Editable'
 import { DiscoPoPCodeLensProvider } from './DiscoPoP/DiscoPoPCodeLensProvider'
 import { DiscoPoPDetailViewProvider } from './DiscoPoP/DiscoPoPDetailViewProvider'
 import { DiscoPoPParser } from './DiscoPoP/DiscoPoPParser'
@@ -28,7 +31,7 @@ import { Commands } from './Utils/Commands'
 import { Decoration } from './Utils/Decorations'
 import ErrorHandler from './Utils/ErrorHandler'
 import { SimpleTreeNode } from './Utils/SimpleTree'
-import { Editable } from './ConfigurationManager/Editable'
+import { UIPrompts } from './Utils/UIPrompts'
 
 function _removeDecorations(
     editor: vscode.TextEditor,
@@ -229,6 +232,40 @@ export class DiscoPoPExtension {
                 async () => {
                     // guide the user through the configuration creation process
                     this.configurationTreeDataProvider.createAndAddConfiguration()
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.removeConfiguration,
+                async (configuration: Configuration) => {
+                    if (
+                        await UIPrompts.actionConfirmed(
+                            `Are you sure you want to remove the configuration "${configuration.name}"?`
+                        )
+                    ) {
+                        this.configurationTreeDataProvider.removeConfiguration(
+                            configuration
+                        )
+                    }
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.copyConfiguration,
+                async (configuration: Configuration) => {
+                    const configurationJson = configuration.toJSON()
+                    const newConfiguration = configurationFromJSON(
+                        configurationJson,
+                        this.configurationTreeDataProvider
+                    )
+                    newConfiguration.name = `${newConfiguration.name} (copy)`
+                    this.configurationTreeDataProvider.addConfiguration(
+                        newConfiguration
+                    )
                 }
             )
         )

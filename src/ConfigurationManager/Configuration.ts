@@ -10,7 +10,7 @@ export interface ConfigurationObserver {
 export abstract class Configuration implements ConfigurationTreeItem, Editable {
     public constructor(
         private _name: string,
-        onConfigurationChange?: ConfigurationObserver
+        onConfigurationChange: ConfigurationObserver
     ) {
         this._running = false
         if (onConfigurationChange !== undefined) {
