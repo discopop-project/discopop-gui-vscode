@@ -4,6 +4,7 @@ import {
     ConfigurationType,
 } from './Configuration'
 import { ConfigurationCMake } from './ConfigurationCMake'
+import { ConfigurationViewOnly } from './ConfigurationViewOnly'
 
 export default function configurationFromJSON(
     json: any,
@@ -21,7 +22,13 @@ export default function configurationFromJSON(
                 json.executableArgumentsForHotspotDetection,
                 observer
             )
-        case ConfigurationType.ViewOnly: // TODO
+        case ConfigurationType.ViewOnly:
+            return new ConfigurationViewOnly(
+                json.name,
+                observer,
+                json.dotDiscoPoPForDiscoPoP,
+                json.dotDiscoPoPForHotspotDetection
+            )
         case ConfigurationType.Script: // TODO
         default:
             throw new Error('Unknown configuration type')
