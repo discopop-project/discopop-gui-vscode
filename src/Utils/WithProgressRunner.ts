@@ -25,8 +25,6 @@ export class WithProgressRunner<State> {
         private location: vscode.ProgressLocation,
         private cancellable: boolean,
         private operations: WithProgressOperation[],
-        private errorHandler: (error: unknown) => void = (error: unknown) =>
-            console.error(error),
         private doneMessage: string | undefined = undefined,
         private keepItOpenSeconds: number = 0
     ) {}
@@ -81,7 +79,7 @@ export class WithProgressRunner<State> {
                         )
                     }
                 } catch (error) {
-                    this.errorHandler(error)
+                    throw error
                 } finally {
                     await cancellationDisposable.dispose()
                 }

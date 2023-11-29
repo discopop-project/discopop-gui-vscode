@@ -2,7 +2,6 @@ import { exec } from 'child_process'
 import * as fs from 'fs'
 import * as vscode from 'vscode'
 import { Config } from '../Utils/Config'
-import ErrorHandler from '../Utils/ErrorHandler'
 import { UIPrompts } from '../Utils/UIPrompts'
 import {
     WithProgressOperation,
@@ -73,12 +72,7 @@ export abstract class HotspotDetectionRunner {
                         (err, stdout, stderr) => {
                             if (err) {
                                 reject(
-                                    new Error(
-                                        'CMAKE failed: ' +
-                                            err.message +
-                                            '\n' +
-                                            stderr
-                                    )
+                                    new Error('CMAKE failed: ' + err.message)
                                 )
                             } else {
                                 resolve()
@@ -87,7 +81,7 @@ export abstract class HotspotDetectionRunner {
                     )
                     token.onCancellationRequested(async () => {
                         console.log(
-                            'HotspotDetectionRunner::cancellation requested::CMAKE'
+                            'HotspotDetectionRunner::cancellationRequested::CMAKE'
                         )
                         await childProcess.kill() // SIGINT or SIGTERM?
                         outerResolve?.()
@@ -110,14 +104,7 @@ export abstract class HotspotDetectionRunner {
                         },
                         (err, stdout, stderr) => {
                             if (err) {
-                                reject(
-                                    new Error(
-                                        'MAKE failed: ' +
-                                            err.message +
-                                            '\n' +
-                                            stderr
-                                    )
-                                )
+                                reject(new Error('MAKE failed: ' + err.message))
                             } else {
                                 resolve()
                             }
@@ -125,7 +112,7 @@ export abstract class HotspotDetectionRunner {
                     )
                     token.onCancellationRequested(async () => {
                         console.log(
-                            'HotspotDetectionRunner::cancellation requested::MAKE'
+                            'HotspotDetectionRunner::cancellationRequested::MAKE'
                         )
                         await childProcess.kill() // SIGINT or SIGTERM?
                         outerResolve?.()
@@ -153,10 +140,7 @@ export abstract class HotspotDetectionRunner {
                                 if (err) {
                                     reject(
                                         new Error(
-                                            'Hotspot Detection failed: ' +
-                                                err.message +
-                                                '\n' +
-                                                stderr
+                                            'Execution failed: ' + err.message
                                         )
                                     )
                                     // TODO maybe it is acceptable for the executable to fail?
@@ -167,7 +151,7 @@ export abstract class HotspotDetectionRunner {
                         )
                         token.onCancellationRequested(async () => {
                             console.log(
-                                'HotspotDetectionRunner::cancellation requested::Executable'
+                                'HotspotDetectionRunner::cancellationRequested::Executable'
                             )
                             await childProcess.kill() // SIGINT or SIGTERM?
                             outerResolve?.()
@@ -194,9 +178,7 @@ export abstract class HotspotDetectionRunner {
                                 reject(
                                     new Error(
                                         'hotspot_analyzer failed: ' +
-                                            err.message +
-                                            '\n' +
-                                            stderr
+                                            err.message
                                     )
                                 )
                             } else {
@@ -206,7 +188,7 @@ export abstract class HotspotDetectionRunner {
                     )
                     token.onCancellationRequested(async () => {
                         console.log(
-                            'HotspotDetectionRunner::cancellation requested::hotspot_analyzer'
+                            'HotspotDetectionRunner::cancellationRequested::hotspot_analyzer'
                         )
                         await childProcess.kill() // SIGINT or SIGTERM?
                         outerResolve?.()
@@ -219,8 +201,7 @@ export abstract class HotspotDetectionRunner {
             'Running Hotspot Detection...',
             vscode.ProgressLocation.Notification,
             true,
-            steps,
-            ErrorHandler
+            steps
         )
 
         return withProgressRunner.run()

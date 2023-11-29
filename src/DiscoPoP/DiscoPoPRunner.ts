@@ -3,7 +3,6 @@ import * as fs from 'fs'
 import * as vscode from 'vscode'
 
 import { Config } from '../Utils/Config'
-import ErrorHandler from '../Utils/ErrorHandler'
 import { UIPrompts } from '../Utils/UIPrompts'
 import {
     WithProgressOperation,
@@ -107,8 +106,7 @@ export abstract class DiscoPoPRunner {
             'Running DiscoPoP',
             vscode.ProgressLocation.Notification,
             true,
-            steps,
-            ErrorHandler
+            steps
         )
 
         return withProgressRunner.run()
@@ -191,11 +189,7 @@ export abstract class DiscoPoPRunner {
                 { cwd: buildPath },
                 (err, stdout, stderr) => {
                     if (err) {
-                        reject(
-                            new Error(
-                                'MAKE failed: ' + err.message + '\n' + stderr
-                            )
-                        )
+                        reject(new Error('MAKE failed: ' + err.message))
                     } else {
                         resolve()
                     }
@@ -240,14 +234,7 @@ export abstract class DiscoPoPRunner {
                 { cwd: buildPath },
                 (err, stdout, stderr) => {
                     if (err) {
-                        reject(
-                            new Error(
-                                'Executable failed: ' +
-                                    err.message +
-                                    '\n' +
-                                    stderr
-                            )
-                        )
+                        reject(new Error('Executable failed: ' + err.message))
                         // TODO maybe it is acceptable for the executable to fail?
                     } else {
                         resolve()
@@ -283,10 +270,7 @@ export abstract class DiscoPoPRunner {
                     if (err) {
                         reject(
                             new Error(
-                                'discopop_explorer failed: ' +
-                                    err.message +
-                                    '\n' +
-                                    stderr
+                                'discopop_explorer failed: ' + err.message
                             )
                         )
                     }
@@ -327,7 +311,7 @@ export abstract class DiscoPoPRunner {
         return new Promise<void>((resolve, reject) => {
             outerResolve = resolve
             const childProcess = exec(
-                `discopop_patch_generator --dp-build-path=${Config.discopopBuild()}`,
+                `discopop_patch_generator`,
                 {
                     cwd: dotDiscoPoP,
                 },
