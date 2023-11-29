@@ -157,6 +157,7 @@ export class ConfigurationCMake
 
     public getView(): TreeItem {
         const treeItem = super.getView()
+        treeItem.contextValue = 'configuration-runnable'
         return treeItem
     }
 

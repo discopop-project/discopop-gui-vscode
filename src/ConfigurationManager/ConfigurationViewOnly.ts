@@ -54,6 +54,7 @@ export class ConfigurationViewOnly
 
     getView(): TreeItem {
         const treeItem = super.getView()
+        treeItem.contextValue = 'configuration'
         return treeItem
     }
 
