@@ -2,18 +2,12 @@ import * as fs from 'fs'
 import * as vscode from 'vscode'
 import { FileMapping } from '../FileMapping/FileMapping'
 import { FileMappingParser } from '../FileMapping/FileMappingParser'
-import ErrorHandler from '../Utils/ErrorHandler'
 import {
     WithProgressOperation,
     WithProgressRunner,
 } from '../Utils/WithProgressRunner'
 import { Hotspot } from './classes/Hotspot'
 import { HotspotDetectionResults } from './classes/HotspotDetectionResults'
-
-export interface HotspotDetectionParserArguments {
-    filemappingPath: string
-    hotspotsJsonPath: string
-}
 
 export abstract class HotspotDetectionParser {
     private constructor() {
@@ -46,7 +40,7 @@ export abstract class HotspotDetectionParser {
     }
 
     public static async parse(
-        args: HotspotDetectionParserArguments
+        dotDiscoPoP: string
     ): Promise<HotspotDetectionResults> {
         const steps: WithProgressOperation[] = []
 
@@ -57,7 +51,9 @@ export abstract class HotspotDetectionParser {
             message: 'FileMapping',
             increment: 5,
             operation: async () => {
-                fileMapping = FileMappingParser.parseFile(args.filemappingPath)
+                fileMapping = FileMappingParser.parseFile(
+                    dotDiscoPoP + '/FileMapping.txt'
+                )
             },
         })
 
@@ -66,7 +62,7 @@ export abstract class HotspotDetectionParser {
             increment: 5,
             operation: async () => {
                 hotspots = HotspotDetectionParser._parseHotspotsJsonFile(
-                    args.hotspotsJsonPath
+                    dotDiscoPoP + '/hotspot_detection/Hotspots.json'
                 )
             },
         })
@@ -75,8 +71,7 @@ export abstract class HotspotDetectionParser {
             'Parsing Hotspot Detection Results',
             vscode.ProgressLocation.Notification,
             false,
-            steps,
-            ErrorHandler
+            steps
         )
 
         await withProgressRunner.run()

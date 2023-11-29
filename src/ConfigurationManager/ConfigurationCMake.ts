@@ -178,16 +178,20 @@ export class ConfigurationCMake
 
     public async runDiscoPoP(): Promise<boolean> {
         this.running = true
-        const completed = await DiscoPoPRunner.run({
-            projectPath: this.projectPath,
-            buildPath: this.buildPath + '/DiscoPoP',
-            buildArguments: this.buildArguments,
-            executableName: this.executableName,
-            executableArguments: this.executableArgumentsForDiscoPoP,
-            dotDiscoPoPPath: this.getDotDiscoPoPForDiscoPoP(),
-        })
-        this.running = false
-        return completed
+        try {
+            return await DiscoPoPRunner.run({
+                projectPath: this.projectPath,
+                buildPath: this.buildPath + '/DiscoPoP',
+                buildArguments: this.buildArguments,
+                executableName: this.executableName,
+                executableArguments: this.executableArgumentsForDiscoPoP,
+                dotDiscoPoPPath: this.getDotDiscoPoPForDiscoPoP(),
+            })
+        } catch (error) {
+            throw error
+        } finally {
+            this.running = false
+        }
     }
 
     public getDotDiscoPoPForHotspotDetection(): string {
@@ -196,15 +200,20 @@ export class ConfigurationCMake
 
     public async runHotspotDetection(): Promise<boolean> {
         this.running = true
-        const completed = await HotspotDetectionRunner.run({
-            projectPath: this.projectPath,
-            buildPath: this.buildPath + '/HotspotDetection',
-            buildArguments: this.buildArguments,
-            executableName: this.executableName,
-            executableArguments: this.executableArgumentsForHotspotDetection,
-            dotDiscoPoPPath: this.getDotDiscoPoPForHotspotDetection(),
-        })
-        this.running = false
-        return completed
+        try {
+            return await HotspotDetectionRunner.run({
+                projectPath: this.projectPath,
+                buildPath: this.buildPath + '/HotspotDetection',
+                buildArguments: this.buildArguments,
+                executableName: this.executableName,
+                executableArguments:
+                    this.executableArgumentsForHotspotDetection,
+                dotDiscoPoPPath: this.getDotDiscoPoPForHotspotDetection(),
+            })
+        } catch (error) {
+            throw error
+        } finally {
+            this.running = false
+        }
     }
 }
