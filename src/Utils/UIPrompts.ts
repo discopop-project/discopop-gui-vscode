@@ -32,7 +32,23 @@ export abstract class UIPrompts {
         })
     }
 
-    static async genericOpenDialogQuery(
+    public static showMessageForSeconds(message: string, seconds: number = 3) {
+        vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.Notification,
+                title: message,
+                cancellable: false,
+            },
+            async (progress, token) => {
+                progress.report({ increment: 100 })
+                await new Promise((resolve) =>
+                    setTimeout(resolve, seconds * 1000)
+                )
+            }
+        )
+    }
+
+    public static async genericOpenDialogQuery(
         title: string,
         prompt: string,
         step: number,

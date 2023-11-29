@@ -2,7 +2,6 @@ import * as vscode from 'vscode'
 import { FileMapping } from '../FileMapping/FileMapping'
 import { FileMappingParser } from '../FileMapping/FileMappingParser'
 import { LineMapping } from '../LineMapping/LineMapping'
-import ErrorHandler from '../Utils/ErrorHandler'
 import {
     WithProgressOperation,
     WithProgressRunner,
@@ -12,18 +11,12 @@ import { DiscoPoPPatternParser } from './DiscoPoPPatternParser'
 import { DiscoPoPResults } from './classes/DiscoPoPResults'
 import { Suggestion } from './classes/Suggestion/Suggestion'
 
-export interface DiscoPoPParserArguments {
-    dotDiscoPoP: string // TODO replace with only the necessary fields
-}
-
 export abstract class DiscoPoPParser {
     private constructor() {
         throw new Error('This class should not be instantiated')
     }
 
-    public static async parse(
-        args: DiscoPoPParserArguments
-    ): Promise<DiscoPoPResults> {
+    public static async parse(dotDiscoPoP: string): Promise<DiscoPoPResults> {
         const steps: WithProgressOperation[] = []
 
         let fileMapping: FileMapping | undefined = undefined
@@ -32,7 +25,7 @@ export abstract class DiscoPoPParser {
             increment: 25,
             operation: async () => {
                 fileMapping = FileMappingParser.parseFile(
-                    `${args.dotDiscoPoP}/FileMapping.txt`
+                    `${dotDiscoPoP}/FileMapping.txt`
                 )
             },
         })
@@ -43,7 +36,7 @@ export abstract class DiscoPoPParser {
             increment: 25,
             operation: async () => {
                 suggestionsByType = DiscoPoPPatternParser.parseFile(
-                    `${args.dotDiscoPoP}/explorer/patterns.json`
+                    `${dotDiscoPoP}/explorer/patterns.json`
                 )
             },
         })
@@ -53,7 +46,7 @@ export abstract class DiscoPoPParser {
             message: 'Synchronizing LineMapping...',
             increment: 25,
             operation: async () => {
-                const lineMappingFile = `${args.dotDiscoPoP}/line_mapping.json`
+                const lineMappingFile = `${dotDiscoPoP}/line_mapping.json`
                 lineMapping = new LineMapping(lineMappingFile)
             },
         })
@@ -64,7 +57,7 @@ export abstract class DiscoPoPParser {
             message: 'Synchronizing applied status...',
             increment: 25,
             operation: async () => {
-                const appliedSuggestionsFile = `${args.dotDiscoPoP}/patch_applicator/applied_suggestions.json`
+                const appliedSuggestionsFile = `${dotDiscoPoP}/patch_applicator/applied_suggestions.json`
 
                 appliedStatus = new DiscoPoPAppliedSuggestionsWatcher(
                     appliedSuggestionsFile
@@ -76,14 +69,13 @@ export abstract class DiscoPoPParser {
             'Parsing DiscoPoP results',
             vscode.ProgressLocation.Notification,
             false, // TODO: true is currently NOT supported
-            steps,
-            ErrorHandler
+            steps
         )
 
         await withProgressRunner.run()
 
         return new DiscoPoPResults(
-            args.dotDiscoPoP,
+            dotDiscoPoP,
             suggestionsByType!,
             fileMapping!,
             lineMapping!,

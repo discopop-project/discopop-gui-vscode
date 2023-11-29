@@ -26,12 +26,22 @@ import { HotspotDetectionParser } from './HotspotDetection/HotspotDetectionParse
 import { HotspotTree } from './HotspotDetection/HotspotTree'
 import { Hotspot } from './HotspotDetection/classes/Hotspot'
 import { HotspotDetectionResults } from './HotspotDetection/classes/HotspotDetectionResults'
-import { UserCancellationError } from './Utils/CancellationError'
 import { Commands } from './Utils/Commands'
 import { Decoration } from './Utils/Decorations'
-import ErrorHandler from './Utils/ErrorHandler'
 import { SimpleTreeNode } from './Utils/SimpleTree'
 import { UIPrompts } from './Utils/UIPrompts'
+
+function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
+    if (optionalMessage) {
+        console.error(optionalMessage)
+    }
+    console.error(error)
+    vscode.window.showErrorMessage(
+        optionalMessage
+            ? optionalMessage + (error.message || error)
+            : error.message || error
+    )
+}
 
 function _removeDecorations(
     editor: vscode.TextEditor,
@@ -158,42 +168,44 @@ export class DiscoPoPExtension {
                     configuration: DiscoPoPRunCapableConfiguration &
                         HotspotDetectionRunCapableConfiguration
                 ) => {
+                    // DiscoPoP
                     try {
-                        // DiscoPoP
                         this.dpResults?.dispose()
                         if (await configuration.runDiscoPoP()) {
-                            this.dpResults = await DiscoPoPParser.parse({
-                                dotDiscoPoP:
-                                    configuration.getDotDiscoPoPForDiscoPoP(),
-                            })
+                            this.dpResults = await DiscoPoPParser.parse(
+                                configuration.getDotDiscoPoPForDiscoPoP()
+                            )
                             await this.showDiscoPoPResults()
                         } else {
-                            console.error('DiscoPoP failed to run')
+                            UIPrompts.showMessageForSeconds(
+                                'DiscoPoP was aborted'
+                            )
                         }
+                    } catch (error: any) {
+                        logAndShowErrorMessageHandler(
+                            error,
+                            'DiscoPoP failed: '
+                        )
+                    }
 
-                        // HotspotDetection
+                    // HotspotDetection
+                    try {
                         // this.hsResults?.dispose() // TODO refactor to do this like with DiscoPoP ?
                         if (await configuration.runHotspotDetection()) {
                             this.hsResults = await HotspotDetectionParser.parse(
-                                {
-                                    filemappingPath:
-                                        configuration.getDotDiscoPoPForHotspotDetection() +
-                                        '/common_data/FileMapping.txt',
-                                    hotspotsJsonPath:
-                                        configuration.getDotDiscoPoPForHotspotDetection() +
-                                        '/hotspot_detection/Hotspots.json',
-                                }
+                                configuration.getDotDiscoPoPForHotspotDetection()
                             )
                             await this.showHotspotDetectionResults()
                         } else {
-                            console.error('HotspotDetection failed to run')
+                            UIPrompts.showMessageForSeconds(
+                                'Hotspot Detection was aborted'
+                            )
                         }
-                    } catch (error) {
-                        if (error instanceof UserCancellationError) {
-                            error.showErrorMessageNotification()
-                        } else {
-                            throw error
-                        }
+                    } catch (error: any) {
+                        logAndShowErrorMessageHandler(
+                            error,
+                            'Hotspot Detection failed: '
+                        )
                     }
                 }
             )
@@ -207,20 +219,48 @@ export class DiscoPoPExtension {
                         // DiscoPoP
                         this.dpResults?.dispose()
                         if (await configuration.runDiscoPoP()) {
-                            this.dpResults = await DiscoPoPParser.parse({
-                                dotDiscoPoP:
-                                    configuration.getDotDiscoPoPForDiscoPoP(),
-                            })
+                            this.dpResults = await DiscoPoPParser.parse(
+                                configuration.getDotDiscoPoPForDiscoPoP()
+                            )
                             await this.showDiscoPoPResults()
                         } else {
-                            console.error('DiscoPoP failed to run')
+                            UIPrompts.showMessageForSeconds(
+                                'DiscoPoP was aborted'
+                            )
                         }
-                    } catch (error) {
-                        if (error instanceof UserCancellationError) {
-                            error.showErrorMessageNotification()
+                    } catch (error: any) {
+                        logAndShowErrorMessageHandler(
+                            error,
+                            'DiscoPoP failed: '
+                        )
+                    }
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.runHotspotDetection,
+                async (
+                    configuration: HotspotDetectionRunCapableConfiguration
+                ) => {
+                    try {
+                        // this.hsResults?.dispose() // TODO refactor to do this like with DiscoPoP ?
+                        if (await configuration.runHotspotDetection()) {
+                            this.hsResults = await HotspotDetectionParser.parse(
+                                configuration.getDotDiscoPoPForHotspotDetection()
+                            )
+                            await this.showHotspotDetectionResults()
                         } else {
-                            throw error
+                            UIPrompts.showMessageForSeconds(
+                                'Hotspot Detection was aborted'
+                            )
                         }
+                    } catch (error: any) {
+                        logAndShowErrorMessageHandler(
+                            error,
+                            'Hotspot Detection failed: '
+                        )
                     }
                 }
             )
@@ -230,7 +270,6 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.addConfiguration,
                 async () => {
-                    // guide the user through the configuration creation process
                     this.configurationTreeDataProvider.createAndAddConfiguration()
                 }
             )
@@ -272,60 +311,21 @@ export class DiscoPoPExtension {
 
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
-                Commands.runHotspotDetection,
-                async (
-                    configuration: HotspotDetectionRunCapableConfiguration
-                ) => {
-                    try {
-                        // this.hsResults?.dispose() // TODO refactor to do this like with DiscoPoP ?
-                        if (await configuration.runHotspotDetection()) {
-                            this.hsResults = await HotspotDetectionParser.parse(
-                                {
-                                    filemappingPath:
-                                        configuration.getDotDiscoPoPForHotspotDetection() +
-                                        '/common_data/FileMapping.txt',
-                                    hotspotsJsonPath:
-                                        configuration.getDotDiscoPoPForHotspotDetection() +
-                                        '/hotspot_detection/Hotspots.json',
-                                }
-                            )
-                            await this.showHotspotDetectionResults()
-                        } else {
-                            console.error('HotspotDetection failed to run')
-                        }
-                    } catch (error) {
-                        if (error instanceof UserCancellationError) {
-                            error.showErrorMessageNotification()
-                        } else {
-                            throw error
-                        }
-                    }
-                }
-            )
-        )
-
-        this.context.subscriptions.push(
-            vscode.commands.registerCommand(
                 Commands.loadResults,
                 async (
                     configuration: DiscoPoPViewCapableConfiguration &
                         HotspotDetectionViewCapableConfiguration
                 ) => {
                     // DiscoPoP
-                    this.dpResults = await DiscoPoPParser.parse({
-                        dotDiscoPoP: configuration.getDotDiscoPoPForDiscoPoP(),
-                    })
+                    this.dpResults = await DiscoPoPParser.parse(
+                        configuration.getDotDiscoPoPForDiscoPoP()
+                    )
                     await this.showDiscoPoPResults() // TODO move the above three lines into this function and pass required data
 
                     // HotspotDetection
-                    this.hsResults = await HotspotDetectionParser.parse({
-                        filemappingPath:
-                            configuration.getDotDiscoPoPForHotspotDetection() +
-                            '/common_data/FileMapping.txt',
-                        hotspotsJsonPath:
-                            configuration.getDotDiscoPoPForHotspotDetection() +
-                            '/hotspot_detection/Hotspots.json',
-                    })
+                    this.hsResults = await HotspotDetectionParser.parse(
+                        configuration.getDotDiscoPoPForHotspotDetection()
+                    )
                     await this.showHotspotDetectionResults() // TODO move the above 8 lines into the function and pass required data
                 }
             )
@@ -460,7 +460,9 @@ export class DiscoPoPExtension {
                 async () => {
                     const dotDiscoPoP = this.dpResults?.dotDiscoPoP
                     this.codeLensProvider?.wait()
-                    await PatchApplicator.clear(dotDiscoPoP).catch(ErrorHandler)
+                    await PatchApplicator.clear(dotDiscoPoP).catch(
+                        logAndShowErrorMessageHandler
+                    )
                 }
             )
         )
@@ -544,7 +546,12 @@ export class DiscoPoPExtension {
                     PatchApplicator.applyPatch(
                         dotDiscoPoP,
                         suggestion.id
-                    ).catch(ErrorHandler)
+                    ).catch((error) => {
+                        logAndShowErrorMessageHandler(
+                            error,
+                            `Failed to apply suggestion ${suggestionNode.suggestion.id}: `
+                        )
+                    })
                 }
             )
         )
@@ -560,8 +567,12 @@ export class DiscoPoPExtension {
                     PatchApplicator.rollbackPatch(
                         dotDiscoPoP,
                         suggestion.id
-                    ).catch(ErrorHandler)
-                    // TODO also update the tree view
+                    ).catch((error) => {
+                        logAndShowErrorMessageHandler(
+                            error,
+                            `Failed to rollback suggestion ${suggestionNode.suggestion.id}: `
+                        )
+                    })
                 }
             )
         )
