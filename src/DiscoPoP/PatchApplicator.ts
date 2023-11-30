@@ -14,17 +14,17 @@ export abstract class PatchApplicator {
      */
     public static async applyPatch(
         dotDiscoPoP: string,
-        id: number
+        ...id: number[]
     ): Promise<number> {
-        const args = `-a ${id}`
+        const args = `-a ${id.join(' ')}`
         return this._runPatchApplicator(dotDiscoPoP, args)
     }
 
     public static async rollbackPatch(
         dotDiscoPoP: string,
-        id: number
+        ...id: number[]
     ): Promise<number> {
-        const args = `-r ${id}`
+        const args = `-r ${id.join(' ')}`
         return this._runPatchApplicator(dotDiscoPoP, args)
     }
 
@@ -44,26 +44,30 @@ export abstract class PatchApplicator {
                 (err, stdout, stderr) => {
                     if (err) {
                         switch (err.code) {
-                            case 0:
+                            case 3: // "3: Nothing to roll back, trivially successful"
+                                resolve(err.code)
+                                return
+                            case 0: // "0: Applied successfully"
+                                resolve(err.code)
+                                return
                             case 1:
-                            case 2:
-                            case 3:
+                                '1: Nothing applied, error'
+                            // fallthrough
+                            case 2: // "2: Some changes applied successfully"
+                            // fallthrough
                             default:
                                 console.log(
                                     'patch applicator returned:' + err.code
                                 )
+                                reject(err)
+                                return
                         }
-                        reject(err)
                     } else {
                         resolve(err.code)
                     }
+                    return
                 }
             )
         })
     }
-
-    // TODO provide interface for the other options of the patch_applicator
-    // clear, rollback, load, list, ...
-
-    // TODO allow passing multiple ids to apply/rollback
 }

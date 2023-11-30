@@ -460,9 +460,16 @@ export class DiscoPoPExtension {
                 async () => {
                     const dotDiscoPoP = this.dpResults?.dotDiscoPoP
                     this.codeLensProvider?.wait()
-                    await PatchApplicator.clear(dotDiscoPoP).catch(
-                        logAndShowErrorMessageHandler
-                    )
+                    const returnCode = await PatchApplicator.clear(
+                        dotDiscoPoP
+                    ).catch(logAndShowErrorMessageHandler)
+                    if (returnCode === 3) {
+                        UIPrompts.showMessageForSeconds(
+                            'Nothing to rollback, trivially successful'
+                        )
+                        this.codeLensProvider?.stopWaitingForAppliedStatus()
+                        this.codeLensProvider?.stopWaitingForLineMapping()
+                    }
                 }
             )
         )
