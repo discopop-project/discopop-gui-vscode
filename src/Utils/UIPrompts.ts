@@ -40,10 +40,15 @@ export abstract class UIPrompts {
                 cancellable: false,
             },
             async (progress, token) => {
-                progress.report({ increment: 100 })
-                await new Promise((resolve) =>
-                    setTimeout(resolve, seconds * 1000)
-                )
+                const ms = seconds * 1000
+                const interval = 100
+                const reportedProgressPerInterval = 100 / (ms / interval)
+                for (let i = 0; i < ms; i += interval) {
+                    progress.report({ increment: reportedProgressPerInterval })
+                    await new Promise((resolve) =>
+                        setTimeout(resolve, interval)
+                    )
+                }
             }
         )
     }
