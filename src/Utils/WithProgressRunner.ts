@@ -36,6 +36,7 @@ export class WithProgressRunner<State> {
      * @returns true if the user did not cancel the operation, false if the operation was cancelled
      */
     public async run(): Promise<boolean> {
+        this._normalizeIncrements()
         let currentOperation: WithProgressOperation
         let cancellationRequested = false
         await vscode.window.withProgress(
@@ -86,6 +87,16 @@ export class WithProgressRunner<State> {
             }
         )
         return !cancellationRequested
+    }
+
+    private _normalizeIncrements() {
+        const sum = this.operations.reduce(
+            (sum, operation) => sum + operation.increment,
+            0
+        )
+        this.operations.forEach((operation) => {
+            operation.increment = (operation.increment / sum) * 100
+        })
     }
 }
 
