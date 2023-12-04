@@ -5,16 +5,16 @@ import {
     ConfigurationType,
     DiscoPoPRunCapableConfiguration,
     HotspotDetectionRunCapableConfiguration,
-} from './Configuration'
+} from '../Configuration'
 import {
     Property,
     PropertyObserver,
     StringArrayProperty,
     StringProperty,
     SupportedType,
-} from './Property'
-import { DiscoPoPRunner } from '../DiscoPoP/DiscoPoPRunner'
-import { HotspotDetectionRunner } from '../HotspotDetection/HotspotDetectionRunner'
+} from '../Property'
+import { DiscoPoPRunner } from '../../DiscoPoP/DiscoPoPRunner'
+import { HotspotDetectionRunner } from '../../HotspotDetection/HotspotDetectionRunner'
 
 export class ConfigurationCMake
     extends Configuration

@@ -277,12 +277,12 @@
                 },
                 {
                     "command": "discopop.removeConfiguration",
-                    "when": "view == sidebar-projects-view && viewItem==configuration",
+                    "when": "view == sidebar-projects-view && viewItem=~/configuration/",
                     "group": "context@3"
                 },
                 {
                     "command": "discopop.copyConfiguration",
-                    "when": "view == sidebar-projects-view && viewItem==configuration",
+                    "when": "view == sidebar-projects-view && viewItem=~/configuration/",
                     "group": "context@2"
                 },
                 {

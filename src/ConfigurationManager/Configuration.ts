@@ -76,7 +76,7 @@ export abstract class Configuration implements ConfigurationTreeItem, Editable {
     abstract configurationType: ConfigurationType
     /**
      * MUST write the configurationType as one of the properties of the generated JSON object.
-     * The developer MUST also update the static method Configuration.fromJSON
+     * The developer MUST also update the static method ConfigurationDeserializer.configurationFromJSON
      */
     abstract toJSON(): any
 }

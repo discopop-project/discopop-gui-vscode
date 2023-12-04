@@ -143,7 +143,7 @@ export class DiscoPoPExtension {
         vscode.commands.executeCommand(
             'setContext',
             'discopop.codeLensEnabled',
-            'undefined'
+            'undefined' // yes, this is a string, it is supposed to be a string :)
         )
 
         vscode.commands.executeCommand(
