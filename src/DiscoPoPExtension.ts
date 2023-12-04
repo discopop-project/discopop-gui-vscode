@@ -395,7 +395,7 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.showHotspotDetails,
                 async (hotspot: Hotspot, fileMapping: FileMapping) => {
-                    this.hs_details.replaceContents(hotspot)
+                    this.hs_details.replaceContents(hotspot.pureJSONData)
                     const filePath = fileMapping.getFilePath(hotspot.fid)
                     const document = await vscode.workspace.openTextDocument(
                         filePath
