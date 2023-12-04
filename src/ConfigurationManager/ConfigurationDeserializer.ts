@@ -3,8 +3,9 @@ import {
     ConfigurationObserver,
     ConfigurationType,
 } from './Configuration'
-import { ConfigurationCMake } from './ConfigurationCMake'
-import { ConfigurationViewOnly } from './ConfigurationViewOnly'
+import { ConfigurationCMake } from './ConfigurationImplementations/ConfigurationCMake'
+import { ConfigurationScript } from './ConfigurationImplementations/ConfigurationScript'
+import { ConfigurationViewOnly } from './ConfigurationImplementations/ConfigurationViewOnly'
 
 export default function configurationFromJSON(
     json: any,
@@ -29,7 +30,15 @@ export default function configurationFromJSON(
                 json.dotDiscoPoPForDiscoPoP,
                 json.dotDiscoPoPForHotspotDetection
             )
-        case ConfigurationType.Script: // TODO
+        case ConfigurationType.Script:
+            return new ConfigurationScript(
+                json.name,
+                observer,
+                json.dotDiscoPoPForDiscoPoP,
+                json.dotDiscoPoPForHotspotDetection,
+                json.discopopScriptPath,
+                json.hotspotDetectionScriptPath
+            )
         default:
             throw new Error('Unknown configuration type')
     }

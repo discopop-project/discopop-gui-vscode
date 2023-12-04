@@ -5,14 +5,14 @@ import {
     ConfigurationType,
     DiscoPoPViewCapableConfiguration,
     HotspotDetectionViewCapableConfiguration,
-} from './Configuration'
-import { ConfigurationTreeItem } from './ConfigurationTreeItem'
+} from '../Configuration'
+import { ConfigurationTreeItem } from '../ConfigurationTreeItem'
 import {
     Property,
     PropertyObserver,
     StringProperty,
     SupportedType,
-} from './Property'
+} from '../Property'
 
 export class ConfigurationViewOnly
     extends Configuration
@@ -21,8 +21,24 @@ export class ConfigurationViewOnly
         HotspotDetectionViewCapableConfiguration,
         PropertyObserver
 {
-    private dotDiscoPoPForDiscoPoP: StringProperty
-    private dotDiscoPoPForHotspotDetection: StringProperty
+    private readonly _dotDiscoPoPForDiscoPoP: StringProperty
+    public get dotDiscoPoPForDiscoPoP(): string {
+        return this._dotDiscoPoPForDiscoPoP.value
+    }
+    public set dotDiscoPoPForDiscoPoP(value: string) {
+        this._dotDiscoPoPForDiscoPoP.value = value
+        this.refresh()
+    }
+
+    private readonly _dotDiscoPoPForHotspotDetection: StringProperty
+    public get dotDiscoPoPForHotspotDetection(): string {
+        return this._dotDiscoPoPForHotspotDetection.value
+    }
+    public set dotDiscoPoPForHotspotDetection(value: string) {
+        this._dotDiscoPoPForHotspotDetection.value = value
+        this.refresh()
+    }
+
     public readonly configurationType = ConfigurationType.ViewOnly
 
     public constructor(
@@ -32,13 +48,13 @@ export class ConfigurationViewOnly
         dotDiscoPoPForHotspotDetection
     ) {
         super(name, onConfigurationChange)
-        this.dotDiscoPoPForDiscoPoP = new StringProperty(
+        this._dotDiscoPoPForDiscoPoP = new StringProperty(
             '.discopop (DiscoPoP)',
             dotDiscoPoPForDiscoPoP,
             'Enter the path to the .discopop directory that contains the results of the DiscoPoP analysis',
             this
         )
-        this.dotDiscoPoPForHotspotDetection = new StringProperty(
+        this._dotDiscoPoPForHotspotDetection = new StringProperty(
             '.discopop (HotspotDetection)',
             dotDiscoPoPForHotspotDetection,
             'Enter the path to the .discopop directory that contains the results of the HotspotDetection analysis',
@@ -60,8 +76,8 @@ export class ConfigurationViewOnly
 
     getChildren(): ConfigurationTreeItem[] {
         return [
-            this.dotDiscoPoPForDiscoPoP,
-            this.dotDiscoPoPForHotspotDetection,
+            this._dotDiscoPoPForDiscoPoP,
+            this._dotDiscoPoPForHotspotDetection,
         ]
     }
 
@@ -69,18 +85,18 @@ export class ConfigurationViewOnly
         return {
             configurationType: this.configurationType,
             name: this.name,
-            dotDiscoPoPForDiscoPoP: this.dotDiscoPoPForDiscoPoP.value,
+            dotDiscoPoPForDiscoPoP: this._dotDiscoPoPForDiscoPoP.value,
             dotDiscoPoPForHotspotDetection:
-                this.dotDiscoPoPForHotspotDetection.value,
+                this._dotDiscoPoPForHotspotDetection.value,
         }
     }
 
     getDotDiscoPoPForDiscoPoP(): string {
-        return this.dotDiscoPoPForDiscoPoP.value
+        return this._dotDiscoPoPForDiscoPoP.value
     }
 
     getDotDiscoPoPForHotspotDetection(): string {
-        return this.dotDiscoPoPForHotspotDetection.value
+        return this._dotDiscoPoPForHotspotDetection.value
     }
 }
 

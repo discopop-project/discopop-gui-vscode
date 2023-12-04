@@ -8,8 +8,9 @@ import {
 } from './Configuration'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
 import configurationFromJSON from './ConfigurationDeserializer'
-import { ConfigurationCMake } from './ConfigurationCMake'
-import { ConfigurationViewOnly } from './ConfigurationViewOnly'
+import { ConfigurationCMake } from './ConfigurationImplementations/ConfigurationCMake'
+import { ConfigurationViewOnly } from './ConfigurationImplementations/ConfigurationViewOnly'
+import { ConfigurationScript } from './ConfigurationImplementations/ConfigurationScript'
 
 export class ConfigurationTreeDataProvider
     extends SimpleTree<ConfigurationTreeItem>
@@ -27,17 +28,20 @@ export class ConfigurationTreeDataProvider
     public async createAndAddConfiguration(): Promise<void> {
         // let the user input all the necessary information for a new configuration
         // using a vscode input box
-        // TODO this is totally ugly and should be replaced by a proper UI
+        // TODO this is ugly and should be replaced by a proper UI (nicer path selection, back button, step count, ...)
 
-        let type = await vscode.window.showQuickPick(
+        const type = await vscode.window.showQuickPick(
             Object.values(ConfigurationType),
             {
                 placeHolder: 'Select the type of the project',
                 ignoreFocusOut: true,
             }
         )
+        if (type === undefined) {
+            return
+        }
 
-        let name = await vscode.window.showInputBox({
+        const name = await vscode.window.showInputBox({
             prompt: 'Enter a name for the configuration',
             ignoreFocusOut: true,
         })
@@ -45,102 +49,155 @@ export class ConfigurationTreeDataProvider
             return
         }
 
-        if (type === ConfigurationType.CMake) {
-            let workspaceFolder = undefined
-            if (
-                vscode.workspace.workspaceFolders !== undefined &&
-                vscode.workspace.workspaceFolders.length > 0
-            ) {
-                workspaceFolder =
-                    vscode.workspace.workspaceFolders[0].uri.fsPath
-            }
-            let projectPath = await vscode.window.showInputBox({
-                prompt: 'Enter the path to the project',
-                ignoreFocusOut: true,
-                value: workspaceFolder ?? '',
-            })
-            if (projectPath === undefined) {
-                return
-            }
+        // prefill path values with the current workspace folder or empty string
+        let workspaceFolder = ''
+        if (
+            vscode.workspace.workspaceFolders !== undefined &&
+            vscode.workspace.workspaceFolders.length > 0
+        ) {
+            workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath
+        }
 
-            let buildPath = await vscode.window.showInputBox({
-                prompt: 'Enter the path to the build directory',
-                ignoreFocusOut: true,
-                value: projectPath + '/build',
-            })
-            if (buildPath === undefined) {
-                return
-            }
+        let configuration: Configuration | undefined = undefined
+        switch (type) {
+            case ConfigurationType.CMake:
+                const projectPath = await vscode.window.showInputBox({
+                    prompt: 'Enter the path to the project',
+                    ignoreFocusOut: true,
+                    value: workspaceFolder,
+                })
+                if (projectPath === undefined) {
+                    return
+                }
 
-            let buildArguments = await vscode.window.showInputBox({
-                prompt: 'Enter the build arguments',
-                ignoreFocusOut: true,
-            })
-            if (buildArguments === undefined) {
-                return
-            }
+                const buildPath = await vscode.window.showInputBox({
+                    prompt: 'Enter the path to the build directory',
+                    ignoreFocusOut: true,
+                    value: projectPath + '/build',
+                })
+                if (buildPath === undefined) {
+                    return
+                }
 
-            let executableName = await vscode.window.showInputBox({
-                prompt: 'Enter the name of the executable',
-                ignoreFocusOut: true,
-            })
-            if (executableName === undefined) {
-                return
-            }
-
-            let executableArgumentsForDiscoPoP =
-                await vscode.window.showInputBox({
-                    prompt: 'Enter the arguments for DiscoPoP',
+                const buildArguments = await vscode.window.showInputBox({
+                    prompt: 'Enter the build arguments',
                     ignoreFocusOut: true,
                 })
-            if (executableArgumentsForDiscoPoP === undefined) {
-                return
-            }
+                if (buildArguments === undefined) {
+                    return
+                }
 
-            // let executableArgumentsForHotspotDetection = await vscode.window.showInputBox({
-            //     prompt: 'Enter the arguments for hotspot detection',
-            // })
-
-            vscode.window.showInformationMessage(
-                'Successfully created a new configuration. Remember to add Arguments for the HotspotDetection before running it!'
-            )
-
-            const configuration = new ConfigurationCMake(
-                name,
-                projectPath,
-                buildPath,
-                buildArguments,
-                executableName,
-                executableArgumentsForDiscoPoP,
-                [],
-                this
-            )
-            this.addConfiguration(configuration)
-        } else if (type === ConfigurationType.ViewOnly) {
-            let dotDiscoPoPForDiscoPoP = await vscode.window.showInputBox({
-                prompt: 'Enter the path to the .discopop directory that contains the results of the DiscoPoP analysis',
-                ignoreFocusOut: true,
-            })
-            if (dotDiscoPoPForDiscoPoP === undefined) {
-                return
-            }
-
-            let dotDiscoPoPForHotspotDetection =
-                await vscode.window.showInputBox({
-                    prompt: 'Enter the path to the .discopop directory that contains the results of the HotspotDetection analysis',
+                const executableName = await vscode.window.showInputBox({
+                    prompt: 'Enter the name of the executable',
                     ignoreFocusOut: true,
-                    value: dotDiscoPoPForDiscoPoP,
                 })
-            if (dotDiscoPoPForHotspotDetection === undefined) {
-                return
-            }
+                if (executableName === undefined) {
+                    return
+                }
 
-            const configuration = new ConfigurationViewOnly(
-                name,
-                this,
-                dotDiscoPoPForDiscoPoP,
-                dotDiscoPoPForHotspotDetection
-            )
+                const executableArgumentsForDiscoPoP =
+                    await vscode.window.showInputBox({
+                        prompt: 'Enter the arguments for DiscoPoP',
+                        ignoreFocusOut: true,
+                    })
+                if (executableArgumentsForDiscoPoP === undefined) {
+                    return
+                }
+
+                vscode.window.showInformationMessage(
+                    'Successfully created a new configuration. Remember to add Arguments for the HotspotDetection before running it!'
+                )
+
+                configuration = new ConfigurationCMake(
+                    name,
+                    projectPath,
+                    buildPath,
+                    buildArguments,
+                    executableName,
+                    executableArgumentsForDiscoPoP,
+                    [],
+                    this
+                )
+                break
+            case ConfigurationType.ViewOnly: // fallthrough (ViewOnly and Script have much in common, an inner switch deals with the differences)
+            case ConfigurationType.Script:
+                let dotDiscoPoPForDiscoPoP = await vscode.window.showInputBox({
+                    prompt: 'Enter the path to the .discopop directory that contains the results of the DiscoPoP analysis',
+                    ignoreFocusOut: true,
+                    value: workspaceFolder + '/.discopop',
+                })
+                if (dotDiscoPoPForDiscoPoP === undefined) {
+                    return
+                }
+
+                let dotDiscoPoPForHotspotDetection =
+                    await vscode.window.showInputBox({
+                        prompt: 'Enter the path to the .discopop directory that contains the results of the HotspotDetection analysis',
+                        ignoreFocusOut: true,
+                        value: dotDiscoPoPForDiscoPoP,
+                    })
+                if (dotDiscoPoPForHotspotDetection === undefined) {
+                    return
+                }
+
+                switch (type) {
+                    case ConfigurationType.ViewOnly:
+                        configuration = new ConfigurationViewOnly(
+                            name,
+                            this,
+                            dotDiscoPoPForDiscoPoP,
+                            dotDiscoPoPForHotspotDetection
+                        )
+                        break
+                    case ConfigurationType.Script:
+                        const discopopScriptPath =
+                            await vscode.window.showInputBox({
+                                prompt: 'Enter the path to the script that runs discopop',
+                                ignoreFocusOut: true,
+                                value:
+                                    dotDiscoPoPForDiscoPoP.substring(
+                                        0,
+                                        dotDiscoPoPForDiscoPoP.lastIndexOf('/')
+                                    ) + '/runDiscoPoP.sh',
+                            })
+                        if (discopopScriptPath === undefined) {
+                            return
+                        }
+
+                        const hotspotDetectionScriptPath =
+                            await vscode.window.showInputBox({
+                                prompt: 'Enter the path to the script that runs hotspot detection',
+                                ignoreFocusOut: true,
+                                value:
+                                    discopopScriptPath.substring(
+                                        0,
+                                        discopopScriptPath.lastIndexOf('/')
+                                    ) + '/runHotspotDetection.sh',
+                            })
+                        if (hotspotDetectionScriptPath === undefined) {
+                            return
+                        }
+
+                        configuration = new ConfigurationScript(
+                            name,
+                            this,
+                            dotDiscoPoPForDiscoPoP,
+                            dotDiscoPoPForHotspotDetection,
+                            discopopScriptPath,
+                            hotspotDetectionScriptPath
+                        )
+                        break
+                    default: // should never happen
+                        throw new Error(
+                            'Unknown configuration type, Aborting...'
+                        )
+                }
+                break
+            default: // if this happens, likely a new configuration type was added and this switch should be updated
+                throw new Error('Unknown configuration type, Aborting...')
+        }
+
+        if (configuration) {
             this.addConfiguration(configuration)
         }
     }
