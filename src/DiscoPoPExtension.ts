@@ -68,11 +68,26 @@ export class DiscoPoPExtension {
     private hotspotTreeDisposable: vscode.Disposable | undefined = undefined
 
     private suggestionTree: SuggestionTree | undefined = undefined
-    private suggestionTreeView:
+    private _suggestionTreeView:
         | vscode.TreeView<
               SimpleTreeNode<DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode>
           >
         | undefined = undefined
+    private get suggestionTreeView() {
+        return this._suggestionTreeView
+    }
+    private set suggestionTreeView(
+        treeView: vscode.TreeView<
+            SimpleTreeNode<DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode>
+        >
+    ) {
+        this._suggestionTreeView = treeView
+        this._updateTreeViewTitleAndMessage()
+
+        this.suggestionTree.onDidChangeTreeData(() => {
+            this._updateTreeViewTitleAndMessage()
+        })
+    }
 
     public constructor(private context: vscode.ExtensionContext) {
         //this.projectManager = new ProjectManager(context)
@@ -105,9 +120,7 @@ export class DiscoPoPExtension {
                 canSelectMany: false,
             }
         )
-        this.suggestionTreeView.title = `Suggestions (${Array.from(
-            this.dpResults.suggestionsByType.entries()
-        ).reduce((acc, [type, suggestions]) => acc + suggestions.length, 0)})`
+        this._updateTreeViewTitleAndMessage()
 
         // enable code lenses for all suggestions
         // TODO we should not create a new code lens provider every time,
@@ -674,9 +687,31 @@ export class DiscoPoPExtension {
                             return true
                         }
                     })
+
+                    // update view
+                    this._updateTreeViewTitleAndMessage()
                 }
             )
         )
+    }
+
+    private _updateTreeViewTitleAndMessage() {
+        if (this.suggestionTreeView && this.suggestionTree && this.dpResults) {
+            const visible = this.suggestionTree.countVisible
+            const total = this.suggestionTree.countAll
+            this.suggestionTreeView.title = `Suggestions (${total})`
+            if (visible !== total) {
+                this.suggestionTreeView.message = `Showing ${visible} out of ${total} suggestions`
+                if (visible === 0) {
+                    this.suggestionTreeView.message += ` (try changing the filter)`
+                }
+            } else {
+                this.suggestionTreeView.message = undefined
+            }
+        } else if (this.suggestionTreeView) {
+            this.suggestionTreeView.title = `Suggestions`
+            this.suggestionTreeView.message = undefined
+        }
     }
 
     public deactivate() {}
