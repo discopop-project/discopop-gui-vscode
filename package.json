@@ -189,6 +189,12 @@
                 "command": "discopop.rollbackAllSuggestions",
                 "category": "DiscoPoP",
                 "icon": "$(clear-all)"
+            },
+            {
+                "title": "Filter Suggestions",
+                "command": "discopop.filterSuggestions",
+                "category": "DiscoPoP",
+                "icon": "$(filter)"
             }
         ],
         "menus": {
@@ -236,6 +242,10 @@
                 {
                     "command": "discopop.rollbackAllSuggestions",
                     "when": "false"
+                },
+                {
+                    "command": "discopop.filterSuggestions",
+                    "when": "false"
                 }
             ],
             "view/title": [
@@ -246,6 +256,11 @@
                 },
                 {
                     "command": "discopop.rollbackAllSuggestions",
+                    "when": "view == sidebar-suggestions-view && discopop.suggestionsAvailable",
+                    "group": "navigation"
+                },
+                {
+                    "command": "discopop.filterSuggestions",
                     "when": "view == sidebar-suggestions-view && discopop.suggestionsAvailable",
                     "group": "navigation"
                 }

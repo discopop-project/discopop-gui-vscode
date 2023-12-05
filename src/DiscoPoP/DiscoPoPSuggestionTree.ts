@@ -3,6 +3,7 @@ import { Commands } from '../Utils/Commands'
 import { SimpleTree, SimpleTreeNode } from '../Utils/SimpleTree'
 import { DiscoPoPResults } from './classes/DiscoPoPResults'
 import { Suggestion } from './classes/Suggestion/Suggestion'
+import { DiscoPoPAppliedSuggestionsWatcher } from './DiscoPoPAppliedSuggestionsWatcher'
 
 /**
  * A suggestion group is a group of suggestions of the same type.
@@ -14,7 +15,7 @@ export class DiscoPoPSuggestionGroup
 {
     public constructor(
         public label: string,
-        public children: DiscoPoPSuggestionGroup[] | DiscoPoPSuggestionNode[]
+        public children: (DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode)[]
     ) {
         this.label = label
     }
@@ -83,36 +84,75 @@ export class DiscoPoPSuggestionNode implements SimpleTreeNode<undefined> {
 export class SuggestionTree extends SimpleTree<
     DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode
 > {
-    public constructor(discoPoPResults: DiscoPoPResults) {
-        const nodes: DiscoPoPSuggestionGroup[] = []
-        Array.from(discoPoPResults.suggestionsByType.entries()).forEach(
-            ([type, suggestions]) => {
-                nodes.push(
-                    new DiscoPoPSuggestionGroup(
-                        type,
-                        suggestions.map((suggestion) => {
-                            return new DiscoPoPSuggestionNode(
-                                suggestion,
-                                discoPoPResults.fileMapping.getFilePath(
-                                    suggestion.fileId
-                                ),
-                                discoPoPResults.appliedStatus.isApplied(
-                                    suggestion.id
-                                )
-                            )
-                        })
-                    )
-                )
-            }
-        )
-        super(nodes)
-        discoPoPResults.appliedStatus.onDidChange((appliedStatus) => {
-            this.updateAppliedStatus(appliedStatus)
-            this.refresh()
-        })
+    public constructor(private _discoPoPResults: DiscoPoPResults) {
+        super([])
+        this.replaceData(_discoPoPResults)
     }
 
-    public updateAppliedStatus(appliedStatus) {
+    private _appliedStatusCallback = (appliedStatus) => {
+        this.updateAppliedStatus(appliedStatus)
+    }
+
+    private all_roots: DiscoPoPSuggestionGroup[] = []
+    public replaceData(discoPoPResults: DiscoPoPResults): void {
+        this._discoPoPResults?.appliedStatus?.offDidChange(
+            this._appliedStatusCallback
+        )
+        this._discoPoPResults = discoPoPResults
+        this.all_roots = Array.from(
+            discoPoPResults.suggestionsByType.entries()
+        ).map(([type, suggestions]) => {
+            return new DiscoPoPSuggestionGroup(
+                type,
+                suggestions.map((suggestion) => {
+                    return new DiscoPoPSuggestionNode(
+                        suggestion,
+                        discoPoPResults.fileMapping.getFilePath(
+                            suggestion.fileId
+                        ),
+                        discoPoPResults.appliedStatus.isApplied(suggestion.id)
+                    )
+                })
+            )
+        })
+        discoPoPResults.appliedStatus.onDidChange(this._appliedStatusCallback)
+        this.refresh()
+    }
+
+    private _filter: (
+        node: DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode
+    ) => boolean = () => true
+    public filter(
+        filter: (
+            node: DiscoPoPSuggestionNode | DiscoPoPSuggestionGroup
+        ) => boolean
+    ): void {
+        this._filter = filter
+        this.refresh()
+    }
+
+    private _applyFilter(): void {
+        this.roots = this.all_roots.map((root) => {
+            const children = root.children.filter(this._filter)
+            return new DiscoPoPSuggestionGroup(root.label, children)
+        })
+
+        // remove empty groups on the top level
+        this.roots = this.roots.filter(
+            (root) =>
+                root instanceof DiscoPoPSuggestionNode ||
+                root.children.length > 0
+        )
+    }
+
+    public refresh(): void {
+        this._applyFilter()
+        super.refresh()
+    }
+
+    public updateAppliedStatus(
+        appliedStatus: DiscoPoPAppliedSuggestionsWatcher
+    ) {
         this.roots.forEach((root) => {
             this._callCallbackForAllNodes(root, (node) => {
                 if (node instanceof DiscoPoPSuggestionNode) {
@@ -120,6 +160,7 @@ export class SuggestionTree extends SimpleTree<
                 }
             })
         })
+        this.refresh()
     }
 
     private _callCallbackForAllNodes(

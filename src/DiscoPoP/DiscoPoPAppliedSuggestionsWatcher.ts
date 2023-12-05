@@ -2,9 +2,8 @@ import * as fs from 'fs'
 import { EventEmitter } from 'stream'
 
 /**
- * This class is used to map the line numbers of suggestions to the actual line numbers in the source code.
- * This is necessary because the line numbers are not updated when the source code is changed. The line_mapping.json tells us how to map the line numbers and is updated by the patch_applicator.
- * The mapping provided by this class is automatically updated when the line_mapping.json file is changed.
+ * This class is similar to the LineMapping class, but it is used to keep track of the applied suggestions.
+ * The mapping provided by this class is automatically updated when the underlying data is updated.
  */
 export class DiscoPoPAppliedSuggestionsWatcher {
     private appliedSuggestions: Set<number> = new Set()
@@ -18,7 +17,7 @@ export class DiscoPoPAppliedSuggestionsWatcher {
         })
     }
 
-    // Event that is fired when the line mapping file is changed
+    // Event that is fired when the applied_suggestions file is changed
     private _eventEmitter = new EventEmitter()
 
     public onDidChange(
@@ -26,9 +25,14 @@ export class DiscoPoPAppliedSuggestionsWatcher {
     ) {
         this._eventEmitter.on('change', () => callback(this))
     }
+    public offDidChange(
+        callback: (discoPoPAppliedSuggestionsWatcher: this) => void
+    ) {
+        this._eventEmitter.off('change', () => callback(this))
+    }
 
     private parseFile() {
-        console.log('Parsing line mapping file')
+        console.log('Parsing applied_suggestions.json file')
 
         // clear the set
         this.appliedSuggestions.clear()
@@ -45,7 +49,7 @@ export class DiscoPoPAppliedSuggestionsWatcher {
         }
     }
 
-    public getAppledSuggestions(): Set<number> {
+    public getAppliedSuggestions(): Set<number> {
         return this.appliedSuggestions
     }
 
@@ -55,6 +59,7 @@ export class DiscoPoPAppliedSuggestionsWatcher {
 
     public dispose() {
         fs.unwatchFile(this.appliedSuggestionsFile)
+        this._eventEmitter.removeAllListeners()
         this.appliedSuggestions.clear()
     }
 }

@@ -34,7 +34,7 @@ export abstract class SimpleTree<T extends SimpleTreeNode<T>>
         return element.getView()
     }
 
-    public getChildren(element?: T): vscode.ProviderResult<T[]> {
+    public getChildren(element?: T): T[] {
         if (!element) {
             return this.roots
         } else {

@@ -24,6 +24,7 @@ export class Commands {
         'discopop.rollbackSingleSuggestion' // used from the tree view
     public static rollbackAllSuggestions: string =
         'discopop.rollbackAllSuggestions' // used from the tree view
+    public static filterSuggestions: string = 'discopop.filterSuggestions'
 
     // hotspots
     public static showHotspotDetails: string = 'discopop.showHotspotDetails'
