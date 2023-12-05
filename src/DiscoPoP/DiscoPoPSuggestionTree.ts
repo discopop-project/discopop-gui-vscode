@@ -150,6 +150,29 @@ export class SuggestionTree extends SimpleTree<
         super.refresh()
     }
 
+    public get countVisible(): number {
+        let count = 0
+        const stack = []
+        this.roots.forEach((root) => {
+            stack.push(root)
+        })
+        let item
+        while ((item = stack.pop()) !== undefined) {
+            if (item instanceof DiscoPoPSuggestionNode) {
+                count++
+            } else {
+                item.children.forEach((child) => {
+                    stack.push(child)
+                })
+            }
+        }
+        return count
+    }
+
+    public get countAll(): number {
+        return this._discoPoPResults.count
+    }
+
     public updateAppliedStatus(
         appliedStatus: DiscoPoPAppliedSuggestionsWatcher
     ) {

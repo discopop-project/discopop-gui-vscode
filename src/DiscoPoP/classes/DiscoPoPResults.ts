@@ -28,6 +28,14 @@ export class DiscoPoPResults {
         this.appliedStatus?.dispose()
     }
 
+    public get count(): number {
+        let count = 0
+        for (const suggestions of this.suggestionsByType.values()) {
+            count += suggestions.length
+        }
+        return count
+    }
+
     // TODO getSuggestionsForFileId(fileId: number): Suggestion[] { ... }
     // TODO getSuggestionsForFile(file: string): Suggestion[] { ... }
     // TODO getSuggestionsForType(type: string): Suggestion[] { ... }
