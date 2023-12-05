@@ -67,6 +67,7 @@ export class DiscoPoPExtension {
     private codeLensProvider: DiscoPoPCodeLensProvider = undefined
     private hotspotTreeDisposable: vscode.Disposable | undefined = undefined
 
+    private suggestionTree: SuggestionTree | undefined = undefined
     private suggestionTreeView:
         | vscode.TreeView<
               SimpleTreeNode<DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode>
@@ -85,14 +86,21 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(projectViewer)
     }
 
+    /** shows the suggestions in the sidebar */
     public async showDiscoPoPResults() {
-        // show the suggestions in the sidebar
-        const suggestionTree = new SuggestionTree(this.dpResults)
+        // update treeDataProvider
+        if (!this.suggestionTree) {
+            this.suggestionTree = new SuggestionTree(this.dpResults)
+        } else {
+            this.suggestionTree.replaceData(this.dpResults)
+        }
+
+        // update view
         await this.suggestionTreeView?.dispose()
         this.suggestionTreeView = vscode.window.createTreeView(
             'sidebar-suggestions-view',
             {
-                treeDataProvider: suggestionTree,
+                treeDataProvider: this.suggestionTree,
                 showCollapseAll: false,
                 canSelectMany: false,
             }
@@ -616,22 +624,59 @@ export class DiscoPoPExtension {
             )
         )
 
-        // to allow undoing all suggestions, we need to get a hold on the .discopop directory
-        // once we refactor to have more state in the extension, this is simple:
-        // this.context.subscriptions.push(
-        //     vscode.commands.registerCommand(
-        //         Commands.rollbackAllSuggestions,
-        //         async () => {
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.filterSuggestions,
+                async () => {
+                    // let the user decide what suggestions to show (applied, unapplied, all)
+                    const filterQuickPickItem =
+                        await vscode.window.showQuickPick(
+                            [
+                                {
+                                    label: 'Applied',
+                                    description:
+                                        'Show only applied suggestions',
+                                },
+                                {
+                                    label: 'Unapplied',
+                                    description:
+                                        'Show only unapplied suggestions',
+                                },
+                                {
+                                    label: 'All',
+                                    description: 'Show all suggestions',
+                                },
+                            ],
+                            {
+                                placeHolder: 'Select what suggestions to show',
+                            }
+                        )
+                    if (!filterQuickPickItem) {
+                        return
+                    }
 
-        //         }
-        //     )
-        // )
-        // // package.json: (view/title)
-        // {
-        //     "command": "discopop.rollbackAllSuggestions",
-        //     "when": "view == sidebar-suggestions-view",
-        //     "group": "navigation"
-        // }
+                    // update treeDataProvider
+                    this.suggestionTree?.filter((node) => {
+                        if (node instanceof DiscoPoPSuggestionNode) {
+                            if (filterQuickPickItem.label === 'Applied') {
+                                return node.suggestion.isApplied(
+                                    this.dpResults.appliedStatus
+                                )
+                            } else if (
+                                filterQuickPickItem.label === 'Unapplied'
+                            ) {
+                                return !node.suggestion.isApplied(
+                                    this.dpResults.appliedStatus
+                                )
+                            }
+                            return true
+                        } else {
+                            return true
+                        }
+                    })
+                }
+            )
+        )
     }
 
     public deactivate() {}
