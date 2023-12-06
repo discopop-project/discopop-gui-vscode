@@ -54,6 +54,9 @@ export abstract class Config {
             .get('recommendationsCodeLens', true)
     }
 
+    /**
+     * wether or not the user should be asked for confirmation before overwriting existing files.
+     */
     public static skipOverwriteConfirmation(): boolean {
         return vscode.workspace
             .getConfiguration('discopop')

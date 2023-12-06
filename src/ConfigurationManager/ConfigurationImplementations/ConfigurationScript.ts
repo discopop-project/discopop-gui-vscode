@@ -20,17 +20,11 @@ export class ConfigurationScript
     constructor(
         name: string,
         observer: any,
-        dotDiscoPoPForDiscoPoP: string,
-        dotDiscoPoPForHotspotDetection: string,
+        dotDiscoPoP: string,
         discopopScriptPath: string,
         hotspotDetectionScriptPath: string
     ) {
-        super(
-            name,
-            observer,
-            dotDiscoPoPForDiscoPoP,
-            dotDiscoPoPForHotspotDetection
-        )
+        super(name, observer, dotDiscoPoP)
         this._discopopScriptPath = new StringProperty(
             'script path',
             discopopScriptPath,

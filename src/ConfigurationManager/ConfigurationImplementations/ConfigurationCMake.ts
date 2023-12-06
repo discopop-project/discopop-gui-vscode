@@ -88,6 +88,11 @@ export class ConfigurationCMake
         this.refresh()
     }
 
+    // the following paths are based on the build path:
+    // path/to/build                      // buildPath
+    // path/to/build/.discopop            // analysis results
+    // path/to/build/DiscoPoP             // build directory for DiscoPoP
+    // path/to/build/HotspotDetection     // build directory for HotspotDetection
     private readonly _buildPath: StringProperty
     public get buildPath(): string {
         return this._buildPath.value
@@ -95,6 +100,15 @@ export class ConfigurationCMake
     public set buildPath(value: string) {
         this._buildPath.value = value
         this.refresh()
+    }
+    public get buildPathForDiscoPoP(): string {
+        return this.buildPath + '/DiscoPoP'
+    }
+    public get buildPathForHotspotDetection(): string {
+        return this.buildPath + '/HotspotDetection'
+    }
+    public get dotDiscoPoP(): string {
+        return this.buildPath + '/.discopop'
     }
 
     private readonly _buildArguments: StringProperty
@@ -172,20 +186,16 @@ export class ConfigurationCMake
         ]
     }
 
-    public getDotDiscoPoPForDiscoPoP(): string {
-        return this.buildPath + '/DiscoPoP/.discopop' // TODO shared with hs detection
-    }
-
     public async runDiscoPoP(): Promise<boolean> {
         this.running = true
         try {
             return await DiscoPoPRunner.run({
                 projectPath: this.projectPath,
-                buildPath: this.buildPath + '/DiscoPoP',
+                buildPath: this.buildPathForDiscoPoP,
                 buildArguments: this.buildArguments,
                 executableName: this.executableName,
                 executableArguments: this.executableArgumentsForDiscoPoP,
-                dotDiscoPoPPath: this.getDotDiscoPoPForDiscoPoP(),
+                dotDiscoPoP: this.dotDiscoPoP,
             })
         } catch (error) {
             throw error
@@ -194,21 +204,17 @@ export class ConfigurationCMake
         }
     }
 
-    public getDotDiscoPoPForHotspotDetection(): string {
-        return this.buildPath + '/HotspotDetection/.discopop' // TODO shared with discopop
-    }
-
     public async runHotspotDetection(): Promise<boolean> {
         this.running = true
         try {
             return await HotspotDetectionRunner.run({
                 projectPath: this.projectPath,
-                buildPath: this.buildPath + '/HotspotDetection',
+                buildPath: this.buildPathForHotspotDetection,
                 buildArguments: this.buildArguments,
                 executableName: this.executableName,
                 executableArguments:
                     this.executableArgumentsForHotspotDetection,
-                dotDiscoPoPPath: this.getDotDiscoPoPForHotspotDetection(),
+                dotDiscoPoP: this.dotDiscoPoP,
             })
         } catch (error) {
             throw error

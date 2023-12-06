@@ -13,7 +13,7 @@ export interface DiscoPoPRunnerArguments {
     projectPath: string
     buildPath: string
     buildArguments: string
-    dotDiscoPoPPath: string
+    dotDiscoPoP: string
     executableName: string
     executableArguments: string
 }
@@ -57,6 +57,7 @@ export abstract class DiscoPoPRunner {
                 await this._runCMake(
                     runnerArgs.projectPath,
                     runnerArgs.buildPath,
+                    runnerArgs.dotDiscoPoP,
                     token
                 )
             },
@@ -66,7 +67,11 @@ export abstract class DiscoPoPRunner {
             message: 'Running MAKE...',
             increment: 10,
             operation: async (token) => {
-                await this._runMake(runnerArgs.buildPath, token)
+                await this._runMake(
+                    runnerArgs.buildPath,
+                    runnerArgs.dotDiscoPoP,
+                    token
+                )
             },
         })
 
@@ -76,6 +81,7 @@ export abstract class DiscoPoPRunner {
             operation: async (token) => {
                 await this._runExecutable(
                     runnerArgs.buildPath,
+                    runnerArgs.dotDiscoPoP,
                     runnerArgs.executableName,
                     runnerArgs.executableArguments,
                     token
@@ -87,10 +93,7 @@ export abstract class DiscoPoPRunner {
             message: 'Running discopop_explorer...',
             increment: 45,
             operation: async (token) => {
-                await this._runDiscopopExplorer(
-                    runnerArgs.dotDiscoPoPPath,
-                    token
-                )
+                await this._runDiscopopExplorer(runnerArgs.dotDiscoPoP, token)
             },
         })
 
@@ -98,7 +101,7 @@ export abstract class DiscoPoPRunner {
             message: 'Generating patches...',
             increment: 10,
             operation: async (token) => {
-                await this._generatePatches(runnerArgs.dotDiscoPoPPath, token)
+                await this._generatePatches(runnerArgs.dotDiscoPoP, token)
             },
         })
 
@@ -145,6 +148,7 @@ export abstract class DiscoPoPRunner {
     private static async _runCMake(
         projectPath: string,
         buildPath: string,
+        dotDiscoPoP: string,
         token: vscode.CancellationToken
     ): Promise<void> {
         const cmakeWrapperScript = `${Config.discopopBuild()}/scripts/CMAKE_wrapper.sh`
@@ -153,7 +157,13 @@ export abstract class DiscoPoPRunner {
             outerResolve = resolve
             const childProcess = exec(
                 `${cmakeWrapperScript} ${projectPath}`,
-                { cwd: buildPath },
+                {
+                    cwd: buildPath,
+                    env: {
+                        ...process.env,
+                        DOT_DISCOPOP: dotDiscoPoP,
+                    },
+                },
                 (err, stdout, stderr) => {
                     if (err) {
                         reject(
@@ -168,7 +178,7 @@ export abstract class DiscoPoPRunner {
             )
             token.onCancellationRequested(async () => {
                 console.log('DiscoPoPRunner::cancellation requested::CMAKE')
-                await childProcess.kill() // SIGINT or SIGTERM?
+                childProcess.kill() // SIGINT or SIGTERM?
                 outerResolve?.()
             })
         })
@@ -179,6 +189,7 @@ export abstract class DiscoPoPRunner {
      */
     private static async _runMake(
         buildPath: string,
+        dotDiscoPoP: string,
         token: vscode.CancellationToken
     ): Promise<void> {
         let outerResolve: () => void
@@ -186,7 +197,13 @@ export abstract class DiscoPoPRunner {
             outerResolve = resolve
             const childProcess = exec(
                 `make > make.log 2>&1`,
-                { cwd: buildPath },
+                {
+                    cwd: buildPath,
+                    env: {
+                        ...process.env,
+                        DOT_DISCOPOP: dotDiscoPoP,
+                    },
+                },
                 (err, stdout, stderr) => {
                     if (err) {
                         reject(new Error('MAKE failed: ' + err.message))
@@ -197,7 +214,7 @@ export abstract class DiscoPoPRunner {
             )
             token.onCancellationRequested(async () => {
                 console.log('DiscoPoPRunner::cancellation requested::MAKE')
-                await childProcess.kill() // SIGINT or SIGTERM?
+                childProcess.kill() // SIGINT or SIGTERM?
                 outerResolve?.()
             })
         })
@@ -222,6 +239,7 @@ export abstract class DiscoPoPRunner {
      */
     private static async _runExecutable(
         buildPath: string,
+        dotDiscoPoP: string,
         executableName: string,
         executableArgs: string,
         token: vscode.CancellationToken
@@ -231,7 +249,13 @@ export abstract class DiscoPoPRunner {
             outerResolve = resolve
             const childProcess = exec(
                 `${buildPath}/${executableName} ${executableArgs || ''}`,
-                { cwd: buildPath },
+                {
+                    cwd: buildPath,
+                    env: {
+                        ...process.env,
+                        DOT_DISCOPOP: dotDiscoPoP,
+                    },
+                },
                 (err, stdout, stderr) => {
                     if (err) {
                         reject(new Error('Executable failed: ' + err.message))
@@ -245,7 +269,7 @@ export abstract class DiscoPoPRunner {
                 console.log(
                     'DiscoPoPRunner::cancellation requested::executable'
                 )
-                await childProcess.kill() // SIGINT or SIGTERM?
+                childProcess.kill() // SIGINT or SIGTERM?
                 outerResolve?.()
             })
         })
@@ -293,7 +317,7 @@ export abstract class DiscoPoPRunner {
                 console.log(
                     'DiscoPoPRunner::cancellation requested::discopop_explorer'
                 )
-                await childProcess.kill() // SIGINT or SIGTERM?
+                childProcess.kill() // SIGINT or SIGTERM?
                 outerResolve?.()
             })
         })
@@ -334,7 +358,7 @@ export abstract class DiscoPoPRunner {
                 console.log(
                     'DiscoPoPRunner::cancellation requested::discopop_patch_generator'
                 )
-                await childProcess.kill() // SIGINT or SIGTERM?
+                childProcess.kill() // SIGINT or SIGTERM?
                 outerResolve?.()
             })
         })
