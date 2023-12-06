@@ -12,7 +12,7 @@ export interface HotspotDetectionRunnerRunArguments {
     projectPath: string
     buildPath: string
     buildArguments: string
-    dotDiscoPoPPath: string
+    dotDiscoPoP: string
     executableName: string
     executableArguments: string[]
 }
@@ -40,19 +40,20 @@ export abstract class HotspotDetectionRunner {
             message: 'Preparing build directory...',
             increment: 5,
             operation: async () => {
-                if (!fs.existsSync(args.buildPath)) {
-                    fs.mkdirSync(args.buildPath, { recursive: true })
-                } else if (
-                    Config.skipOverwriteConfirmation() ||
-                    (await UIPrompts.actionConfirmed(
-                        'The build directory already exists. Do you want to overwrite it?\n(You can disable this dialog in the extension settings)'
-                    ))
-                ) {
-                    fs.rmSync(args.buildPath, { recursive: true })
-                    fs.mkdirSync(args.buildPath, { recursive: true })
-                } else {
-                    throw new Error('Operation cancelled by user')
+                if (fs.existsSync(args.buildPath)) {
+                    // remove everything but the .discopop directory from the build directory
+                    const files = fs.readdirSync(args.buildPath)
+                    for (const file of files) {
+                        if (file !== '.discopop') {
+                            fs.rmSync(`${args.buildPath}/${file}`, {
+                                recursive: true,
+                            })
+                        }
+                    }
                 }
+                fs.mkdirSync(args.buildPath, {
+                    recursive: true,
+                })
             },
         })
 
@@ -68,6 +69,10 @@ export abstract class HotspotDetectionRunner {
                         `${cmakeWrapperScript} ${args.projectPath}`,
                         {
                             cwd: args.buildPath,
+                            env: {
+                                ...process.env,
+                                DOT_DISCOPOP: args.dotDiscoPoP,
+                            },
                         },
                         (err, stdout, stderr) => {
                             if (err) {
@@ -83,7 +88,7 @@ export abstract class HotspotDetectionRunner {
                         console.log(
                             'HotspotDetectionRunner::cancellationRequested::CMAKE'
                         )
-                        await childProcess.kill() // SIGINT or SIGTERM?
+                        childProcess.kill() // SIGINT or SIGTERM?
                         outerResolve?.()
                     })
                 })
@@ -101,6 +106,10 @@ export abstract class HotspotDetectionRunner {
                         `make > make.log 2>&1`,
                         {
                             cwd: args.buildPath,
+                            env: {
+                                ...process.env,
+                                DOT_DISCOPOP: args.dotDiscoPoP,
+                            },
                         },
                         (err, stdout, stderr) => {
                             if (err) {
@@ -114,7 +123,7 @@ export abstract class HotspotDetectionRunner {
                         console.log(
                             'HotspotDetectionRunner::cancellationRequested::MAKE'
                         )
-                        await childProcess.kill() // SIGINT or SIGTERM?
+                        childProcess.kill() // SIGINT or SIGTERM?
                         outerResolve?.()
                     })
                 })
@@ -135,6 +144,10 @@ export abstract class HotspotDetectionRunner {
                             `${args.buildPath}/${args.executableName} ${execArgs}`,
                             {
                                 cwd: args.buildPath,
+                                env: {
+                                    ...process.env,
+                                    DOT_DISCOPOP: args.dotDiscoPoP,
+                                },
                             },
                             (err, stdout, stderr) => {
                                 if (err) {
@@ -153,7 +166,7 @@ export abstract class HotspotDetectionRunner {
                             console.log(
                                 'HotspotDetectionRunner::cancellationRequested::Executable'
                             )
-                            await childProcess.kill() // SIGINT or SIGTERM?
+                            childProcess.kill() // SIGINT or SIGTERM?
                             outerResolve?.()
                         })
                     })
@@ -171,7 +184,7 @@ export abstract class HotspotDetectionRunner {
                     const childProcess = exec(
                         `hotspot_analyzer`,
                         {
-                            cwd: args.dotDiscoPoPPath,
+                            cwd: args.dotDiscoPoP,
                         },
                         (err, stdout, stderr) => {
                             if (err) {
@@ -190,7 +203,7 @@ export abstract class HotspotDetectionRunner {
                         console.log(
                             'HotspotDetectionRunner::cancellationRequested::hotspot_analyzer'
                         )
-                        await childProcess.kill() // SIGINT or SIGTERM?
+                        childProcess.kill() // SIGINT or SIGTERM?
                         outerResolve?.()
                     })
                 })

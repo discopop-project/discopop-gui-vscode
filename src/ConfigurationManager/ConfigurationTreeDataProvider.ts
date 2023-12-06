@@ -121,22 +121,12 @@ export class ConfigurationTreeDataProvider
                 break
             case ConfigurationType.ViewOnly: // fallthrough (ViewOnly and Script have much in common, an inner switch deals with the differences)
             case ConfigurationType.Script:
-                let dotDiscoPoPForDiscoPoP = await vscode.window.showInputBox({
-                    prompt: 'Enter the path to the .discopop directory that contains the results of the DiscoPoP analysis',
+                let dotDiscoPoP = await vscode.window.showInputBox({
+                    prompt: 'Enter the path to the .discopop directory.',
                     ignoreFocusOut: true,
                     value: workspaceFolder + '/.discopop',
                 })
-                if (dotDiscoPoPForDiscoPoP === undefined) {
-                    return
-                }
-
-                let dotDiscoPoPForHotspotDetection =
-                    await vscode.window.showInputBox({
-                        prompt: 'Enter the path to the .discopop directory that contains the results of the HotspotDetection analysis',
-                        ignoreFocusOut: true,
-                        value: dotDiscoPoPForDiscoPoP,
-                    })
-                if (dotDiscoPoPForHotspotDetection === undefined) {
+                if (dotDiscoPoP === undefined) {
                     return
                 }
 
@@ -145,8 +135,7 @@ export class ConfigurationTreeDataProvider
                         configuration = new ConfigurationViewOnly(
                             name,
                             this,
-                            dotDiscoPoPForDiscoPoP,
-                            dotDiscoPoPForHotspotDetection
+                            dotDiscoPoP
                         )
                         break
                     case ConfigurationType.Script:
@@ -155,9 +144,9 @@ export class ConfigurationTreeDataProvider
                                 prompt: 'Enter the path to the script that runs discopop',
                                 ignoreFocusOut: true,
                                 value:
-                                    dotDiscoPoPForDiscoPoP.substring(
+                                    dotDiscoPoP.substring(
                                         0,
-                                        dotDiscoPoPForDiscoPoP.lastIndexOf('/')
+                                        dotDiscoPoP.lastIndexOf('/')
                                     ) + '/runDiscoPoP.sh',
                             })
                         if (discopopScriptPath === undefined) {
@@ -181,8 +170,7 @@ export class ConfigurationTreeDataProvider
                         configuration = new ConfigurationScript(
                             name,
                             this,
-                            dotDiscoPoPForDiscoPoP,
-                            dotDiscoPoPForHotspotDetection,
+                            dotDiscoPoP,
                             discopopScriptPath,
                             hotspotDetectionScriptPath
                         )

@@ -3,8 +3,6 @@ import {
     Configuration,
     ConfigurationObserver,
     ConfigurationType,
-    DiscoPoPViewCapableConfiguration,
-    HotspotDetectionViewCapableConfiguration,
 } from '../Configuration'
 import { ConfigurationTreeItem } from '../ConfigurationTreeItem'
 import {
@@ -16,26 +14,14 @@ import {
 
 export class ConfigurationViewOnly
     extends Configuration
-    implements
-        DiscoPoPViewCapableConfiguration,
-        HotspotDetectionViewCapableConfiguration,
-        PropertyObserver
+    implements PropertyObserver
 {
-    private readonly _dotDiscoPoPForDiscoPoP: StringProperty
-    public get dotDiscoPoPForDiscoPoP(): string {
-        return this._dotDiscoPoPForDiscoPoP.value
+    private readonly _dotDiscoPoP: StringProperty
+    public get dotDiscoPoP(): string {
+        return this._dotDiscoPoP.value
     }
-    public set dotDiscoPoPForDiscoPoP(value: string) {
-        this._dotDiscoPoPForDiscoPoP.value = value
-        this.refresh()
-    }
-
-    private readonly _dotDiscoPoPForHotspotDetection: StringProperty
-    public get dotDiscoPoPForHotspotDetection(): string {
-        return this._dotDiscoPoPForHotspotDetection.value
-    }
-    public set dotDiscoPoPForHotspotDetection(value: string) {
-        this._dotDiscoPoPForHotspotDetection.value = value
+    public set dotDiscoPoP(value: string) {
+        this._dotDiscoPoP.value = value
         this.refresh()
     }
 
@@ -44,20 +30,13 @@ export class ConfigurationViewOnly
     public constructor(
         name: string,
         onConfigurationChange: ConfigurationObserver,
-        dotDiscoPoPForDiscoPoP: string,
-        dotDiscoPoPForHotspotDetection
+        dotDiscoPoP: string
     ) {
         super(name, onConfigurationChange)
-        this._dotDiscoPoPForDiscoPoP = new StringProperty(
+        this._dotDiscoPoP = new StringProperty(
             '.discopop (DiscoPoP)',
-            dotDiscoPoPForDiscoPoP,
+            dotDiscoPoP,
             'Enter the path to the .discopop directory that contains the results of the DiscoPoP analysis',
-            this
-        )
-        this._dotDiscoPoPForHotspotDetection = new StringProperty(
-            '.discopop (HotspotDetection)',
-            dotDiscoPoPForHotspotDetection,
-            'Enter the path to the .discopop directory that contains the results of the HotspotDetection analysis',
             this
         )
     }
@@ -75,29 +54,14 @@ export class ConfigurationViewOnly
     }
 
     getChildren(): ConfigurationTreeItem[] {
-        return [
-            this._dotDiscoPoPForDiscoPoP,
-            this._dotDiscoPoPForHotspotDetection,
-        ]
+        return [this._dotDiscoPoP]
     }
 
     toJSON(): any {
         return {
             configurationType: this.configurationType,
             name: this.name,
-            dotDiscoPoPForDiscoPoP: this._dotDiscoPoPForDiscoPoP.value,
-            dotDiscoPoPForHotspotDetection:
-                this._dotDiscoPoPForHotspotDetection.value,
+            dotDiscoPoP: this._dotDiscoPoP.value,
         }
     }
-
-    getDotDiscoPoPForDiscoPoP(): string {
-        return this._dotDiscoPoPForDiscoPoP.value
-    }
-
-    getDotDiscoPoPForHotspotDetection(): string {
-        return this._dotDiscoPoPForHotspotDetection.value
-    }
 }
-
-// TODO note to self: we should only have a single "load results" button, which will try to find discopop and hotspot detection results and will load whatever exists

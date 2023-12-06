@@ -27,15 +27,13 @@ export default function configurationFromJSON(
             return new ConfigurationViewOnly(
                 json.name,
                 observer,
-                json.dotDiscoPoPForDiscoPoP,
-                json.dotDiscoPoPForHotspotDetection
+                json.dotDiscoPoP
             )
         case ConfigurationType.Script:
             return new ConfigurationScript(
                 json.name,
                 observer,
-                json.dotDiscoPoPForDiscoPoP,
-                json.dotDiscoPoPForHotspotDetection,
+                json.dotDiscoPoP,
                 json.discopopScriptPath,
                 json.hotspotDetectionScriptPath
             )

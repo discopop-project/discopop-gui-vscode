@@ -73,30 +73,34 @@ export abstract class Configuration implements ConfigurationTreeItem, Editable {
     }
 
     abstract getChildren(): ConfigurationTreeItem[] | undefined
-    abstract configurationType: ConfigurationType
     /**
      * MUST write the configurationType as one of the properties of the generated JSON object.
      * The developer MUST also update the static method ConfigurationDeserializer.configurationFromJSON
      */
     abstract toJSON(): any
+    abstract configurationType: ConfigurationType
+
+    /**
+     * @returns the path to the .discopop directory that contains the results of the DiscoPoP and HotspotDetection analyses
+     */
+    abstract get dotDiscoPoP(): string
 }
 
-export interface DiscoPoPViewCapableConfiguration {
-    getDotDiscoPoPForDiscoPoP(): string
-}
-export interface DiscoPoPRunCapableConfiguration
-    extends DiscoPoPViewCapableConfiguration {
-    /** @returns true if successfully completed, false if errors occured or aborted */
+export interface DiscoPoPRunCapableConfiguration extends Configuration {
+    /**
+     * Runs DiscoPoP using the configuration's settings. After running, the results are stored in the .discopop directory.
+     * @returns true if successfully completed, false if aborted
+     * @throws if errors occured
+     */
     runDiscoPoP(): Promise<boolean>
 }
 
-export interface HotspotDetectionViewCapableConfiguration {
-    getDotDiscoPoPForHotspotDetection(): string
-}
-
-export interface HotspotDetectionRunCapableConfiguration
-    extends HotspotDetectionViewCapableConfiguration {
-    /** @returns true if successfully completed, false if errors occured or aborted */
+export interface HotspotDetectionRunCapableConfiguration extends Configuration {
+    /**
+     * Runs the HotspotDetection using the configuration's settings. After running, the results are stored in the .discopop directory.
+     * @returns true if successfully completed, false if aborted
+     * @throws if errors occured
+     */
     runHotspotDetection(): Promise<boolean>
 }
 

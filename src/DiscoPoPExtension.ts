@@ -2,9 +2,7 @@ import * as vscode from 'vscode'
 import {
     Configuration,
     DiscoPoPRunCapableConfiguration,
-    DiscoPoPViewCapableConfiguration,
     HotspotDetectionRunCapableConfiguration,
-    HotspotDetectionViewCapableConfiguration,
 } from './ConfigurationManager/Configuration'
 import configurationFromJSON from './ConfigurationManager/ConfigurationDeserializer'
 import { ConfigurationTreeDataProvider } from './ConfigurationManager/ConfigurationTreeDataProvider'
@@ -194,7 +192,7 @@ export class DiscoPoPExtension {
                         this.dpResults?.dispose()
                         if (await configuration.runDiscoPoP()) {
                             this.dpResults = await DiscoPoPParser.parse(
-                                configuration.getDotDiscoPoPForDiscoPoP()
+                                configuration.dotDiscoPoP
                             )
                             await this.showDiscoPoPResults()
                         } else {
@@ -214,7 +212,7 @@ export class DiscoPoPExtension {
                         // this.hsResults?.dispose() // TODO refactor to do this like with DiscoPoP ?
                         if (await configuration.runHotspotDetection()) {
                             this.hsResults = await HotspotDetectionParser.parse(
-                                configuration.getDotDiscoPoPForHotspotDetection()
+                                configuration.dotDiscoPoP
                             )
                             await this.showHotspotDetectionResults()
                         } else {
@@ -241,7 +239,7 @@ export class DiscoPoPExtension {
                         this.dpResults?.dispose()
                         if (await configuration.runDiscoPoP()) {
                             this.dpResults = await DiscoPoPParser.parse(
-                                configuration.getDotDiscoPoPForDiscoPoP()
+                                configuration.dotDiscoPoP
                             )
                             await this.showDiscoPoPResults()
                         } else {
@@ -269,7 +267,7 @@ export class DiscoPoPExtension {
                         // this.hsResults?.dispose() // TODO refactor to do this like with DiscoPoP ?
                         if (await configuration.runHotspotDetection()) {
                             this.hsResults = await HotspotDetectionParser.parse(
-                                configuration.getDotDiscoPoPForHotspotDetection()
+                                configuration.dotDiscoPoP
                             )
                             await this.showHotspotDetectionResults()
                         } else {
@@ -333,19 +331,16 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.loadResults,
-                async (
-                    configuration: DiscoPoPViewCapableConfiguration &
-                        HotspotDetectionViewCapableConfiguration
-                ) => {
+                async (configuration: Configuration) => {
                     // DiscoPoP
                     this.dpResults = await DiscoPoPParser.parse(
-                        configuration.getDotDiscoPoPForDiscoPoP()
+                        configuration.dotDiscoPoP
                     )
                     await this.showDiscoPoPResults() // TODO move the above three lines into this function and pass required data
 
                     // HotspotDetection
                     this.hsResults = await HotspotDetectionParser.parse(
-                        configuration.getDotDiscoPoPForHotspotDetection()
+                        configuration.dotDiscoPoP
                     )
                     await this.showHotspotDetectionResults() // TODO move the above 8 lines into the function and pass required data
                 }
