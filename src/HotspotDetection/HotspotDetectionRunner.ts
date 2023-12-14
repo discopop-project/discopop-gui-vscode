@@ -40,20 +40,25 @@ export abstract class HotspotDetectionRunner {
             message: 'Preparing build directory...',
             increment: 5,
             operation: async () => {
-                if (fs.existsSync(args.buildPath)) {
-                    // remove everything but the .discopop directory from the build directory
-                    const files = fs.readdirSync(args.buildPath)
-                    for (const file of files) {
-                        if (file !== '.discopop') {
-                            fs.rmSync(`${args.buildPath}/${file}`, {
-                                recursive: true,
-                            })
-                        }
-                    }
+                if (!fs.existsSync(args.buildPath)) {
+                    fs.mkdirSync(args.buildPath, {
+                        recursive: true,
+                    })
+                } else if (
+                    Config.skipOverwriteConfirmation() ||
+                    (await UIPrompts.actionConfirmed(
+                        'The build directory already exists. Do you want to overwrite it?\n(You can disable this dialog in the extension settings)'
+                    ))
+                ) {
+                    fs.rmSync(args.buildPath, {
+                        recursive: true,
+                    })
+                    fs.mkdirSync(args.buildPath, {
+                        recursive: true,
+                    })
+                } else {
+                    throw new Error('Operation cancelled by user')
                 }
-                fs.mkdirSync(args.buildPath, {
-                    recursive: true,
-                })
             },
         })
 
