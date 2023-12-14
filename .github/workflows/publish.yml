@@ -9,11 +9,8 @@
 name: "Deploy Extension"
 
 on:
-  push:
-    branches:
-      - master
-    tags:
-      - "*"
+  release:
+    types: [published]
 
 jobs:
   deploy:
