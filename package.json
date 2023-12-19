@@ -138,6 +138,11 @@
                 "icon": "$(play-circle)"
             },
             {
+                "title": "Run Optimizer",
+                "command": "discopop.runOptimizer",
+                "icon": "$(dashboard)"
+            },
+            {
                 "title": "Load Results",
                 "command": "discopop.loadResults",
                 "icon": "$(history)"
@@ -225,6 +230,10 @@
                 },
                 {
                     "command": "discopop.runHotspotDetection",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.runOptimizer",
                     "when": "false"
                 },
                 {
@@ -331,11 +340,6 @@
                     "group": "inline@1"
                 },
                 {
-                    "command": "discopop.runDiscoPoPAndHotspotDetection",
-                    "when": "view == sidebar-projects-view && viewItem==configuration-runnable",
-                    "group": "runners@3"
-                },
-                {
                     "command": "discopop.runDiscoPoP",
                     "when": "view == sidebar-projects-view && viewItem==configuration-runnable",
                     "group": "runners@1"
@@ -344,6 +348,16 @@
                     "command": "discopop.runHotspotDetection",
                     "when": "view == sidebar-projects-view && viewItem==configuration-runnable",
                     "group": "runners@2"
+                },
+                {
+                    "command": "discopop.runDiscoPoPAndHotspotDetection",
+                    "when": "view == sidebar-projects-view && viewItem==configuration-runnable",
+                    "group": "runners@3"
+                },
+                {
+                    "command": "discopop.runOptimizer",
+                    "when": "view == sidebar-projects-view && viewItem==configuration-runnable",
+                    "group": "runners@4"
                 },
                 {
                     "command": "discopop.loadResults",

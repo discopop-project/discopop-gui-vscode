@@ -7,10 +7,11 @@ export class Commands {
         'discopop.editConfigurationOrProperty'
 
     // runners
-    public static runDiscoPoPAndHotspotDetection: string =
-        'discopop.runDiscoPoPAndHotspotDetection'
     public static runDiscoPoP: string = 'discopop.runDiscoPoP'
     public static runHotspotDetection: string = 'discopop.runHotspotDetection'
+    public static runDiscoPoPAndHotspotDetection: string =
+        'discopop.runDiscoPoPAndHotspotDetection'
+    public static runOptimizer: string = 'discopop.runOptimizer'
     public static loadResults = 'discopop.loadResults'
 
     // suggestions

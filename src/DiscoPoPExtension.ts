@@ -28,6 +28,10 @@ import { Commands } from './Utils/Commands'
 import { Decoration } from './Utils/Decorations'
 import { SimpleTreeNode } from './Utils/SimpleTree'
 import { UIPrompts } from './Utils/UIPrompts'
+import {
+    OptimizerExecutionType,
+    OptimizerRunner,
+} from './Optimizer/OptimizerRunner'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
@@ -182,6 +186,61 @@ export class DiscoPoPExtension {
 
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
+                Commands.runDiscoPoP,
+                async (configuration: DiscoPoPRunCapableConfiguration) => {
+                    try {
+                        // DiscoPoP
+                        this.dpResults?.dispose()
+                        if (await configuration.runDiscoPoP()) {
+                            this.dpResults = await DiscoPoPParser.parse(
+                                configuration.dotDiscoPoP
+                            )
+                            await this.showDiscoPoPResults()
+                        } else {
+                            UIPrompts.showMessageForSeconds(
+                                'DiscoPoP was aborted'
+                            )
+                        }
+                    } catch (error: any) {
+                        logAndShowErrorMessageHandler(
+                            error,
+                            'DiscoPoP failed: '
+                        )
+                    }
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.runHotspotDetection,
+                async (
+                    configuration: HotspotDetectionRunCapableConfiguration
+                ) => {
+                    try {
+                        // this.hsResults?.dispose() // TODO refactor to do this like with DiscoPoP ?
+                        if (await configuration.runHotspotDetection()) {
+                            this.hsResults = await HotspotDetectionParser.parse(
+                                configuration.dotDiscoPoP
+                            )
+                            await this.showHotspotDetectionResults()
+                        } else {
+                            UIPrompts.showMessageForSeconds(
+                                'Hotspot Detection was aborted'
+                            )
+                        }
+                    } catch (error: any) {
+                        logAndShowErrorMessageHandler(
+                            error,
+                            'Hotspot Detection failed: '
+                        )
+                    }
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
                 Commands.runDiscoPoPAndHotspotDetection,
                 async (
                     configuration: DiscoPoPRunCapableConfiguration &
@@ -232,55 +291,16 @@ export class DiscoPoPExtension {
 
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
-                Commands.runDiscoPoP,
-                async (configuration: DiscoPoPRunCapableConfiguration) => {
-                    try {
-                        // DiscoPoP
-                        this.dpResults?.dispose()
-                        if (await configuration.runDiscoPoP()) {
-                            this.dpResults = await DiscoPoPParser.parse(
-                                configuration.dotDiscoPoP
-                            )
-                            await this.showDiscoPoPResults()
-                        } else {
-                            UIPrompts.showMessageForSeconds(
-                                'DiscoPoP was aborted'
-                            )
-                        }
-                    } catch (error: any) {
+                Commands.runOptimizer,
+                async (configuration: Configuration) => {
+                    OptimizerRunner.run(configuration.dotDiscoPoP, {
+                        executionType: OptimizerExecutionType.Exhaustive,
+                    }).catch((error) =>
                         logAndShowErrorMessageHandler(
                             error,
-                            'DiscoPoP failed: '
+                            'Optimizer failed: '
                         )
-                    }
-                }
-            )
-        )
-
-        this.context.subscriptions.push(
-            vscode.commands.registerCommand(
-                Commands.runHotspotDetection,
-                async (
-                    configuration: HotspotDetectionRunCapableConfiguration
-                ) => {
-                    try {
-                        // this.hsResults?.dispose() // TODO refactor to do this like with DiscoPoP ?
-                        if (await configuration.runHotspotDetection()) {
-                            this.hsResults = await HotspotDetectionParser.parse(
-                                configuration.dotDiscoPoP
-                            )
-                            await this.showHotspotDetectionResults()
-                        } else {
-                            UIPrompts.showMessageForSeconds(
-                                'Hotspot Detection was aborted'
-                            )
-                        }
-                    } catch (error: any) {
-                        logAndShowErrorMessageHandler(
-                            error,
-                            'Hotspot Detection failed: '
-                        )
-                    }
+                    )
                 }
             )
         )
