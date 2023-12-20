@@ -13,8 +13,8 @@ import {
     StringProperty,
     SupportedType,
 } from '../Property'
-import { DiscoPoPRunner } from '../../DiscoPoP/DiscoPoPRunner'
-import { HotspotDetectionRunner } from '../../HotspotDetection/HotspotDetectionRunner'
+import { DiscoPoPRunner } from '../../Runners/DiscoPoPRunner'
+import { HotspotDetectionRunner } from '../../Runners/HotspotDetectionRunner'
 
 export class ConfigurationCMake
     extends Configuration
