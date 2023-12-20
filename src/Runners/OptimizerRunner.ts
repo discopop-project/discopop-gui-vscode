@@ -68,15 +68,8 @@ export abstract class OptimizerRunner {
             doallMicrobenchFile = undefined,
             reductionMicrobenchFile = undefined,
             systemConfigurationFile = undefined,
-        }: OptimizerOptions = {
-            executionType: OptimizerExecutionType.Exhaustive,
-            verbose: false,
-            doallMicrobenchFile: undefined,
-            reductionMicrobenchFile: undefined,
-            systemConfigurationFile: undefined,
-        }
+        }: OptimizerOptions = DefaultOptimizerOptions
     ): Promise<void> {
-        // might throw
         const command = OptimizerRunner.buildCommand({
             executionType,
             verbose,
@@ -84,6 +77,7 @@ export abstract class OptimizerRunner {
             reductionMicrobenchFile,
             systemConfigurationFile,
         })
+        // might throw
         const stdout = execSync(command, {
             cwd: dotDiscoPoP,
             env: {
