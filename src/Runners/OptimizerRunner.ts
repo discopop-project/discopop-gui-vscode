@@ -63,12 +63,18 @@ export abstract class OptimizerRunner {
     public static async run(
         dotDiscoPoP: string,
         {
-            executionType = OptimizerExecutionType.Evolutionary,
+            executionType = OptimizerExecutionType.Exhaustive,
             verbose = false,
             doallMicrobenchFile = undefined,
             reductionMicrobenchFile = undefined,
             systemConfigurationFile = undefined,
-        }: OptimizerOptions
+        }: OptimizerOptions = {
+            executionType: OptimizerExecutionType.Exhaustive,
+            verbose: false,
+            doallMicrobenchFile: undefined,
+            reductionMicrobenchFile: undefined,
+            systemConfigurationFile: undefined,
+        }
     ): Promise<void> {
         // might throw
         const command = OptimizerRunner.buildCommand({

@@ -31,7 +31,7 @@ import { UIPrompts } from './Utils/UIPrompts'
 import {
     OptimizerExecutionType,
     OptimizerRunner,
-} from './Optimizer/OptimizerRunner'
+} from './Runners/OptimizerRunner'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
@@ -293,13 +293,12 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.runOptimizer,
                 async (configuration: Configuration) => {
-                    OptimizerRunner.run(configuration.dotDiscoPoP, {
-                        executionType: OptimizerExecutionType.Exhaustive,
-                    }).catch((error) =>
-                        logAndShowErrorMessageHandler(
-                            error,
-                            'Optimizer failed: '
-                        )
+                    OptimizerRunner.run(configuration.dotDiscoPoP).catch(
+                        (error) =>
+                            logAndShowErrorMessageHandler(
+                                error,
+                                'Optimizer failed: '
+                            )
                     )
                 }
             )
