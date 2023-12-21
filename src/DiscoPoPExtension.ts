@@ -31,7 +31,7 @@ import { UIPrompts } from './Utils/UIPrompts'
 import {
     OptimizerExecutionType,
     OptimizerRunner,
-} from './Runners/OptimizerRunner'
+} from './Optimizer/OptimizerRunner'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
