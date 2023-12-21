@@ -1,4 +1,5 @@
 import * as vscode from 'vscode'
+import * as fs from 'fs'
 import { FileMapping } from '../FileMapping/FileMapping'
 import { FileMappingParser } from '../FileMapping/FileMappingParser'
 import { LineMapping } from '../LineMapping/LineMapping'
@@ -35,9 +36,15 @@ export abstract class DiscoPoPParser {
             message: 'Parsing suggestions...',
             increment: 25,
             operation: async () => {
-                suggestionsByType = DiscoPoPPatternParser.parseFile(
-                    `${dotDiscoPoP}/explorer/patterns.json`
-                )
+                // use explorer/patterns.json by default
+                let patternsJson = `${dotDiscoPoP}/explorer/patterns.json`
+                // if optimizer/patterns.json exists, use it instead
+                if (fs.existsSync(`${dotDiscoPoP}/optimizer/patterns.json`)) {
+                    patternsJson = `${dotDiscoPoP}/optimizer/patterns.json`
+                }
+
+                suggestionsByType =
+                    DiscoPoPPatternParser.parseFile(patternsJson)
             },
         })
 

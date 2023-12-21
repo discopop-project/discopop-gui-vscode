@@ -82,13 +82,17 @@ export abstract class OptimizerRunner {
             encoding: 'utf-8',
         })
 
-        console.log('optimizer finished:')
+        console.log('optimizer finished, output:')
         console.log(optimizerStdout)
 
         console.log('updating patches')
         // might throw
         const PatchGeneratorStdout = execSync(
-            `discopop_patch_generator -a ${dotDiscoPoP}/optimizer/patterns.json`
+            `discopop_patch_generator -a ${dotDiscoPoP}/optimizer/patterns.json`,
+            {
+                cwd: dotDiscoPoP,
+                encoding: 'utf-8',
+            }
         )
 
         console.log('patch generator finished:')
