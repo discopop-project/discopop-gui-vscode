@@ -159,10 +159,8 @@ export abstract class DiscoPoPRunner {
                 `${cmakeWrapperScript} ${projectPath}`,
                 {
                     cwd: buildPath,
-                    env: {
-                        ...process.env,
-                        DOT_DISCOPOP: dotDiscoPoP,
-                    },
+                    // DOT_DISCOPOP is not set on purpose --> creates .discopop locally, we then delete it after the call to cmake
+                    // this ensures that cmake compiler tests do not influence the results
                 },
                 (err, stdout, stderr) => {
                     if (err) {
@@ -172,6 +170,11 @@ export abstract class DiscoPoPRunner {
                             )
                         )
                     } else {
+                        // delete the .discopop directory --> ensures that cmake compiler tests do not influence the results
+                        fs.rmSync(buildPath + '/.discopop', {
+                            recursive: true,
+                            force: true,
+                        })
                         resolve()
                     }
                 }

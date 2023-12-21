@@ -62,23 +62,18 @@ export abstract class OptimizerRunner {
 
     public static async run(
         dotDiscoPoP: string,
-        {
-            executionType = OptimizerExecutionType.Exhaustive,
-            verbose = false,
-            doallMicrobenchFile = undefined,
-            reductionMicrobenchFile = undefined,
-            systemConfigurationFile = undefined,
-        }: OptimizerOptions = DefaultOptimizerOptions
+        options: OptimizerOptions = DefaultOptimizerOptions
     ): Promise<void> {
-        const command = OptimizerRunner.buildCommand({
-            executionType,
-            verbose,
-            doallMicrobenchFile,
-            reductionMicrobenchFile,
-            systemConfigurationFile,
-        })
+        // merge provided options with default options
+        options = { ...DefaultOptimizerOptions, ...options }
+
+        const command = this.buildCommand(options)
+
+        console.log('running optimizer with command:')
+        console.log(command)
+
         // might throw
-        const stdout = execSync(command, {
+        const optimizerStdout = execSync(command, {
             cwd: dotDiscoPoP,
             env: {
                 ...process.env,
@@ -88,8 +83,16 @@ export abstract class OptimizerRunner {
         })
 
         console.log('optimizer finished:')
-        console.log(stdout)
+        console.log(optimizerStdout)
 
+        console.log('updating patches')
+        // might throw
+        const PatchGeneratorStdout = execSync(
+            `discopop_patch_generator -a ${dotDiscoPoP}/optimizer/patterns.json`
+        )
+
+        console.log('patch generator finished:')
+        console.log(PatchGeneratorStdout)
         return
     }
 }
