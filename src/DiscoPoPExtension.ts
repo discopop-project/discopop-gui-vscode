@@ -32,6 +32,7 @@ import {
     OptimizerExecutionType,
     OptimizerRunner,
 } from './Optimizer/OptimizerRunner'
+import { WithProgressRunner } from './Utils/WithProgressRunner'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
@@ -55,9 +56,20 @@ function _removeDecorations(
 }
 
 export class DiscoPoPExtension {
-    private configurationTreeDataProvider: ConfigurationTreeDataProvider
-    private dpResults: DiscoPoPResults | undefined = undefined
+    private _dpResults: DiscoPoPResults | undefined = undefined
+    private set dpResults(dpResults: DiscoPoPResults | undefined) {
+        this._dpResults?.dispose()
+        this._dpResults = dpResults
+        this.showDiscoPoPResults()
+    }
+    private get dpResults() {
+        return this._dpResults
+    }
+
+    // TODO same pattern as with dpResults getter/setter
     private hsResults: HotspotDetectionResults | undefined = undefined
+
+    private configurationTreeDataProvider: ConfigurationTreeDataProvider
     private dp_details: DiscoPoPDetailViewProvider =
         new DiscoPoPDetailViewProvider(undefined)
     private hs_details: HotspotDetailViewProvider =
@@ -105,6 +117,8 @@ export class DiscoPoPExtension {
 
     /** shows the suggestions in the sidebar */
     public async showDiscoPoPResults() {
+        console.log('updating DiscoPoP results')
+
         // update treeDataProvider
         if (!this.suggestionTree) {
             this.suggestionTree = new SuggestionTree(this.dpResults)
@@ -190,12 +204,10 @@ export class DiscoPoPExtension {
                 async (configuration: DiscoPoPRunCapableConfiguration) => {
                     try {
                         // DiscoPoP
-                        this.dpResults?.dispose()
                         if (await configuration.runDiscoPoP()) {
                             this.dpResults = await DiscoPoPParser.parse(
                                 configuration.dotDiscoPoP
                             )
-                            await this.showDiscoPoPResults()
                         } else {
                             UIPrompts.showMessageForSeconds(
                                 'DiscoPoP was aborted'
@@ -248,12 +260,10 @@ export class DiscoPoPExtension {
                 ) => {
                     // DiscoPoP
                     try {
-                        this.dpResults?.dispose()
                         if (await configuration.runDiscoPoP()) {
                             this.dpResults = await DiscoPoPParser.parse(
                                 configuration.dotDiscoPoP
                             )
-                            await this.showDiscoPoPResults()
                         } else {
                             UIPrompts.showMessageForSeconds(
                                 'DiscoPoP was aborted'
@@ -293,13 +303,18 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.runOptimizer,
                 async (configuration: Configuration) => {
-                    OptimizerRunner.run(configuration.dotDiscoPoP).catch(
-                        (error) =>
-                            logAndShowErrorMessageHandler(
-                                error,
-                                'Optimizer failed: '
-                            )
-                    )
+                    try {
+                        await OptimizerRunner.run(configuration.dotDiscoPoP)
+                        UIPrompts.showMessageForSeconds('Optimizer finished')
+                        this.dpResults = await DiscoPoPParser.parse(
+                            configuration.dotDiscoPoP
+                        )
+                    } catch (error) {
+                        logAndShowErrorMessageHandler(
+                            error,
+                            'Optimizer failed: '
+                        )
+                    }
                 }
             )
         )
@@ -355,13 +370,12 @@ export class DiscoPoPExtension {
                     this.dpResults = await DiscoPoPParser.parse(
                         configuration.dotDiscoPoP
                     )
-                    await this.showDiscoPoPResults() // TODO move the above three lines into this function and pass required data
 
                     // HotspotDetection
                     this.hsResults = await HotspotDetectionParser.parse(
                         configuration.dotDiscoPoP
                     )
-                    await this.showHotspotDetectionResults() // TODO move the above 8 lines into the function and pass required data
+                    await this.showHotspotDetectionResults() // TODO put into setter of hsResults
                 }
             )
         )
