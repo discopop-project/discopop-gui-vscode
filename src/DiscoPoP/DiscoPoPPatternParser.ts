@@ -3,6 +3,7 @@ import { DoAllSuggestion } from './classes/Suggestion/DoAllSuggestion'
 import { GenericSuggestion } from './classes/Suggestion/GenericSuggestion'
 import { ReductionSuggestion } from './classes/Suggestion/ReductionSuggestion'
 import { Suggestion } from './classes/Suggestion/Suggestion'
+import { DebugConsoleMode } from 'vscode'
 
 /**
  * Provides methods to parse the patterns.json file
@@ -18,14 +19,32 @@ export abstract class DiscoPoPPatternParser {
     }
 
     public static parseString(text: string): Map<string, Suggestion[]> {
-        const suggestions = JSON.parse(text)
-        return DiscoPoPPatternParser.parseJSON(suggestions)
+        const suggestionsJSON = JSON.parse(text)
+        return DiscoPoPPatternParser.parseJSON(suggestionsJSON)
     }
 
     public static parseJSON(json: any): Map<string, Suggestion[]> {
-        // TODO validate the json object
+        console.log('Parsing Patterns')
+        // const expectedVersion = '3.1.1'
+        // if (!json.version || json.version !== expectedVersion) {
+        //     console.error(
+        //         ` Unsupported version of patterns json. You may be using an unsupported version of DiscoPoP. Expected patterns.json version: ${expectedVersion}, found: ${
+        //             json.version ?? 'unknown'
+        //         }`
+        //     )
+        // }
+        // TODO when we implement a better versioning system, we should check for a compatible version here
+
+        if (!json.patterns) {
+            throw new DiscoPoPPatternParserError(
+                'No patterns field found in patterns json'
+            )
+        }
+
+        // TODO check if patterns.json is valid
+
         const suggestionsByType: Map<string, Suggestion[]> = new Map()
-        for (const [type, suggestions] of Object.entries(json) as [
+        for (const [type, suggestions] of Object.entries(json.patterns) as [
             string,
             any[]
         ][]) {
@@ -84,5 +103,12 @@ export abstract class DiscoPoPPatternParser {
             suggestionsByType.set(type, suggestionList)
         }
         return suggestionsByType
+    }
+}
+
+export class DiscoPoPPatternParserError extends Error {
+    constructor(message: string) {
+        super(message)
+        this.name = 'DiscoPoPPatternParserError'
     }
 }
