@@ -1,9 +1,17 @@
 # Change Log
 
-All notable changes to the "discopop-gui" extension will be documented in this file.
+## coming up
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+-   improved support for the optimizer
+-   support for DiscoPoP 4.0
 
-## [Unreleased]
+## 0.0.6
 
--   Initial release
+-   running the discopop optimizer (beta)
+-   prioritize patterns.json created by the optimizer over the patterns.json created by the explorer
+-   support for DiscoPoP 3.2
+
+## 0.0.5
+
+-   initial release
+-   compatibility with DiscoPoP
