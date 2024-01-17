@@ -13,7 +13,7 @@ import {
     StringProperty,
     SupportedType,
 } from '../Property'
-import { DiscoPoPRunner } from '../../DiscoPoP/DiscoPoPRunner'
+import { DPRunnerUI } from '../../DiscoPoP/DPRunner'
 import { HotspotDetectionRunner } from '../../HotspotDetection/HotspotDetectionRunner'
 
 export class ConfigurationCMake
@@ -189,14 +189,15 @@ export class ConfigurationCMake
     public async runDiscoPoP(): Promise<boolean> {
         this.running = true
         try {
-            return await DiscoPoPRunner.run({
-                projectPath: this.projectPath,
-                buildPath: this.buildPathForDiscoPoP,
-                buildArguments: this.buildArguments,
-                executableName: this.executableName,
-                executableArguments: this.executableArgumentsForDiscoPoP,
-                dotDiscoPoP: this.dotDiscoPoP,
-            })
+            const dpRunner = new DPRunnerUI(
+                this.projectPath,
+                this.executableName,
+                this.executableArgumentsForDiscoPoP,
+                this.buildPathForDiscoPoP,
+                this.dotDiscoPoP
+            )
+            const results = await dpRunner.run()
+            return true
         } catch (error) {
             throw error
         } finally {
