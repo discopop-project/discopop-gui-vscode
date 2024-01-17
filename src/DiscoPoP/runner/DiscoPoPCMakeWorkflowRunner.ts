@@ -4,6 +4,7 @@ import { exec } from 'child_process'
 import { CancelToken } from '../../Utils/CancelToken'
 import { Config } from '../../Utils/Config'
 import { DiscoPoPResults } from '../classes/DiscoPoPResults'
+import { CancellationError } from '../../Utils/CancellationError'
 
 export class DiscoPoPCMakeWorkflowRunner {
     /**
@@ -33,7 +34,7 @@ export class DiscoPoPCMakeWorkflowRunner {
     /**
      * runs the entire cmake workflow.
      * @param reportMessage report a message to the user, the optional nesting parameter can be used to indicate that a message is related to a subtask of a previous message
-     * @param reportProgress report the current progress of the operation, the progress parameter should be a number between 0 and 100 and indicates total completed progress in percent
+     * @param reportProgress report the current progress of the operation, the progress parameter should be a number between 0 and 100 and indicates the progress made since the last call to reportProgress.
      * @param requestConfirmation a callback that can be used to request confirmation from the user
      * @param cancelToken a token that can be used to cancel the operation from the outside
      * @returns the parsed DiscoPoP results
@@ -48,44 +49,44 @@ export class DiscoPoPCMakeWorkflowRunner {
 
         reportMessage('Preparing...', 0)
         await this.prepare(requestConfirmation)
-        reportProgress(10)
+        reportProgress(5)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running CMake...', 0)
         await this.runCMake(cancelToken)
-        reportProgress(20)
+        reportProgress(10)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running Make...', 0)
         await this.runMake(cancelToken)
-        reportProgress(40)
+        reportProgress(10)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running Instrumented Executable...', 0)
         await this.runInstrumentedExecutable(cancelToken)
-        reportProgress(60)
+        reportProgress(30)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running Pattern Detection...', 0)
         await dpRunner.runExplorer(cancelToken) // arguments?
-        reportProgress(80)
+        reportProgress(30)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Generating Patches...', 0)
         await dpRunner.runPatchGenerator(cancelToken) // arguments?
-        reportProgress(90)
+        reportProgress(10)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Parsing Results...', 0)
         const results = dpRunner.parse() // does not support cancellation
-        reportProgress(100)
+        reportProgress(5)
 
         return results
     }
 
     private throwUponCancellation(cancelToken: CancelToken): void {
         if (cancelToken.cancellationRequested) {
-            throw new Error('Operation was cancelled')
+            throw new CancellationError('Operation was cancelled')
         }
     }
 
@@ -119,6 +120,12 @@ export class DiscoPoPCMakeWorkflowRunner {
         let outerResolve: () => void
         return new Promise<void>((resolve, reject) => {
             outerResolve = resolve
+
+            const onCancel = () => {
+                childProcess.kill() // SIGINT or SIGTERM?
+                outerResolve?.()
+            }
+
             const childProcess = exec(
                 `${cmakeWrapperScript} ${this.projectDirectory}`,
                 {
@@ -139,15 +146,12 @@ export class DiscoPoPCMakeWorkflowRunner {
                             recursive: true,
                             force: true,
                         })
+                        cancelToken.emitter.removeListener('cancel', onCancel)
                         resolve()
                     }
                 }
             )
-            cancelToken.emitter.on('cancel', async () => {
-                console.log('DiscoPoPRunner::cancellation requested::CMAKE')
-                childProcess.kill() // SIGINT or SIGTERM?
-                outerResolve?.()
-            })
+            cancelToken.emitter.on('cancel', onCancel)
         })
     }
 

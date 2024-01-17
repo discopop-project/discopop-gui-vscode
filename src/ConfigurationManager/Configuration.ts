@@ -2,6 +2,7 @@ import * as vscode from 'vscode'
 import { TreeItem, ThemeIcon, TreeItemCollapsibleState } from 'vscode'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
 import { Editable } from './Editable'
+import { DiscoPoPResults } from '../DiscoPoP/classes/DiscoPoPResults'
 
 export interface ConfigurationObserver {
     onConfigurationChange(configuration: Configuration): void
@@ -88,11 +89,10 @@ export abstract class Configuration implements ConfigurationTreeItem, Editable {
 
 export interface DiscoPoPRunCapableConfiguration extends Configuration {
     /**
-     * Runs DiscoPoP using the configuration's settings. After running, the results are stored in the .discopop directory.
-     * @returns true if successfully completed, false if aborted
-     * @throws if errors occured
+     * Runs DiscoPoP using the configuration's settings. Returns the parsed results
+     * @throws if errors occured or the user cancelled the operation
      */
-    runDiscoPoP(): Promise<boolean>
+    runDiscoPoP(): Promise<DiscoPoPResults>
 }
 
 export interface HotspotDetectionRunCapableConfiguration extends Configuration {
