@@ -1,12 +1,6 @@
-import * as vscode from 'vscode'
 import * as fs from 'fs'
-import { FileMapping } from '../FileMapping/FileMapping'
 import { FileMappingParser } from '../FileMapping/FileMappingParser'
 import { LineMapping } from '../LineMapping/LineMapping'
-import {
-    WithProgressOperation,
-    WithProgressRunner,
-} from '../Utils/WithProgressRunner'
 import { DiscoPoPAppliedSuggestionsWatcher } from './DiscoPoPAppliedSuggestionsWatcher'
 import { DiscoPoPPatternParser } from './DiscoPoPPatternParser'
 import { DiscoPoPResults } from './classes/DiscoPoPResults'
@@ -18,68 +12,30 @@ export abstract class DiscoPoPParser {
     }
 
     public static async parse(dotDiscoPoP: string): Promise<DiscoPoPResults> {
-        const steps: WithProgressOperation[] = []
-
-        let fileMapping: FileMapping | undefined = undefined
-        steps.push({
-            message: 'Parsing FileMapping...',
-            increment: 25,
-            operation: async () => {
-                fileMapping = FileMappingParser.parseFile(
-                    `${dotDiscoPoP}/FileMapping.txt`
-                )
-            },
-        })
-
-        let suggestionsByType: Map<string, Suggestion[]> | undefined = undefined
-        steps.push({
-            message: 'Parsing suggestions...',
-            increment: 25,
-            operation: async () => {
-                // use explorer/patterns.json by default
-                let patternsJson = `${dotDiscoPoP}/explorer/patterns.json`
-                // if optimizer/patterns.json exists, use it instead
-                if (fs.existsSync(`${dotDiscoPoP}/optimizer/patterns.json`)) {
-                    patternsJson = `${dotDiscoPoP}/optimizer/patterns.json`
-                }
-
-                suggestionsByType =
-                    DiscoPoPPatternParser.parseFile(patternsJson)
-            },
-        })
-
-        let lineMapping: LineMapping | undefined = undefined
-        steps.push({
-            message: 'Synchronizing LineMapping...',
-            increment: 25,
-            operation: async () => {
-                const lineMappingFile = `${dotDiscoPoP}/line_mapping.json`
-                lineMapping = new LineMapping(lineMappingFile)
-            },
-        })
-
-        let appliedStatus: DiscoPoPAppliedSuggestionsWatcher | undefined =
-            undefined
-        steps.push({
-            message: 'Synchronizing applied status...',
-            increment: 25,
-            operation: async () => {
-                const appliedSuggestionsFile = `${dotDiscoPoP}/patch_applicator/applied_suggestions.json`
-
-                appliedStatus = new DiscoPoPAppliedSuggestionsWatcher(
-                    appliedSuggestionsFile
-                )
-            },
-        })
-
-        const withProgressRunner = new WithProgressRunner(
-            'Parsing DiscoPoP results',
-            vscode.ProgressLocation.Notification,
-            false, // TODO: true is currently NOT supported
-            steps
+        // parse FileMapping.txt
+        let fileMapping = FileMappingParser.parseFile(
+            `${dotDiscoPoP}/FileMapping.txt`
         )
 
-        await withProgressRunner.run()
+        // parse patterns.json
+        // use explorer/patterns.json by default
+        let patternsJson = `${dotDiscoPoP}/explorer/patterns.json`
+        // if optimizer/patterns.json exists, use it instead
+        if (fs.existsSync(`${dotDiscoPoP}/optimizer/patterns.json`)) {
+            patternsJson = `${dotDiscoPoP}/optimizer/patterns.json`
+        }
+        const suggestionsByType: Map<string, Suggestion[]> =
+            DiscoPoPPatternParser.parseFile(patternsJson)
+
+        // create LineMappingWatcher
+        const lineMappingFile = `${dotDiscoPoP}/line_mapping.json`
+        const lineMapping = new LineMapping(lineMappingFile)
+
+        // create AppliedSuggestionsWatcher
+        const appliedSuggestionsFile = `${dotDiscoPoP}/patch_applicator/applied_suggestions.json`
+        const appliedStatus = new DiscoPoPAppliedSuggestionsWatcher(
+            appliedSuggestionsFile
+        )
 
         return new DiscoPoPResults(
             dotDiscoPoP,

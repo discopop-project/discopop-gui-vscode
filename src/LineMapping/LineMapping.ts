@@ -26,8 +26,6 @@ export class LineMapping {
     }
 
     private parseLineMappingFile() {
-        console.log('Parsing line mapping file')
-
         // clear existing mapping
         this.lineMapping.clear()
 

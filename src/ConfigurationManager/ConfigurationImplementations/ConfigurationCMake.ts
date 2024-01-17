@@ -1,4 +1,4 @@
-import { TreeItem } from 'vscode'
+import { CancellationError, TreeItem } from 'vscode'
 import {
     Configuration,
     ConfigurationObserver,
@@ -15,6 +15,8 @@ import {
 } from '../Property'
 import { DiscoPoPCMakeWorkflowRunnerUI } from '../../DiscoPoP/runner/DiscoPoPCMakeWorkflowRunnerUI'
 import { HotspotDetectionRunner } from '../../HotspotDetection/HotspotDetectionRunner'
+import { DiscoPoPResults } from '../../DiscoPoP/classes/DiscoPoPResults'
+import { UIPrompts } from '../../Utils/UIPrompts'
 
 export class ConfigurationCMake
     extends Configuration
@@ -186,7 +188,7 @@ export class ConfigurationCMake
         ]
     }
 
-    public async runDiscoPoP(): Promise<boolean> {
+    public async runDiscoPoP(): Promise<DiscoPoPResults> {
         this.running = true
         try {
             const dpRunner = new DiscoPoPCMakeWorkflowRunnerUI(
@@ -196,8 +198,7 @@ export class ConfigurationCMake
                 this.buildPathForDiscoPoP,
                 this.dotDiscoPoP
             )
-            const results = await dpRunner.run()
-            return true
+            return await dpRunner.run() // await because we want to catch errors
         } catch (error) {
             throw error
         } finally {

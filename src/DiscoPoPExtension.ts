@@ -28,11 +28,7 @@ import { Commands } from './Utils/Commands'
 import { Decoration } from './Utils/Decorations'
 import { SimpleTreeNode } from './Utils/SimpleTree'
 import { UIPrompts } from './Utils/UIPrompts'
-import {
-    OptimizerExecutionType,
-    OptimizerRunner,
-} from './Optimizer/OptimizerRunner'
-import { WithProgressRunner } from './Utils/WithProgressRunner'
+import { OptimizerRunner } from './Optimizer/OptimizerRunner'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
@@ -117,8 +113,6 @@ export class DiscoPoPExtension {
 
     /** shows the suggestions in the sidebar */
     public async showDiscoPoPResults() {
-        console.log('updating DiscoPoP results')
-
         // update treeDataProvider
         if (!this.suggestionTree) {
             this.suggestionTree = new SuggestionTree(this.dpResults)
@@ -203,16 +197,7 @@ export class DiscoPoPExtension {
                 Commands.runDiscoPoP,
                 async (configuration: DiscoPoPRunCapableConfiguration) => {
                     try {
-                        // DiscoPoP
-                        if (await configuration.runDiscoPoP()) {
-                            this.dpResults = await DiscoPoPParser.parse(
-                                configuration.dotDiscoPoP
-                            )
-                        } else {
-                            UIPrompts.showMessageForSeconds(
-                                'DiscoPoP was aborted'
-                            )
-                        }
+                        this.dpResults = await configuration.runDiscoPoP()
                     } catch (error: any) {
                         logAndShowErrorMessageHandler(
                             error,
@@ -260,15 +245,7 @@ export class DiscoPoPExtension {
                 ) => {
                     // DiscoPoP
                     try {
-                        if (await configuration.runDiscoPoP()) {
-                            this.dpResults = await DiscoPoPParser.parse(
-                                configuration.dotDiscoPoP
-                            )
-                        } else {
-                            UIPrompts.showMessageForSeconds(
-                                'DiscoPoP was aborted'
-                            )
-                        }
+                        this.dpResults = await configuration.runDiscoPoP()
                     } catch (error: any) {
                         logAndShowErrorMessageHandler(
                             error,

@@ -24,7 +24,6 @@ export abstract class DiscoPoPPatternParser {
     }
 
     public static parseJSON(json: any): Map<string, Suggestion[]> {
-        console.log('Parsing Patterns')
         // const expectedVersion = '3.1.1'
         // if (!json.version || json.version !== expectedVersion) {
         //     console.error(

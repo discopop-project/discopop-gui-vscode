@@ -3,6 +3,8 @@ import { CancelToken } from '../../Utils/CancelToken'
 import { DiscoPoPCMakeWorkflowRunner } from './DiscoPoPCMakeWorkflowRunner'
 import * as vscode from 'vscode'
 import { UIPrompts } from '../../Utils/UIPrompts'
+import { DiscoPoPResults } from '../classes/DiscoPoPResults'
+import { CancellationError } from '../../Utils/CancellationError'
 
 export class DiscoPoPCMakeWorkflowRunnerUI {
     public constructor(
@@ -21,35 +23,14 @@ export class DiscoPoPCMakeWorkflowRunnerUI {
         }
     }
 
-    public async run() {
-        const dpRunnerCMake = new DiscoPoPCMakeWorkflowRunner(
-            this.projectDirectory,
-            this.executableName,
-            this.executableArguments,
-            this.buildDirectory,
-            this.dotDiscoPoP
-        )
-
-        await vscode.window.withProgress(
+    public async run(): Promise<DiscoPoPResults> {
+        return vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
                 title: 'Running DiscoPoP',
                 cancellable: true,
             },
             async (progress, token) => {
-                const cancelTokenWrapper: CancelToken = {
-                    emitter: new EventEmitter(),
-                    cancellationRequested: false,
-                }
-                cancelTokenWrapper.emitter.on('cancel', () => {
-                    cancelTokenWrapper.cancellationRequested = true
-                })
-                const cancellationDisposable = token.onCancellationRequested(
-                    () => {
-                        cancelTokenWrapper.emitter.emit('cancel')
-                    }
-                )
-
                 const reportMessageWrapper = (
                     message: string,
                     nesting: number
@@ -77,17 +58,42 @@ export class DiscoPoPCMakeWorkflowRunnerUI {
                     return UIPrompts.actionConfirmed(message)
                 }
 
+                const cancelTokenWrapper: CancelToken = {
+                    emitter: new EventEmitter(),
+                    cancellationRequested: false,
+                }
+                token.onCancellationRequested(() => {
+                    reportMessageWrapper('cancellation requested', 1)
+                    cancelTokenWrapper.cancellationRequested = true
+                    cancelTokenWrapper.emitter.emit('cancel')
+                })
+
                 try {
-                    await dpRunnerCMake.run(
+                    const dpRunnerCMake = new DiscoPoPCMakeWorkflowRunner(
+                        this.projectDirectory,
+                        this.executableName,
+                        this.executableArguments,
+                        this.buildDirectory,
+                        this.dotDiscoPoP
+                    )
+
+                    const results = await dpRunnerCMake.run(
+                        // await because we want to catch errors
                         reportMessageWrapper,
                         reportProgressWrapper,
                         requestConfirmationWrapper,
                         cancelTokenWrapper
                     )
+                    return results
                 } catch (e: any) {
-                    vscode.window.showErrorMessage(e.message || e)
-                } finally {
-                    cancellationDisposable.dispose()
+                    if (e instanceof CancellationError) {
+                        UIPrompts.showMessageForSeconds(
+                            'DiscoPoP was cancelled',
+                            5
+                        )
+                    } else {
+                        vscode.window.showErrorMessage(e.message || e)
+                    }
                 }
             }
         )

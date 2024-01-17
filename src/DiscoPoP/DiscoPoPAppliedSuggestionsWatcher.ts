@@ -32,8 +32,6 @@ export class DiscoPoPAppliedSuggestionsWatcher {
     }
 
     private parseFile() {
-        console.log('Parsing applied_suggestions.json file')
-
         // clear the set
         this.appliedSuggestions.clear()
 

@@ -10,6 +10,8 @@ import { TreeItem } from 'vscode'
 import { ConfigurationTreeItem } from '../ConfigurationTreeItem'
 import { exec } from 'child_process'
 import * as fs from 'fs'
+import { DiscoPoPResults } from '../../DiscoPoP/classes/DiscoPoPResults'
+import { DiscoPoPParser } from '../../DiscoPoP/DiscoPoPParser'
 
 export class ConfigurationScript
     extends ConfigurationViewOnly
@@ -136,8 +138,9 @@ export class ConfigurationScript
         })
     }
 
-    async runDiscoPoP(): Promise<boolean> {
-        return this._runScript(this.discopopScriptPath, 'Running DiscoPoP')
+    async runDiscoPoP(): Promise<DiscoPoPResults> {
+        await this._runScript(this.discopopScriptPath, 'Running DiscoPoP')
+        return DiscoPoPParser.parse(this.dotDiscoPoP)
     }
 
     async runHotspotDetection(): Promise<boolean> {
