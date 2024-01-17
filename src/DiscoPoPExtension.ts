@@ -15,7 +15,6 @@ import {
     DiscoPoPSuggestionNode,
     SuggestionTree,
 } from './DiscoPoP/DiscoPoPSuggestionTree'
-import { PatchApplicator } from './DiscoPoP/PatchApplicator'
 import { DiscoPoPResults } from './DiscoPoP/classes/DiscoPoPResults'
 import { Suggestion } from './DiscoPoP/classes/Suggestion/Suggestion'
 import { FileMapping } from './FileMapping/FileMapping'
@@ -29,6 +28,7 @@ import { Decoration } from './Utils/Decorations'
 import { SimpleTreeNode } from './Utils/SimpleTree'
 import { UIPrompts } from './Utils/UIPrompts'
 import { OptimizerRunner } from './Optimizer/OptimizerRunner'
+import { DiscoPoPRunner } from './DiscoPoP/runner/DiscoPoPRunner'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
@@ -485,10 +485,11 @@ export class DiscoPoPExtension {
                 Commands.rollbackAllSuggestions,
                 async () => {
                     const dotDiscoPoP = this.dpResults?.dotDiscoPoP
+                    const dpRunner = new DiscoPoPRunner(dotDiscoPoP)
                     this.codeLensProvider?.wait()
-                    const returnCode = await PatchApplicator.clear(
-                        dotDiscoPoP
-                    ).catch(logAndShowErrorMessageHandler)
+                    const returnCode = await dpRunner
+                        .patchClear()
+                        .catch(logAndShowErrorMessageHandler)
                     if (returnCode === 3) {
                         UIPrompts.showMessageForSeconds(
                             'Nothing to rollback, trivially successful'
@@ -539,11 +540,9 @@ export class DiscoPoPExtension {
                     }
 
                     try {
+                        const dpRunner = new DiscoPoPRunner(dotDiscoPoP)
                         this.codeLensProvider?.wait()
-                        await PatchApplicator.applyPatch(
-                            dotDiscoPoP,
-                            suggestion.id
-                        )
+                        await dpRunner.patchApply(suggestion.id)
                     } catch (err) {
                         if (err instanceof Error) {
                             vscode.window.showErrorMessage(err.message)
@@ -556,9 +555,6 @@ export class DiscoPoPExtension {
                         console.error(err)
                         console.error(suggestion)
                     }
-
-                    // TODO it would be nice to also show the suggestion as applied in the tree view
-                    // --> themeIcon: record/pass
 
                     // TODO before inserting, preview the changes and request confirmation
                     // --> we could peek the patch file as a preview https://github.com/microsoft/vscode/blob/8434c86e5665341c753b00c10425a01db4fb8580/src/vs/editor/contrib/gotoSymbol/goToCommands.ts#L760
@@ -576,10 +572,8 @@ export class DiscoPoPExtension {
                     this.codeLensProvider?.wait()
                     const suggestion = suggestionNode.suggestion
                     const dotDiscoPoP = this.dpResults.dotDiscoPoP
-                    PatchApplicator.applyPatch(
-                        dotDiscoPoP,
-                        suggestion.id
-                    ).catch((error) => {
+                    const dpRunner = new DiscoPoPRunner(dotDiscoPoP)
+                    dpRunner.patchApply(suggestion.id).catch((error) => {
                         logAndShowErrorMessageHandler(
                             error,
                             `Failed to apply suggestion ${suggestionNode.suggestion.id}: `
@@ -596,11 +590,9 @@ export class DiscoPoPExtension {
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
                     const suggestion = suggestionNode.suggestion
                     const dotDiscoPoP = this.dpResults.dotDiscoPoP
+                    const dpRunner = new DiscoPoPRunner(dotDiscoPoP)
                     this.codeLensProvider?.wait()
-                    PatchApplicator.rollbackPatch(
-                        dotDiscoPoP,
-                        suggestion.id
-                    ).catch((error) => {
+                    dpRunner.patchRollback(suggestion.id).catch((error) => {
                         logAndShowErrorMessageHandler(
                             error,
                             `Failed to rollback suggestion ${suggestionNode.suggestion.id}: `

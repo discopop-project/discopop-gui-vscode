@@ -79,11 +79,59 @@ export class DiscoPoPRunner {
             })
         })
     }
+    public async optimize(): Promise<void> {}
+
+    private async _runPatchApplicator(args: string): Promise<number> {
+        return new Promise<number>((resolve, reject) => {
+            exec(
+                `discopop_patch_applicator ${args}`,
+                { cwd: this.dotDiscoPoP },
+                (err, stdout, stderr) => {
+                    if (err) {
+                        switch (err.code) {
+                            case 3: // "3: Nothing to roll back, trivially successful"
+                                resolve(err.code)
+                                return
+                            case 0: // "0: Applied successfully"
+                                resolve(err.code)
+                                return
+                            case 1:
+                                '1: Nothing applied, error'
+                            // fallthrough
+                            case 2: // "2: Some changes applied successfully"
+                            // fallthrough
+                            default:
+                                console.log(
+                                    'patch applicator returned:' + err.code
+                                )
+                                reject(err)
+                                return
+                        }
+                    } else {
+                        resolve(err.code)
+                    }
+                    return
+                }
+            )
+        })
+    }
+
+    public async patchApply(...id: number[]): Promise<number> {
+        const args = `-a ${id.join(' ')}`
+        return this._runPatchApplicator(args)
+    }
+
+    public async patchRollback(...id: number[]): Promise<number> {
+        const args = `-r ${id.join(' ')}`
+        return this._runPatchApplicator(args)
+    }
+
+    public async patchClear(): Promise<number> {
+        const args = '-C'
+        return this._runPatchApplicator(args)
+    }
 
     public async parse(): Promise<DiscoPoPResults> {
         return DiscoPoPParser.parse(this.dotDiscoPoP)
     }
-
-    public async runPatchApplicator(): Promise<void> {}
-    public async runOptimizer(): Promise<void> {}
 }
