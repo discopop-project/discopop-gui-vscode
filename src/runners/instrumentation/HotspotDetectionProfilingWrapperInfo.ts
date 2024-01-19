@@ -1,4 +1,4 @@
-import { Config } from '../../Utils/Config'
+import { Config } from '../../utils/Config'
 import { WrapperInfo } from './CMakeBasedInstrumentation'
 
 export class HotspotDetectionProfilingWrapperInfo implements WrapperInfo {

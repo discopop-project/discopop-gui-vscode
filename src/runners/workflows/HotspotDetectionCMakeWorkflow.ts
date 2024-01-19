@@ -2,11 +2,11 @@ import * as fs from 'fs'
 import { ToolSuite } from '../tools/ToolSuite'
 import { CancellationError } from '../helpers/cancellation/CancellationError'
 import { CancelToken } from '../helpers/cancellation/CancelToken'
-import { Config } from '../../Utils/Config'
+import { Config } from '../../utils/Config'
 import { CMakeBasedInstrumentation } from '../instrumentation/CMakeBasedInstrumentation'
 import { HotspotDetectionProfilingWrapperInfo } from '../instrumentation/HotspotDetectionProfilingWrapperInfo'
-import { HotspotDetectionParser } from '../../HotspotDetection/HotspotDetectionParser'
-import { HotspotDetectionResults } from '../../HotspotDetection/classes/HotspotDetectionResults'
+import { HotspotDetectionParser } from '../../hotspotDetection/HotspotDetectionParser'
+import { HotspotDetectionResults } from '../../hotspotDetection/classes/HotspotDetectionResults'
 
 export class HotspotDetectionCMakeWorkflow {
     /**

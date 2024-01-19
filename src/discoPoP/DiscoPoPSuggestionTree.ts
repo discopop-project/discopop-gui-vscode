@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
-import { Commands } from '../Utils/Commands'
-import { SimpleTree, SimpleTreeNode } from '../Utils/SimpleTree'
+import { Commands } from '../utils/Commands'
+import { SimpleTree, SimpleTreeNode } from '../utils/SimpleTree'
 import { DiscoPoPResults } from './classes/DiscoPoPResults'
 import { Suggestion } from './classes/Suggestion/Suggestion'
 import { DiscoPoPAppliedSuggestionsWatcher } from './DiscoPoPAppliedSuggestionsWatcher'

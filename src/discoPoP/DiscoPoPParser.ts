@@ -1,6 +1,6 @@
 import * as fs from 'fs'
-import { FileMappingParser } from '../FileMapping/FileMappingParser'
-import { LineMapping } from '../LineMapping/LineMapping'
+import { FileMappingParser } from '../fileMapping/FileMappingParser'
+import { LineMapping } from '../lineMapping/LineMapping'
 import { DiscoPoPAppliedSuggestionsWatcher } from './DiscoPoPAppliedSuggestionsWatcher'
 import { DiscoPoPPatternParser } from './DiscoPoPPatternParser'
 import { DiscoPoPResults } from './classes/DiscoPoPResults'

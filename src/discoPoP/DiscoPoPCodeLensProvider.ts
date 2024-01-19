@@ -1,8 +1,8 @@
 import * as vscode from 'vscode'
-import { FileMapping } from '../FileMapping/FileMapping'
-import { LineMapping } from '../LineMapping/LineMapping'
-import { Commands } from '../Utils/Commands'
-import { Config } from '../Utils/Config'
+import { FileMapping } from '../fileMapping/FileMapping'
+import { LineMapping } from '../lineMapping/LineMapping'
+import { Commands } from '../utils/Commands'
+import { Config } from '../utils/Config'
 import { DiscoPoPAppliedSuggestionsWatcher } from './DiscoPoPAppliedSuggestionsWatcher'
 import { Suggestion } from './classes/Suggestion/Suggestion'
 

@@ -1,11 +1,11 @@
 import * as fs from 'fs'
 import * as vscode from 'vscode'
-import { FileMapping } from '../FileMapping/FileMapping'
-import { FileMappingParser } from '../FileMapping/FileMappingParser'
+import { FileMapping } from '../fileMapping/FileMapping'
+import { FileMappingParser } from '../fileMapping/FileMappingParser'
 import {
     WithProgressOperation,
     WithProgressRunner,
-} from '../Utils/WithProgressRunner'
+} from '../utils/WithProgressRunner'
 import { Hotspot } from './classes/Hotspot'
 import { HotspotDetectionResults } from './classes/HotspotDetectionResults'
 

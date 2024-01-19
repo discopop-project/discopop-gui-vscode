@@ -1,4 +1,4 @@
-import { LineMapping } from '../../../LineMapping/LineMapping'
+import { LineMapping } from '../../../lineMapping/LineMapping'
 import { DiscoPoPAppliedSuggestionsWatcher } from '../../DiscoPoPAppliedSuggestionsWatcher'
 
 export abstract class Suggestion {

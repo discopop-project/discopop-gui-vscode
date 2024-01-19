@@ -1,5 +1,5 @@
-import { FileMapping } from '../../FileMapping/FileMapping'
-import { LineMapping } from '../../LineMapping/LineMapping'
+import { FileMapping } from '../../fileMapping/FileMapping'
+import { LineMapping } from '../../lineMapping/LineMapping'
 import { DiscoPoPAppliedSuggestionsWatcher } from '../DiscoPoPAppliedSuggestionsWatcher'
 import { Suggestion } from './Suggestion/Suggestion'
 

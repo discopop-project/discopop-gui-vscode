@@ -1,4 +1,4 @@
-import { JSONWebViewProvider } from '../Utils/JSONWebViewProvider'
+import { JSONWebViewProvider } from '../utils/JSONWebViewProvider'
 import { Suggestion } from './classes/Suggestion/Suggestion'
 
 export class DiscoPoPDetailViewProvider extends JSONWebViewProvider<any> {
