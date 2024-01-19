@@ -61,8 +61,15 @@ export class DiscoPoPExtension {
         return this._dpResults
     }
 
-    // TODO same pattern as with dpResults getter/setter
-    private hsResults: HotspotDetectionResults | undefined = undefined
+    private _hsResults: HotspotDetectionResults | undefined = undefined
+    private set hsResults(hsResults: HotspotDetectionResults | undefined) {
+        // TODO same pattern as with dpResults
+        this._hsResults = hsResults
+        this.showHotspotDetectionResults()
+    }
+    private get hsResults() {
+        return this._hsResults
+    }
 
     private configurationTreeDataProvider: ConfigurationTreeDataProvider
     private dp_details: DiscoPoPDetailViewProvider =
@@ -220,7 +227,6 @@ export class DiscoPoPExtension {
                     try {
                         this.hsResults =
                             await configuration.runHotspotDetection()
-                        await this.showHotspotDetectionResults()
                     } catch (error: any) {
                         if (error instanceof CancellationError) {
                             UIPrompts.showMessageForSeconds(
@@ -261,7 +267,6 @@ export class DiscoPoPExtension {
                     try {
                         this.hsResults =
                             await configuration.runHotspotDetection()
-                        await this.showHotspotDetectionResults()
                     } catch (error: any) {
                         if (error instanceof CancellationError) {
                             UIPrompts.showMessageForSeconds(
@@ -358,7 +363,6 @@ export class DiscoPoPExtension {
                     this.hsResults = await HotspotDetectionParser.parse(
                         configuration.dotDiscoPoP
                     )
-                    await this.showHotspotDetectionResults() // TODO put into setter of hsResults
                 }
             )
         )
