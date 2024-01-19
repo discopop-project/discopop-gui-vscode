@@ -69,7 +69,7 @@ export class DiscoPoPOptimizer {
 
         const command = this._buildCommand(options)
 
-        CommandExecution.execute({
+        await CommandExecution.execute({
             command: command,
             cwd: this.dotDiscoPoP,
             throwOnNonZeroExitCode: true,
