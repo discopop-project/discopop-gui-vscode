@@ -178,10 +178,16 @@ export class ConfigurationTreeDataProvider
             '[]'
         )
         const projectsJSON = JSON.parse(projectsString) as any[]
-        const projects = projectsJSON.map((project) =>
-            configurationFromJSON(project, this)
-        )
-        this.roots = projects
+        const projects = projectsJSON.map((project) => {
+            try {
+                return configurationFromJSON(project, this)
+            } catch (error) {
+                console.log('failed loading configuration from JSON, skipping')
+                console.error(error)
+                return undefined
+            }
+        })
+        this.roots = projects.filter((p) => p !== undefined) as Configuration[]
         this.refresh()
     }
 
