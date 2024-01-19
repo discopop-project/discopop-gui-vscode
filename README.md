@@ -32,4 +32,5 @@ The following table lists which discopop version is expected by a given version 
 
 ## Known Issues
 
--   CMake Configurations: Running the same tool multiple times sometimes creates issues. It usually helps to delete the build directory. A proposed fix is scheduled for DiscoPoP 4.0.0.
+-   CMake Configurations: Running the same tool multiple times creates some issues, e.g the same suggestions appearing multiple times. It usually helps to delete the build directory. A proposed fix is scheduled for DiscoPoP 4.0.0.
+-   Updating from 0.0.5 to 0.0.6 crashes the extension if Script Configurations have been previously created, as the new version does not support them.

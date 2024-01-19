@@ -18,9 +18,6 @@ export class ConfigurationTreeDataProvider
     public constructor(private _context: ExtensionContext) {
         super([])
         this._loadConfigurationsFromStableStorage()
-        // this.roots.push(new ConfigurationCMake(
-        //     'New Configuration',
-        //     "/home/bg/simpleProject/simpleCmake", "/home/bg/simpleProject/simpleCmake/build", "", "hello_world", "dpArgs", ["hdArgs1", "hdArgs2", "hdArgs3"], this  ))
         this.refresh()
     }
 
@@ -118,7 +115,7 @@ export class ConfigurationTreeDataProvider
                     this
                 )
                 break
-            case ConfigurationType.ViewOnly: // fallthrough (ViewOnly and Script have much in common, an inner switch deals with the differences)
+            case ConfigurationType.ViewOnly:
                 let dotDiscoPoP = await vscode.window.showInputBox({
                     prompt: 'Enter the path to the .discopop directory.',
                     ignoreFocusOut: true,
