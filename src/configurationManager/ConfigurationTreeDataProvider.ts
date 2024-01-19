@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { ExtensionContext } from 'vscode'
-import { SimpleTree } from '../Utils/SimpleTree'
+import { SimpleTree } from '../utils/SimpleTree'
 import {
     Configuration,
     ConfigurationObserver,
@@ -8,9 +8,9 @@ import {
 } from './Configuration'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
 import configurationFromJSON from './ConfigurationDeserializer'
-import { ConfigurationCMake } from './ConfigurationImplementations/ConfigurationCMake'
-import { ConfigurationViewOnly } from './ConfigurationImplementations/ConfigurationViewOnly'
-import { ConfigurationScript } from './ConfigurationImplementations/ConfigurationScript'
+import { ConfigurationCMake } from './configurationImplementations/ConfigurationCMake'
+import { ConfigurationViewOnly } from './configurationImplementations/ConfigurationViewOnly'
+import { ConfigurationScript } from './configurationImplementations/ConfigurationScript'
 
 export class ConfigurationTreeDataProvider
     extends SimpleTree<ConfigurationTreeItem>

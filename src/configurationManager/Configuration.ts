@@ -2,8 +2,8 @@ import * as vscode from 'vscode'
 import { TreeItem, ThemeIcon, TreeItemCollapsibleState } from 'vscode'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
 import { Editable } from './Editable'
-import { DiscoPoPResults } from '../DiscoPoP/classes/DiscoPoPResults'
-import { HotspotDetectionResults } from '../HotspotDetection/classes/HotspotDetectionResults'
+import { DiscoPoPResults } from '../discoPoP/classes/DiscoPoPResults'
+import { HotspotDetectionResults } from '../hotspotDetection/classes/HotspotDetectionResults'
 
 export interface ConfigurationObserver {
     onConfigurationChange(configuration: Configuration): void

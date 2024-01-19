@@ -1,4 +1,4 @@
-import { FileMapping } from '../../FileMapping/FileMapping'
+import { FileMapping } from '../../fileMapping/FileMapping'
 import { Hotspot } from './Hotspot'
 
 export class HotspotDetectionResults {

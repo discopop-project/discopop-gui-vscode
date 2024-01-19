@@ -12,9 +12,9 @@ import {
     StringProperty,
     SupportedType,
 } from '../Property'
-import { DiscoPoPResults } from '../../DiscoPoP/classes/DiscoPoPResults'
+import { DiscoPoPResults } from '../../discoPoP/classes/DiscoPoPResults'
 import { DiscoPoPCMakeWorkflowUI } from '../../runners/workflows/DiscoPoPCMakeWorkflowUI'
-import { HotspotDetectionResults } from '../../HotspotDetection/classes/HotspotDetectionResults'
+import { HotspotDetectionResults } from '../../hotspotDetection/classes/HotspotDetectionResults'
 import { HotspotDetectionCMakeWorkflowUI } from '../../runners/workflows/HotspotDetectionCMakeWorkflowUI'
 
 export class ConfigurationCMake

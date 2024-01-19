@@ -1,8 +1,8 @@
 import * as vscode from 'vscode'
-import { FileMapping } from '../FileMapping/FileMapping'
-import { LineMapping } from '../LineMapping/LineMapping'
-import { Commands } from '../Utils/Commands'
-import { SimpleTree, SimpleTreeNode } from '../Utils/SimpleTree'
+import { FileMapping } from '../fileMapping/FileMapping'
+import { LineMapping } from '../lineMapping/LineMapping'
+import { Commands } from '../utils/Commands'
+import { SimpleTree, SimpleTreeNode } from '../utils/SimpleTree'
 import { Hotspot } from './classes/Hotspot'
 import { HotspotDetectionResults } from './classes/HotspotDetectionResults'
 

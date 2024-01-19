@@ -1,4 +1,4 @@
-import { JSONWebViewProvider } from '../Utils/JSONWebViewProvider'
+import { JSONWebViewProvider } from '../utils/JSONWebViewProvider'
 import { Hotspot } from './classes/Hotspot'
 
 export class HotspotDetailViewProvider extends JSONWebViewProvider<any> {

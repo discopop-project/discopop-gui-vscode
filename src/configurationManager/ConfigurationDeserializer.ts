@@ -3,9 +3,9 @@ import {
     ConfigurationObserver,
     ConfigurationType,
 } from './Configuration'
-import { ConfigurationCMake } from './ConfigurationImplementations/ConfigurationCMake'
-import { ConfigurationScript } from './ConfigurationImplementations/ConfigurationScript'
-import { ConfigurationViewOnly } from './ConfigurationImplementations/ConfigurationViewOnly'
+import { ConfigurationCMake } from './configurationImplementations/ConfigurationCMake'
+import { ConfigurationScript } from './configurationImplementations/ConfigurationScript'
+import { ConfigurationViewOnly } from './configurationImplementations/ConfigurationViewOnly'
 
 export default function configurationFromJSON(
     json: any,

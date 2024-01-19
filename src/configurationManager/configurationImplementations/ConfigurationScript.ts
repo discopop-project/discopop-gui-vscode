@@ -6,10 +6,10 @@ import { TreeItem } from 'vscode'
 import { ConfigurationTreeItem } from '../ConfigurationTreeItem'
 import { exec } from 'child_process'
 import * as fs from 'fs'
-import { DiscoPoPResults } from '../../DiscoPoP/classes/DiscoPoPResults'
-import { DiscoPoPParser } from '../../DiscoPoP/DiscoPoPParser'
-import { HotspotDetectionResults } from '../../HotspotDetection/classes/HotspotDetectionResults'
-import { HotspotDetectionParser } from '../../HotspotDetection/HotspotDetectionParser'
+import { DiscoPoPResults } from '../../discoPoP/classes/DiscoPoPResults'
+import { DiscoPoPParser } from '../../discoPoP/DiscoPoPParser'
+import { HotspotDetectionResults } from '../../hotspotDetection/classes/HotspotDetectionResults'
+import { HotspotDetectionParser } from '../../hotspotDetection/HotspotDetectionParser'
 
 export class ConfigurationScript
     extends ConfigurationViewOnly
