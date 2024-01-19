@@ -28,6 +28,8 @@ import { SimpleTreeNode } from './utils/SimpleTree'
 import { UIPrompts } from './utils/UIPrompts'
 import { ToolSuite } from './runners/tools/ToolSuite'
 import { CancellationError } from './runners/helpers/cancellation/CancellationError'
+import { OptimizerWorkflow } from './runners/workflows/OptimizerWorkflow'
+import { OptimizerWorkflowUI } from './runners/workflows/OptimizerWorkflowUI'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
@@ -287,21 +289,23 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.runOptimizer,
                 async (configuration: Configuration) => {
+                    // HotspotDetection
                     try {
-                        // TODO create a workflow runner for this so we can see pretty progress updates in the UI
-                        UIPrompts.showMessageForSeconds('Started Optimizer...')
-                        const dpTools = new ToolSuite(configuration.dotDiscoPoP)
-                        await dpTools.discopopOptimizer.run(/*TODO cancel token*/)
-                        await dpTools.discopopPatchGenerator.createOptimizedPatches(/*TODO cancel token*/)
-                        this.dpResults = await DiscoPoPParser.parse(
+                        const hsRunner = new OptimizerWorkflowUI(
                             configuration.dotDiscoPoP
                         )
-                        UIPrompts.showMessageForSeconds('Optimizer finished')
-                    } catch (error) {
-                        logAndShowErrorMessageHandler(
-                            error,
-                            'Optimizer failed: '
-                        )
+                        this.dpResults = await hsRunner.run()
+                    } catch (error: any) {
+                        if (error instanceof CancellationError) {
+                            UIPrompts.showMessageForSeconds(
+                                'Optimizer was cancelled'
+                            )
+                        } else {
+                            logAndShowErrorMessageHandler(
+                                error,
+                                'Optimizer failed: '
+                            )
+                        }
                     }
                 }
             )

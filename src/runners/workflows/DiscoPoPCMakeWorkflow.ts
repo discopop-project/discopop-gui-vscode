@@ -40,7 +40,7 @@ export class DiscoPoPCMakeWorkflow {
         requestConfirmation: (message: string) => Promise<boolean>,
         cancelToken: CancelToken
     ): Promise<DiscoPoPResults> {
-        const dpRunner = new ToolSuite(this.dotDiscoPoP)
+        const toolSuite = new ToolSuite(this.dotDiscoPoP)
         const instrumentation = new CMakeBasedInstrumentation(
             this.dotDiscoPoP,
             new DiscoPoPProfilingWrapperInfo(),
@@ -87,12 +87,12 @@ export class DiscoPoPCMakeWorkflow {
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running Pattern Detection...', 0)
-        await dpRunner.discopopExplorer.run(cancelToken) // TODO allow additional arguments?
+        await toolSuite.discopopExplorer.run(cancelToken) // TODO allow additional arguments?
         reportProgress(30)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Generating Patches...', 0)
-        await dpRunner.discopopPatchGenerator.createDefaultPatches(cancelToken)
+        await toolSuite.discopopPatchGenerator.createDefaultPatches(cancelToken)
         reportProgress(10)
         this.throwUponCancellation(cancelToken)
 

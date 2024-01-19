@@ -10,17 +10,11 @@ export class HotspotDetectionCMakeWorkflowUI {
         public readonly projectDirectory: string,
         public readonly executableName: string,
         public readonly executableArguments: string[],
-        public readonly buildDirectory?: string,
-        public readonly dotDiscoPoP?: string
-    ) {
-        if (!this.buildDirectory) {
-            this.buildDirectory = projectDirectory + '/build/HotspotDetection'
-        }
-
-        if (!this.dotDiscoPoP) {
-            this.dotDiscoPoP = projectDirectory + 'build/.discopop'
-        }
-    }
+        public readonly dotDiscoPoP: string = projectDirectory +
+            'build/.discopop',
+        public readonly buildDirectory: string = projectDirectory +
+            '/build/HotspotDetection'
+    ) {}
 
     public async run(): Promise<HotspotDetectionResults> {
         return vscode.window.withProgress(
