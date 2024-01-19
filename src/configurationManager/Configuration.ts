@@ -106,5 +106,4 @@ export interface RunCapableConfiguration extends Configuration {
 export enum ConfigurationType {
     CMake = 'CMake',
     ViewOnly = 'ViewOnly',
-    Script = 'Script',
 }
