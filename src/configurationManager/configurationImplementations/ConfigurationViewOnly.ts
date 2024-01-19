@@ -8,6 +8,7 @@ import { ConfigurationTreeItem } from '../ConfigurationTreeItem'
 import {
     Property,
     PropertyObserver,
+    StringArrayProperty,
     StringProperty,
     SupportedType,
 } from '../Property'
@@ -25,6 +26,15 @@ export class ConfigurationViewOnly
         this.refresh()
     }
 
+    private readonly _scripts: StringArrayProperty
+    public get scripts(): string[] {
+        return this._scripts.value
+    }
+    public set scripts(value: string[]) {
+        this._scripts.value = value
+        this.refresh()
+    }
+
     public readonly configurationType = ConfigurationType.ViewOnly
 
     public constructor(
@@ -34,9 +44,16 @@ export class ConfigurationViewOnly
     ) {
         super(name, onConfigurationChange)
         this._dotDiscoPoP = new StringProperty(
-            '.discopop (DiscoPoP)',
+            '.discopop',
             dotDiscoPoP,
-            'Enter the path to the .discopop directory that contains the results of the DiscoPoP analysis',
+            'Enter the path to the .discopop directory with the analysis results',
+            this
+        )
+        this._scripts = new StringArrayProperty(
+            'scripts',
+            [],
+            StringProperty,
+            'Add your own scripts and easily execute them from this interface',
             this
         )
     }
@@ -54,7 +71,10 @@ export class ConfigurationViewOnly
     }
 
     getChildren(): ConfigurationTreeItem[] {
-        return [this._dotDiscoPoP]
+        if (this._scripts.value.length === 0) {
+            return [this._dotDiscoPoP]
+        }
+        return [this._dotDiscoPoP, this._scripts]
     }
 
     toJSON(): any {
@@ -63,5 +83,10 @@ export class ConfigurationViewOnly
             name: this.name,
             dotDiscoPoP: this._dotDiscoPoP.value,
         }
+    }
+
+    addScript(scriptPath: string): void {
+        this._scripts.value.push(scriptPath)
+        this.refresh()
     }
 }
