@@ -1,8 +1,10 @@
-import { execSync } from 'child_process'
+import { CancelToken } from '../helpers/cancellation/CancelToken'
+import { CommandExecution } from '../helpers/CommandExecution'
 
 export enum OptimizerExecutionType {
     Exhaustive = 'exhaustive',
     Evolutionary = 'evolutionary',
+    // greedy
 }
 
 export interface OptimizerOptions {
@@ -21,12 +23,10 @@ export const DefaultOptimizerOptions: OptimizerOptions = {
     systemConfigurationFile: undefined,
 }
 
-export abstract class OptimizerRunner {
-    private constructor() {
-        throw new Error('This class cannot be instantiated')
-    }
+export class DiscoPoPOptimizer {
+    public constructor(public readonly dotDiscoPoP: string) {}
 
-    private static buildCommand(options: OptimizerOptions): string {
+    private _buildCommand(options: OptimizerOptions): string {
         let command = `discopop_optimizer`
 
         switch (options.executionType) {
@@ -60,43 +60,21 @@ export abstract class OptimizerRunner {
         return command
     }
 
-    public static async run(
-        dotDiscoPoP: string,
-        options: OptimizerOptions = DefaultOptimizerOptions
+    public async run(
+        options: OptimizerOptions = DefaultOptimizerOptions,
+        cancelToken?: CancelToken
     ): Promise<void> {
         // merge provided options with default options
         options = { ...DefaultOptimizerOptions, ...options }
 
-        const command = this.buildCommand(options)
+        const command = this._buildCommand(options)
 
-        console.log('running optimizer with command:')
-        console.log(command)
-
-        // might throw
-        const optimizerStdout = execSync(command, {
-            cwd: dotDiscoPoP,
-            env: {
-                ...process.env,
-                DOT_DISCOPOP: dotDiscoPoP,
-            },
-            encoding: 'utf-8',
+        CommandExecution.execute({
+            command: command,
+            cwd: this.dotDiscoPoP,
+            throwOnNonZeroExitCode: true,
+            cancelToken: cancelToken,
+            throwOnCancellation: true,
         })
-
-        console.log('optimizer finished, output:')
-        console.log(optimizerStdout)
-
-        console.log('updating patches')
-        // might throw
-        const PatchGeneratorStdout = execSync(
-            `discopop_patch_generator -a ${dotDiscoPoP}/optimizer/patterns.json`,
-            {
-                cwd: dotDiscoPoP,
-                encoding: 'utf-8',
-            }
-        )
-
-        console.log('patch generator finished:')
-        console.log(PatchGeneratorStdout)
-        return
     }
 }

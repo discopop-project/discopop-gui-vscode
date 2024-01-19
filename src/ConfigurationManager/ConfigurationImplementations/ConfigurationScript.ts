@@ -1,9 +1,5 @@
 import * as vscode from 'vscode'
-import {
-    ConfigurationType,
-    DiscoPoPRunCapableConfiguration,
-    HotspotDetectionRunCapableConfiguration,
-} from '../Configuration'
+import { ConfigurationType, RunCapableConfiguration } from '../Configuration'
 import { ConfigurationViewOnly } from './ConfigurationViewOnly'
 import { StringProperty } from '../Property'
 import { TreeItem } from 'vscode'
@@ -12,12 +8,12 @@ import { exec } from 'child_process'
 import * as fs from 'fs'
 import { DiscoPoPResults } from '../../DiscoPoP/classes/DiscoPoPResults'
 import { DiscoPoPParser } from '../../DiscoPoP/DiscoPoPParser'
+import { HotspotDetectionResults } from '../../HotspotDetection/classes/HotspotDetectionResults'
+import { HotspotDetectionParser } from '../../HotspotDetection/HotspotDetectionParser'
 
 export class ConfigurationScript
     extends ConfigurationViewOnly
-    implements
-        DiscoPoPRunCapableConfiguration,
-        HotspotDetectionRunCapableConfiguration
+    implements RunCapableConfiguration
 {
     constructor(
         name: string,
@@ -143,11 +139,12 @@ export class ConfigurationScript
         return DiscoPoPParser.parse(this.dotDiscoPoP)
     }
 
-    async runHotspotDetection(): Promise<boolean> {
-        return this._runScript(
+    async runHotspotDetection(): Promise<HotspotDetectionResults> {
+        await this._runScript(
             this.hotspotDetectionScriptPath,
             'Running HotspotDetection'
         )
+        return HotspotDetectionParser.parse(this.dotDiscoPoP)
     }
 
     getView(): TreeItem {

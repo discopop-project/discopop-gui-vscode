@@ -41,12 +41,4 @@ export abstract class SimpleTree<T extends SimpleTreeNode<T>>
             return element.getChildren()
         }
     }
-
-    // getParent?(element: SuggestionTreeNode): vscode.ProviderResult<SuggestionTreeNode> {
-    //     throw new Error('Method not implemented.');
-    // }
-
-    // resolveTreeItem?(item: vscode.TreeItem, element: SuggestionTreeNode, token: vscode.CancellationToken): vscode.ProviderResult<vscode.TreeItem> {
-    //     throw new Error('Method not implemented.');
-    // }
 }

@@ -3,8 +3,7 @@ import {
     Configuration,
     ConfigurationObserver,
     ConfigurationType,
-    DiscoPoPRunCapableConfiguration,
-    HotspotDetectionRunCapableConfiguration,
+    RunCapableConfiguration,
 } from '../Configuration'
 import {
     Property,
@@ -13,17 +12,14 @@ import {
     StringProperty,
     SupportedType,
 } from '../Property'
-import { DiscoPoPCMakeWorkflowRunnerUI } from '../../DiscoPoP/runner/DiscoPoPCMakeWorkflowRunnerUI'
-import { HotspotDetectionRunner } from '../../HotspotDetection/HotspotDetectionRunner'
 import { DiscoPoPResults } from '../../DiscoPoP/classes/DiscoPoPResults'
-import { UIPrompts } from '../../Utils/UIPrompts'
+import { DiscoPoPCMakeWorkflowUI } from '../../runners/workflows/DiscoPoPCMakeWorkflowUI'
+import { HotspotDetectionResults } from '../../HotspotDetection/classes/HotspotDetectionResults'
+import { HotspotDetectionCMakeWorkflowUI } from '../../runners/workflows/HotspotDetectionCMakeWorkflowUI'
 
 export class ConfigurationCMake
     extends Configuration
-    implements
-        DiscoPoPRunCapableConfiguration,
-        HotspotDetectionRunCapableConfiguration,
-        PropertyObserver
+    implements RunCapableConfiguration, PropertyObserver
 {
     public constructor(
         name: string,
@@ -191,14 +187,14 @@ export class ConfigurationCMake
     public async runDiscoPoP(): Promise<DiscoPoPResults> {
         this.running = true
         try {
-            const dpRunner = new DiscoPoPCMakeWorkflowRunnerUI(
+            const dpRunner = new DiscoPoPCMakeWorkflowUI(
                 this.projectPath,
                 this.executableName,
                 this.executableArgumentsForDiscoPoP,
                 this.buildPathForDiscoPoP,
                 this.dotDiscoPoP
             )
-            return await dpRunner.run() // await because we want to catch errors
+            return await dpRunner.run() // await because we want to catch errors here
         } catch (error) {
             throw error
         } finally {
@@ -206,18 +202,17 @@ export class ConfigurationCMake
         }
     }
 
-    public async runHotspotDetection(): Promise<boolean> {
+    public async runHotspotDetection(): Promise<HotspotDetectionResults> {
         this.running = true
         try {
-            return await HotspotDetectionRunner.run({
-                projectPath: this.projectPath,
-                buildPath: this.buildPathForHotspotDetection,
-                buildArguments: this.buildArguments,
-                executableName: this.executableName,
-                executableArguments:
-                    this.executableArgumentsForHotspotDetection,
-                dotDiscoPoP: this.dotDiscoPoP,
-            })
+            const hsRunner = new HotspotDetectionCMakeWorkflowUI(
+                this.projectPath,
+                this.executableName,
+                this.executableArgumentsForHotspotDetection,
+                this.dotDiscoPoP,
+                this.buildPathForHotspotDetection
+            )
+            return await hsRunner.run() // await because we want to catch errors here
         } catch (error) {
             throw error
         } finally {
