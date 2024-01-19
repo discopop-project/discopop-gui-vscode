@@ -10,7 +10,6 @@ import { ConfigurationTreeItem } from './ConfigurationTreeItem'
 import configurationFromJSON from './ConfigurationDeserializer'
 import { ConfigurationCMake } from './configurationImplementations/ConfigurationCMake'
 import { ConfigurationViewOnly } from './configurationImplementations/ConfigurationViewOnly'
-import { ConfigurationScript } from './configurationImplementations/ConfigurationScript'
 
 export class ConfigurationTreeDataProvider
     extends SimpleTree<ConfigurationTreeItem>
@@ -120,7 +119,6 @@ export class ConfigurationTreeDataProvider
                 )
                 break
             case ConfigurationType.ViewOnly: // fallthrough (ViewOnly and Script have much in common, an inner switch deals with the differences)
-            case ConfigurationType.Script:
                 let dotDiscoPoP = await vscode.window.showInputBox({
                     prompt: 'Enter the path to the .discopop directory.',
                     ignoreFocusOut: true,
@@ -130,56 +128,11 @@ export class ConfigurationTreeDataProvider
                     return
                 }
 
-                switch (type) {
-                    case ConfigurationType.ViewOnly:
-                        configuration = new ConfigurationViewOnly(
-                            name,
-                            this,
-                            dotDiscoPoP
-                        )
-                        break
-                    case ConfigurationType.Script:
-                        const discopopScriptPath =
-                            await vscode.window.showInputBox({
-                                prompt: 'Enter the path to the script that runs discopop',
-                                ignoreFocusOut: true,
-                                value:
-                                    dotDiscoPoP.substring(
-                                        0,
-                                        dotDiscoPoP.lastIndexOf('/')
-                                    ) + '/runDiscoPoP.sh',
-                            })
-                        if (discopopScriptPath === undefined) {
-                            return
-                        }
-
-                        const hotspotDetectionScriptPath =
-                            await vscode.window.showInputBox({
-                                prompt: 'Enter the path to the script that runs hotspot detection',
-                                ignoreFocusOut: true,
-                                value:
-                                    discopopScriptPath.substring(
-                                        0,
-                                        discopopScriptPath.lastIndexOf('/')
-                                    ) + '/runHotspotDetection.sh',
-                            })
-                        if (hotspotDetectionScriptPath === undefined) {
-                            return
-                        }
-
-                        configuration = new ConfigurationScript(
-                            name,
-                            this,
-                            dotDiscoPoP,
-                            discopopScriptPath,
-                            hotspotDetectionScriptPath
-                        )
-                        break
-                    default: // should never happen
-                        throw new Error(
-                            'Unknown configuration type, Aborting...'
-                        )
-                }
+                configuration = new ConfigurationViewOnly(
+                    name,
+                    this,
+                    dotDiscoPoP
+                )
                 break
             default: // if this happens, likely a new configuration type was added and this switch should be updated
                 throw new Error('Unknown configuration type, Aborting...')

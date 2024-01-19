@@ -2,7 +2,7 @@ import * as vscode from 'vscode'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
 import { Editable } from './Editable'
 
-export type SupportedType = string | number | boolean
+export type SupportedType = string // | number | boolean
 
 export interface PropertyObserver {
     onPropertyChanged(property: Property<SupportedType | SupportedType[]>): void
@@ -14,7 +14,7 @@ export abstract class Property<T extends SupportedType | SupportedType[]>
 {
     public constructor(
         protected title: string,
-        protected _value: T | T[],
+        protected _value: T,
         protected tooltip: string,
         onPropertyChanged: PropertyObserver
     ) {
