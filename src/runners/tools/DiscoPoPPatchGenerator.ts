@@ -7,6 +7,11 @@ export class DiscoPoPPatchGenerator {
     public async createDefaultPatches(
         cancelToken?: CancelToken
     ): Promise<void> {
+        await CommandExecution.commandExists(
+            'discopop_patch_generator',
+            true,
+            'Is DiscoPoP installed?'
+        )
         await CommandExecution.execute({
             command: `discopop_patch_generator`,
             cwd: this.dotDiscoPoP,
@@ -20,6 +25,11 @@ export class DiscoPoPPatchGenerator {
     public async createOptimizedPatches(
         cancelToken?: CancelToken
     ): Promise<void> {
+        await CommandExecution.commandExists(
+            'discopop_patch_generator',
+            true,
+            'Is DiscoPoP installed?'
+        )
         await CommandExecution.execute({
             command: `discopop_patch_generator -a ${this.dotDiscoPoP}/optimizer/patterns.json`,
             cwd: this.dotDiscoPoP,

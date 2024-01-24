@@ -5,6 +5,11 @@ export class DiscoPoPExplorer {
     public constructor(public readonly dotDiscoPoP: string) {}
 
     public async run(cancelToken?: CancelToken): Promise<void> {
+        await CommandExecution.commandExists(
+            'discopop_explorer',
+            true,
+            'Is DiscoPoP installed?'
+        )
         await CommandExecution.execute({
             command: `discopop_explorer`,
             cwd: this.dotDiscoPoP,

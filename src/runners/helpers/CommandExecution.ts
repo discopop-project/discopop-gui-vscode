@@ -37,6 +37,25 @@ export class CommandExecution {
         throw new Error('This class cannot be instantiated.')
     }
 
+    public static async commandExists(
+        command: string,
+        throwIfNotInstalled: boolean = false,
+        installationHint: string = ''
+    ): Promise<boolean> {
+        try {
+            await CommandExecution.execute({
+                command: 'which ' + command,
+                throwOnNonZeroExitCode: true,
+            })
+            return true
+        } catch {
+            if (throwIfNotInstalled) {
+                throw new Error(command + ' not found. ' + installationHint)
+            }
+            return false
+        }
+    }
+
     public static execute(
         options: CommandExecutionOptions
     ): Promise<ExecutionResult> {

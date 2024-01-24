@@ -67,6 +67,12 @@ export class DiscoPoPOptimizer {
         options: OptimizerOptions = DefaultOptimizerOptions,
         cancelToken?: CancelToken
     ): Promise<void> {
+        await CommandExecution.commandExists(
+            'discopop_optimizer',
+            true,
+            'Is DiscoPoP installed?'
+        )
+
         // merge provided options with default options
         options = { ...DefaultOptimizerOptions, ...options }
 
