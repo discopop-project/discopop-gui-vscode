@@ -30,6 +30,8 @@ import { ToolSuite } from './runners/tools/ToolSuite'
 import { CancellationError } from './runners/helpers/cancellation/CancellationError'
 import { OptimizerWorkflow } from './runners/workflows/OptimizerWorkflow'
 import { OptimizerWorkflowUI } from './runners/workflows/OptimizerWorkflowUI'
+import { DiscoPoPConfigProvider } from './runners/tools/DiscoPoPConfigProvider'
+import { CommandExecution } from './runners/helpers/CommandExecution'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
@@ -178,7 +180,7 @@ export class DiscoPoPExtension {
         )
     }
 
-    public activate() {
+    public async activate() {
         vscode.commands.executeCommand(
             'setContext',
             'discopop.codeLensEnabled',
@@ -190,6 +192,44 @@ export class DiscoPoPExtension {
             'discopop.suggestionsAvailable',
             false
         )
+
+        // issue a warning if DiscoPoP is not installed or the the installed version of DiscoPoP may be incompatible
+        const contextProvider = new DiscoPoPConfigProvider()
+        if (
+            !(await CommandExecution.commandExists(
+                'discopop_config_provider',
+                false
+            ))
+        ) {
+            vscode.window.showErrorMessage(
+                'WARNING: DiscoPoP not found. Please install DiscoPoP.'
+            )
+        }
+        const installedVersion = await contextProvider.version
+        const expectedVersion = '3.2.0'
+        if (!(installedVersion === expectedVersion)) {
+            console.error(
+                'Possible version mismatch between DiscoPoP and DiscoPoP VSCode Extension: Installed version: ' +
+                    installedVersion +
+                    ', Expected version: ' +
+                    expectedVersion
+            )
+            vscode.window
+                .showErrorMessage(
+                    'WARNING: DiscoPoP version mismatch detected. Please install the correct DiscoPoP version for full compatibility.',
+                    'Show details'
+                )
+                .then((value) => {
+                    if (value === 'Show details') {
+                        vscode.window.showInformationMessage(
+                            'Installed version: ' +
+                                installedVersion +
+                                '\nExpected version: ' +
+                                expectedVersion
+                        )
+                    }
+                })
+        }
 
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
