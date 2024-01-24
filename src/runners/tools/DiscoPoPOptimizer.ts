@@ -4,7 +4,7 @@ import { CommandExecution } from '../helpers/CommandExecution'
 export enum OptimizerExecutionType {
     Exhaustive = 'exhaustive',
     Evolutionary = 'evolutionary',
-    // greedy
+    Greedy = 'greedy',
 }
 
 export interface OptimizerOptions {
@@ -34,6 +34,9 @@ export class DiscoPoPOptimizer {
                 break // default, does not need to be specified
             case OptimizerExecutionType.Exhaustive:
                 command += ' --exhaustive'
+                break
+            case OptimizerExecutionType.Greedy:
+                command += ' --greedy'
                 break
             default:
                 throw new Error(
