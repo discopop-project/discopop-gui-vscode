@@ -5,6 +5,21 @@ export class DiscoPoPConfigProvider {
 
     // TODO allow to get the version of DiscoPoP
 
+    public get version(): Promise<string> {
+        return CommandExecution.commandExists(
+            'discopop_config_provider',
+            true,
+            'Is DiscoPoP installed?'
+        ).then((exists) => {
+            return CommandExecution.execute({
+                command: 'discopop_config_provider --version',
+                throwOnNonZeroExitCode: true,
+            }).then((result) => {
+                return result.stdout
+            })
+        })
+    }
+
     public get buildDirectory(): Promise<string> {
         return CommandExecution.commandExists(
             'discopop_config_provider',
