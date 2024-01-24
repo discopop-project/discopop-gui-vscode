@@ -1,3 +1,4 @@
+import { CommandExecution } from '../helpers/CommandExecution'
 import { DiscoPoPConfigProvider } from '../tools/DiscoPoPConfigProvider'
 import { WrapperInfo } from './CMakeBasedInstrumentation'
 
@@ -7,15 +8,33 @@ export class DiscoPoPProfilingWrapperInfo implements WrapperInfo {
         new DiscoPoPConfigProvider()
 
     public get cmakeWrapper(): Promise<string> {
-        return Promise.resolve('discopop_cmake')
+        return CommandExecution.commandExists(
+            'discopop_cmake',
+            true,
+            'Is DiscoPoP installed?'
+        ).then((exists) => {
+            return 'discopop_cmake'
+        })
     }
 
     public get ccWrapper(): Promise<string> {
-        return Promise.resolve('discopop_cc')
+        return CommandExecution.commandExists(
+            'discopop_cc',
+            true,
+            'Is DiscoPoP installed?'
+        ).then((exists) => {
+            return 'discopop_cc'
+        })
     }
 
     public get cxxWrapper(): Promise<string> {
-        return Promise.resolve('discopop_cxx')
+        return CommandExecution.commandExists(
+            'discopop_cxx',
+            true,
+            'Is DiscoPoP installed?'
+        ).then((exists) => {
+            return 'discopop_cxx'
+        })
     }
 
     private _ldWrapper: Promise<string> | undefined = undefined

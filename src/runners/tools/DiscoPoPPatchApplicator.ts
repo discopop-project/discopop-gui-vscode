@@ -6,6 +6,11 @@ export class DiscoPoPPatchApplicator {
     public constructor(public readonly dotDiscoPoP: string) {}
 
     private async _runPatchApplicator(args: string): Promise<number> {
+        await CommandExecution.commandExists(
+            'discopop_patch_applicator',
+            true,
+            'Is DiscoPoP installed?'
+        )
         try {
             const executionResult = CommandExecution.execute({
                 command: `discopop_patch_applicator ${args}`,

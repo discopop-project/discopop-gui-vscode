@@ -1,12 +1,17 @@
 import { Config } from '../../utils/Config'
+import { CommandExecution } from '../helpers/CommandExecution'
 import { WrapperInfo } from './CMakeBasedInstrumentation'
 
 export class HotspotDetectionProfilingWrapperInfo implements WrapperInfo {
     public constructor() {}
 
     public get cmakeWrapper(): Promise<string> {
-        return Promise.resolve(
-            `${Config.hotspotDetectionBuild()}/scripts/CMAKE_wrapper.sh`
-        )
+        return CommandExecution.commandExists(
+            'discopop_hotspot_cmake',
+            true,
+            'Is the Hotspot Detection tool installed?'
+        ).then((exists) => {
+            return 'discopop_hotspot_cmake'
+        })
     }
 }
