@@ -15,6 +15,9 @@ export abstract class FileMappingParser {
      * @returns the FileMapping object
      */
     public static parseFile(path: string): FileMapping {
+        if (!fs.existsSync(path)) {
+            throw new Error('FileMapping.txt file not found.')
+        }
         const fileMappingString = fs.readFileSync(path, 'utf-8')
         return FileMappingParser.parseString(fileMappingString)
     }

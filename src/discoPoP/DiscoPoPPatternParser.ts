@@ -14,6 +14,11 @@ export abstract class DiscoPoPPatternParser {
     }
 
     public static parseFile(path: string): Map<string, Suggestion[]> {
+        if (!fs.existsSync(path)) {
+            throw new DiscoPoPPatternParserError(
+                'patterns.json file not found.'
+            )
+        }
         const suggestionsString = fs.readFileSync(path, 'utf-8')
         return DiscoPoPPatternParser.parseString(suggestionsString)
     }
