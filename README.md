@@ -8,15 +8,13 @@ This extension requires a working installation of [DiscoPoP](https://github.com/
 
 ## How to use
 
-First go to the extension settings (File->Preferences->Settings->Extensions->DiscoPoP) and tell us where to find your DiscoPoP and HotspotDetection installations.
+Open the DiscoPoP view. It is located in the same area as the file explorer and the search view.
 
-Then you can open the DiscoPoP view. It is located in the same area as the file explorer and the search view.
+To analyze a Project, we need to know where to find it and how to interact with it. This is done in the configurations view. Click on the plus sign to create a configuration and input the required information.
 
-To analyze a Project, we need to know where to find it and how to interact with it. This is done in the projects view. Create a configuration and follow the setup process.
+Now you can run or load DiscoPoP and HotspotDetection from the configurations view.
 
-Now you can run or load DiscoPoP and HotspotDetection from the projects view.
-
-More information can be found in the [DiscoPoP Wiki](https://discopop-project.github.io/discopop/)
+A more detailed guide can be found in the [DiscoPoP Wiki](https://discopop-project.github.io/discopop/) along with more information about DiscoPoP.
 
 ## Supported Versions
 
@@ -24,6 +22,7 @@ The following table lists which discopop version is expected by a given version 
 
 | Extension Version | DiscoPoP Version |
 | ----------------- | ---------------- |
+| 0.0.7             | 3.2.0            |
 | 0.0.6             | 3.2.0            |
 | 0.0.5             | 3.0.0            |
 | pre 0.0.5         | not specified    |
