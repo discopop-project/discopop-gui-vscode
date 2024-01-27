@@ -399,14 +399,30 @@ export class DiscoPoPExtension {
                 Commands.loadResults,
                 async (configuration: Configuration) => {
                     // DiscoPoP
-                    this.dpResults = await DiscoPoPParser.parse(
-                        configuration.dotDiscoPoP
-                    )
+                    try {
+                        this.dpResults = await DiscoPoPParser.parse(
+                            configuration.dotDiscoPoP
+                        )
+                    } catch (error: any) {
+                        let message = 'Failed to load DiscoPoP results'
+                        if (error.message) {
+                            message += ': ' + error.message
+                        }
+                        UIPrompts.showMessageForSeconds(message, 8)
+                    }
 
                     // HotspotDetection
-                    this.hsResults = await HotspotDetectionParser.parse(
-                        configuration.dotDiscoPoP
-                    )
+                    try {
+                        this.hsResults = await HotspotDetectionParser.parse(
+                            configuration.dotDiscoPoP
+                        )
+                    } catch (error: any) {
+                        let message = 'Failed to load HotspotDetection results'
+                        if (error.message) {
+                            message += ': ' + error.message
+                        }
+                        UIPrompts.showMessageForSeconds(message, 8)
+                    }
                 }
             )
         )

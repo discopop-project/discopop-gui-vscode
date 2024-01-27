@@ -1,11 +1,5 @@
 import * as fs from 'fs'
-import * as vscode from 'vscode'
-import { FileMapping } from '../fileMapping/FileMapping'
 import { FileMappingParser } from '../fileMapping/FileMappingParser'
-import {
-    WithProgressOperation,
-    WithProgressRunner,
-} from '../utils/WithProgressRunner'
 import { Hotspot } from './classes/Hotspot'
 import { HotspotDetectionResults } from './classes/HotspotDetectionResults'
 
@@ -15,6 +9,10 @@ export abstract class HotspotDetectionParser {
     }
 
     private static _parseHotspotsJsonFile(path: string): Hotspot[] {
+        if (!fs.existsSync(path)) {
+            throw new Error('Hotspots.json file not found.')
+        }
+
         const str = fs.readFileSync(path, 'utf-8')
         return HotspotDetectionParser._parseHotspotsJsonString(str)
     }
@@ -42,39 +40,14 @@ export abstract class HotspotDetectionParser {
     public static async parse(
         dotDiscoPoP: string
     ): Promise<HotspotDetectionResults> {
-        const steps: WithProgressOperation[] = []
-
-        let fileMapping: FileMapping | undefined = undefined
-        let hotspots: Hotspot[] | undefined = undefined
-
-        steps.push({
-            message: 'FileMapping',
-            increment: 5,
-            operation: async () => {
-                fileMapping = FileMappingParser.parseFile(
-                    dotDiscoPoP + '/FileMapping.txt'
-                )
-            },
-        })
-
-        steps.push({
-            message: 'Hotspots',
-            increment: 5,
-            operation: async () => {
-                hotspots = HotspotDetectionParser._parseHotspotsJsonFile(
-                    dotDiscoPoP + '/hotspot_detection/Hotspots.json'
-                )
-            },
-        })
-
-        const withProgressRunner = new WithProgressRunner(
-            'Parsing Hotspot Detection Results',
-            vscode.ProgressLocation.Notification,
-            false,
-            steps
+        const fileMapping = FileMappingParser.parseFile(
+            dotDiscoPoP + '/FileMapping.txt'
         )
 
-        await withProgressRunner.run()
+        const hotspots = HotspotDetectionParser._parseHotspotsJsonFile(
+            dotDiscoPoP + '/hotspot_detection/Hotspots.json'
+        )
+
         return new HotspotDetectionResults(fileMapping, hotspots)
     }
 }

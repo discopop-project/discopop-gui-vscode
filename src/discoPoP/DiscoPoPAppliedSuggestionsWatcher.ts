@@ -6,13 +6,13 @@ import { EventEmitter } from 'stream'
  * The mapping provided by this class is automatically updated when the underlying data is updated.
  */
 export class DiscoPoPAppliedSuggestionsWatcher {
-    private appliedSuggestions: Set<number> = new Set()
+    private _appliedSuggestions: Set<number> = new Set()
 
     public constructor(public appliedSuggestionsFile: string) {
-        this.parseFile()
+        this._parseFile()
         // watch for changes of the file
         fs.watchFile(this.appliedSuggestionsFile, (curr, prev) => {
-            this.parseFile()
+            this._parseFile()
             this._eventEmitter.emit('change')
         })
     }
@@ -31,9 +31,9 @@ export class DiscoPoPAppliedSuggestionsWatcher {
         this._eventEmitter.off('change', () => callback(this))
     }
 
-    private parseFile() {
+    private _parseFile() {
         // clear the set
-        this.appliedSuggestions.clear()
+        this._appliedSuggestions.clear()
 
         // read the file and populate the set again
         const fileContents = fs.readFileSync(
@@ -43,21 +43,21 @@ export class DiscoPoPAppliedSuggestionsWatcher {
         const json = JSON.parse(fileContents)
         for (const idString of json.applied) {
             const id = Number(idString)
-            this.appliedSuggestions.add(id)
+            this._appliedSuggestions.add(id)
         }
     }
 
     public getAppliedSuggestions(): Set<number> {
-        return this.appliedSuggestions
+        return this._appliedSuggestions
     }
 
     public isApplied(id: number): boolean {
-        return this.appliedSuggestions.has(id)
+        return this._appliedSuggestions.has(id)
     }
 
     public dispose() {
         fs.unwatchFile(this.appliedSuggestionsFile)
         this._eventEmitter.removeAllListeners()
-        this.appliedSuggestions.clear()
+        this._appliedSuggestions.clear()
     }
 }
