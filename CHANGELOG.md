@@ -1,9 +1,10 @@
 # Change Log
 
-## coming up
+## 0.0.7
 
--   improved support for the optimizer
--   support for DiscoPoP 4.0
+-   automatically find installed DiscoPoP and HotspotDetection tools
+-   remove settings to specify path to DiscoPoP and path to HotspotDetection
+-   check that installed version of DiscoPoP is compatible with the extension; warn if installed DiscoPoP version may be incompatible
 
 ## 0.0.6
 
