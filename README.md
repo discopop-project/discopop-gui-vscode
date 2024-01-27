@@ -27,8 +27,6 @@ The following table lists which discopop version is expected by a given version 
 | 0.0.5             | 3.0.0            |
 | pre 0.0.5         | not specified    |
 
--   not officially released
-
 ## Known Issues
 
 -   CMake Configurations: Running the same tool multiple times creates some issues, e.g the same suggestions appearing multiple times. It usually helps to delete the build directory. A proposed fix is scheduled for DiscoPoP 4.0.0.
