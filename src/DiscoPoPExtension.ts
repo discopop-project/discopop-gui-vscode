@@ -1,4 +1,5 @@
 import * as vscode from 'vscode'
+import * as fs from 'fs'
 import {
     Configuration,
     RunCapableConfiguration,
@@ -32,6 +33,7 @@ import { OptimizerWorkflow } from './runners/workflows/OptimizerWorkflow'
 import { OptimizerWorkflowUI } from './runners/workflows/OptimizerWorkflowUI'
 import { DiscoPoPConfigProvider } from './runners/tools/DiscoPoPConfigProvider'
 import { CommandExecution } from './runners/helpers/CommandExecution'
+import path = require('path')
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
@@ -560,12 +562,26 @@ export class DiscoPoPExtension {
                     const returnCode = await dpTools.discopopPatchApplicator
                         .patchClear()
                         .catch(logAndShowErrorMessageHandler)
-                    if (returnCode === 3) {
-                        UIPrompts.showMessageForSeconds(
-                            'Nothing to rollback, trivially successful'
-                        )
-                        this.codeLensProvider?.stopWaitingForAppliedStatus()
-                        this.codeLensProvider?.stopWaitingForLineMapping()
+                    switch (returnCode) {
+                        case 0:
+                            UIPrompts.showMessageForSeconds(
+                                'Successfully rolled back all suggestions'
+                            )
+                            break
+                        case 3:
+                            UIPrompts.showMessageForSeconds(
+                                'Nothing to rollback, trivially successful'
+                            )
+                            this.codeLensProvider?.stopWaitingForAppliedStatus()
+                            this.codeLensProvider?.stopWaitingForLineMapping()
+                            break
+                        default:
+                            UIPrompts.showMessageForSeconds(
+                                'Failed to rollback all suggestions. Error code: ' +
+                                    returnCode
+                            )
+                            this.codeLensProvider?.stopWaitingForAppliedStatus()
+                            this.codeLensProvider?.stopWaitingForLineMapping()
                     }
                 }
             )
@@ -609,29 +625,7 @@ export class DiscoPoPExtension {
                         })
                     }
 
-                    try {
-                        const dpTools = new ToolSuite(dotDiscoPoP)
-                        this.codeLensProvider?.wait()
-                        await dpTools.discopopPatchApplicator.patchApply(
-                            suggestion.id
-                        )
-                    } catch (err) {
-                        if (err instanceof Error) {
-                            vscode.window.showErrorMessage(err.message)
-                        } else {
-                            vscode.window.showErrorMessage(
-                                'Failed to apply suggestion.'
-                            )
-                        }
-                        console.error('FAILED TO APPLY PATCH:')
-                        console.error(err)
-                        console.error(suggestion)
-                    }
-
-                    // TODO before inserting, preview the changes and request confirmation
-                    // --> we could peek the patch file as a preview https://github.com/microsoft/vscode/blob/8434c86e5665341c753b00c10425a01db4fb8580/src/vs/editor/contrib/gotoSymbol/goToCommands.ts#L760
-                    // --> we should also set the detail view to the suggestion that is being applied
-                    // --> if hotspot results are available for the loop/function, we should also show them in the detail view
+                    this._applySuggestionConfirmed(dotDiscoPoP, suggestion.id)
                 }
             )
         )
@@ -641,18 +635,9 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.applySingleSuggestion,
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
-                    this.codeLensProvider?.wait()
                     const suggestion = suggestionNode.suggestion
                     const dotDiscoPoP = this.dpResults.dotDiscoPoP
-                    const dpTools = new ToolSuite(dotDiscoPoP)
-                    dpTools.discopopPatchApplicator
-                        .patchApply(suggestion.id)
-                        .catch((error) => {
-                            logAndShowErrorMessageHandler(
-                                error,
-                                `Failed to apply suggestion ${suggestionNode.suggestion.id}: `
-                            )
-                        })
+                    this._applySuggestionConfirmed(dotDiscoPoP, suggestion.id)
                 }
             )
         )
@@ -673,6 +658,8 @@ export class DiscoPoPExtension {
                                 error,
                                 `Failed to rollback suggestion ${suggestionNode.suggestion.id}: `
                             )
+                            this.codeLensProvider?.stopWaitingForAppliedStatus()
+                            this.codeLensProvider?.stopWaitingForLineMapping()
                         })
                 }
             )
@@ -766,6 +753,84 @@ export class DiscoPoPExtension {
                 }
             )
         )
+    }
+
+    private async _applySuggestionConfirmed(
+        dotDiscoPoP: string,
+        suggestionId: number
+    ) {
+        // TODO before inserting, preview the changes and request confirmation
+        // --> we could peek the patch file as a preview https://github.com/microsoft/vscode/blob/8434c86e5665341c753b00c10425a01db4fb8580/src/vs/editor/contrib/gotoSymbol/goToCommands.ts#L760
+        // --> we should also set the detail view to the suggestion that is being applied
+        // --> if hotspot results are available for the loop/function, we should also show them in the detail view
+
+        // show the relevant patch files in split editors to the right
+        // never open a patch file twice
+        // patch files are located in .discopop/patch_generator/<suggestion_id>/fileId.patch
+        const patchFiles = fs.readdirSync(
+            path.join(dotDiscoPoP, 'patch_generator', `${suggestionId}`)
+        )
+        const patchFileUris = patchFiles.map((patchFile) => {
+            return vscode.Uri.file(
+                path.join(
+                    dotDiscoPoP,
+                    'patch_generator',
+                    `${suggestionId}`,
+                    patchFile
+                )
+            )
+        })
+        // determine viewColumn (current view column + 1)
+        let viewColumn =
+            vscode.window.activeTextEditor?.viewColumn || vscode.ViewColumn.One
+        viewColumn = (viewColumn + 1) % 9 // mod 9 just to be sure, window.activeTextEditor should however never go above 3
+
+        for (let i = 0; i < patchFileUris.length; i++) {
+            const uri = patchFileUris[i]
+
+            // skip opening this patch file if it is already open
+            for (const editor of vscode.window.visibleTextEditors) {
+                if (editor.document.uri.toString() === uri.toString()) {
+                    continue
+                }
+            }
+
+            const document = await vscode.workspace.openTextDocument(uri)
+            const editor = await vscode.window.showTextDocument(document, {
+                viewColumn: viewColumn,
+                preserveFocus: true,
+                preview: false,
+            })
+            editor.revealRange(new vscode.Range(0, 0, 0, 0))
+        }
+
+        if (
+            await UIPrompts.actionConfirmed(
+                'Do you want to apply this suggestion?'
+            )
+        ) {
+            const dpTools = new ToolSuite(dotDiscoPoP)
+            this.codeLensProvider?.wait()
+            const returnCode = await dpTools.discopopPatchApplicator.patchApply(
+                suggestionId
+            )
+            switch (returnCode) {
+                case 0:
+                    UIPrompts.showMessageForSeconds(
+                        'Successfully applied suggestion ' + suggestionId
+                    )
+                    break
+                default:
+                    UIPrompts.showMessageForSeconds(
+                        'Failed to apply suggestion ' +
+                            suggestionId +
+                            '. Error code: ' +
+                            returnCode
+                    )
+                    this.codeLensProvider?.stopWaitingForAppliedStatus()
+                    this.codeLensProvider?.stopWaitingForLineMapping()
+            }
+        }
     }
 
     private _updateTreeViewTitleAndMessage() {
