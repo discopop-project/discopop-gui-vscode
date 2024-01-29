@@ -760,13 +760,11 @@ export class DiscoPoPExtension {
         suggestion: Suggestion
     ) {
         // TODO before inserting, preview the changes and request confirmation
-        // --> we could peek the patch file as a preview https://github.com/microsoft/vscode/blob/8434c86e5665341c753b00c10425a01db4fb8580/src/vs/editor/contrib/gotoSymbol/goToCommands.ts#L760
         // --> we should also set the detail view to the suggestion that is being applied
         // --> if hotspot results are available for the loop/function, we should also show them in the detail view
+        // --> we could also highlight the code lines affected by the suggestion in the editor
 
-        // show the relevant patch files in split editors to the right
-        // never open a patch file twice
-        // patch files are located in .discopop/patch_generator/<suggestion_id>/fileId.patch
+        // peek the patch files
         const patchFileUris = fs
             .readdirSync(
                 path.join(dotDiscoPoP, 'patch_generator', `${suggestion.id}`)
@@ -781,48 +779,6 @@ export class DiscoPoPExtension {
                     )
                 )
             })
-
-        // // determine viewColumn (current view column + 1)
-        // let viewColumn =
-        //     vscode.window.activeTextEditor?.viewColumn || vscode.ViewColumn.One
-        // viewColumn = (viewColumn + 1) % 9 // mod 9 just to be sure, window.activeTextEditor should however never go above 3
-
-        // for (let i = 0; i < patchFileUris.length; i++) {
-        //     const uri = patchFileUris[i]
-
-        //     // skip opening this patch file if it is already open
-        //     for (const editor of vscode.window.visibleTextEditors) {
-        //         if (editor.document.uri.toString() === uri.toString()) {
-        //             continue
-        //         }
-        //     }
-
-        //     const document = await vscode.workspace.openTextDocument(uri)
-        //     const editor = await vscode.window.showTextDocument(document, {
-        //         viewColumn: viewColumn,
-        //         preserveFocus: true,
-        //         preview: false,
-        //     })
-        //     editor.revealRange(new vscode.Range(0, 0, 0, 0))
-        // }
-
-        // this is the definition of editor.action.peekLocations:
-        // CommandsRegistry.registerCommand({
-        //     id: 'editor.action.peekLocations',
-        //     description: {
-        //         description: 'Peek locations from a position in a file',
-        //         args: [
-        //             { name: 'uri', description: 'The text document in which to start', constraint: URI },
-        //             { name: 'position', description: 'The position at which to start', constraint: corePosition.Position.isIPosition },
-        //             { name: 'locations', description: 'An array of locations.', constraint: Array },
-        //             { name: 'multiple', description: 'Define what to do when having multiple results, either `peek`, `gotoAndPeek`, or `goto' },
-        //         ]
-        //     },
-        //     handler: async (accessor: ServicesAccessor, resource: any, position: any, references: any, multiple?: any) => {
-        //         accessor.get(ICommandService).executeCommand('editor.action.goToLocations', resource, position, references, multiple, undefined, true);
-        //     }
-        // });
-
         const startUri = vscode.Uri.file(
             this.dpResults.fileMapping.getFilePath(suggestion.fileId)
         )
