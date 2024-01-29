@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.0.8
+
+-   fix loading of results when hotspot detection was not executed
+-   preview suggestion patches before applying the suggestion
+
 ## 0.0.7
 
 -   automatically find installed DiscoPoP and HotspotDetection tools
