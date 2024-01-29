@@ -12,10 +12,18 @@ export abstract class Suggestion {
     ) {}
 
     public getMappedStartLine(lineMapping: LineMapping): number {
+        if (!lineMapping) {
+            console.error('lineMapping is undefined, using original startLine')
+            return this.startLine
+        }
         return lineMapping.getMappedLineNr(this.fileId, this.startLine)
     }
 
     public getMappedEndLine(lineMapping: LineMapping): number {
+        if (!lineMapping) {
+            console.error('lineMapping is undefined, using original endLine')
+            return this.startLine
+        }
         return lineMapping.getMappedLineNr(this.fileId, this.endLine)
     }
 
