@@ -630,6 +630,66 @@ export class DiscoPoPExtension {
             )
         )
 
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.previewSuggestion,
+                async (suggestionNode: DiscoPoPSuggestionNode) => {
+                    const suggestion = suggestionNode.suggestion
+                    // TODO open in a new editor or in a peek depending on the extension settings
+                    // for now we always open in a peek
+
+                    // find the patch files
+                    const patchFileUris = fs
+                        .readdirSync(
+                            path.join(
+                                this.dpResults.dotDiscoPoP,
+                                'patch_generator',
+                                `${suggestion.id}`
+                            )
+                        )
+                        .map((patchFile) => {
+                            return vscode.Uri.file(
+                                path.join(
+                                    this.dpResults.dotDiscoPoP,
+                                    'patch_generator',
+                                    `${suggestion.id}`,
+                                    patchFile
+                                )
+                            )
+                        })
+                    const patchFileLocations = patchFileUris.map((uri) => {
+                        return new vscode.Location(
+                            uri,
+                            new vscode.Position(0, 0)
+                        )
+                    })
+
+                    // find the location to show the peek at
+                    const startUri = vscode.Uri.file(
+                        this.dpResults.fileMapping.getFilePath(
+                            suggestion.fileId
+                        )
+                    )
+                    const startPosition = new vscode.Position(
+                        suggestion.getMappedStartLine(
+                            this.dpResults.lineMapping
+                        ),
+                        0
+                    )
+
+                    // show the peek
+                    const multiple = 'peek'
+                    vscode.commands.executeCommand(
+                        'editor.action.peekLocations',
+                        startUri,
+                        startPosition,
+                        patchFileLocations,
+                        multiple
+                    )
+                }
+            )
+        )
+
         // used by tree view
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
@@ -648,19 +708,31 @@ export class DiscoPoPExtension {
                 Commands.rollbackSingleSuggestion,
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
                     const suggestion = suggestionNode.suggestion
-                    const dotDiscoPoP = this.dpResults.dotDiscoPoP
-                    const dpTools = new ToolSuite(dotDiscoPoP)
-                    this.codeLensProvider?.wait()
-                    dpTools.discopopPatchApplicator
-                        .patchRollback(suggestion.id)
-                        .catch((error) => {
-                            logAndShowErrorMessageHandler(
-                                error,
-                                `Failed to rollback suggestion ${suggestionNode.suggestion.id}: `
-                            )
-                            this.codeLensProvider?.stopWaitingForAppliedStatus()
-                            this.codeLensProvider?.stopWaitingForLineMapping()
-                        })
+                    if (
+                        // TODO we should add an option to skip this confirmation message to the settings, e.g.
+                        // config.skipSuggestionApplicationConfirmation ||
+                        (await vscode.window.showQuickPick(
+                            ['Rollback Suggestion', 'Cancel'],
+                            {
+                                placeHolder: `Rollback suggestion ${suggestion.id}?`,
+                                title: `Rollback suggestion ${suggestion.id}?`,
+                            }
+                        )) === 'Rollback Suggestion'
+                    ) {
+                        const dotDiscoPoP = this.dpResults.dotDiscoPoP
+                        const dpTools = new ToolSuite(dotDiscoPoP)
+                        this.codeLensProvider?.wait()
+                        dpTools.discopopPatchApplicator
+                            .patchRollback(suggestion.id)
+                            .catch((error) => {
+                                logAndShowErrorMessageHandler(
+                                    error,
+                                    `Failed to rollback suggestion ${suggestionNode.suggestion.id}: `
+                                )
+                                this.codeLensProvider?.stopWaitingForAppliedStatus()
+                                this.codeLensProvider?.stopWaitingForLineMapping()
+                            })
+                    }
                 }
             )
         )
@@ -764,47 +836,14 @@ export class DiscoPoPExtension {
         // --> if hotspot results are available for the loop/function, we should also show them in the detail view
         // --> we could also highlight the code lines affected by the suggestion in the editor
 
-        // peek the patch files
-        const patchFileUris = fs
-            .readdirSync(
-                path.join(dotDiscoPoP, 'patch_generator', `${suggestion.id}`)
-            )
-            .map((patchFile) => {
-                return vscode.Uri.file(
-                    path.join(
-                        dotDiscoPoP,
-                        'patch_generator',
-                        `${suggestion.id}`,
-                        patchFile
-                    )
-                )
-            })
-        const startUri = vscode.Uri.file(
-            this.dpResults.fileMapping.getFilePath(suggestion.fileId)
-        )
-        const startPosition = new vscode.Position(
-            suggestion.getMappedStartLine(this.dpResults.lineMapping),
-            0
-        )
-
-        const locations = patchFileUris.map((uri) => {
-            return new vscode.Location(uri, new vscode.Position(0, 0))
-        })
-        const multiple = 'peek'
-
-        vscode.commands.executeCommand(
-            'editor.action.peekLocations',
-            startUri,
-            startPosition,
-            locations,
-            multiple
-        )
-
         // request confirmation
         if (
-            await UIPrompts.actionConfirmed(
-                'Do you want to apply this suggestion?'
-            )
+            // TODO we should add an option to skip this confirmation message to the settings, e.g.
+            // config.skipSuggestionApplicationConfirmation ||
+            (await vscode.window.showQuickPick(['Apply Suggestion', 'Cancel'], {
+                placeHolder: `Apply suggestion ${suggestion.id}?`,
+                title: `Apply suggestion ${suggestion.id}?`,
+            })) === 'Apply Suggestion'
         ) {
             // apply the suggestion
             const dpTools = new ToolSuite(dotDiscoPoP)

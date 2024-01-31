@@ -283,20 +283,20 @@
             "view/item/context": [
                 {
                     "command": "discopop.previewSuggestion",
-                    "when": "view == sidebar-suggestions-view && viewItem==suggestion/~",
-                    "group": "inline",
+                    "when": "view == sidebar-suggestions-view && viewItem=~/suggestion/ && viewItem!=suggestion_group",
+                    "group": "inline@1",
                     "icon": "$(eye)"
                 },
                 {
                     "command": "discopop.applySingleSuggestion",
                     "when": "view == sidebar-suggestions-view && viewItem==suggestion",
-                    "group": "inline",
+                    "group": "inline@2",
                     "icon": "$(check)"
                 },
                 {
                     "command": "discopop.rollbackSingleSuggestion",
                     "when": "view == sidebar-suggestions-view && viewItem==suggestion_applied",
-                    "group": "inline",
+                    "group": "inline@2",
                     "icon": "$(close)"
                 },
                 {
