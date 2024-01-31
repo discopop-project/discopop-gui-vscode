@@ -6,8 +6,17 @@ export class DoAllSuggestion extends Suggestion {
         fileId: number,
         startLine: number,
         endLine: number,
+        applicable_pattern: boolean | undefined,
         pureJSONData: any
     ) {
-        super(id, 'do_all', fileId, startLine, endLine, pureJSONData)
+        super(
+            id,
+            'do_all',
+            fileId,
+            startLine,
+            endLine,
+            applicable_pattern,
+            pureJSONData
+        )
     }
 }
