@@ -17,14 +17,13 @@ export class Commands {
     // suggestions
     public static showSuggestionDetails: string =
         'discopop.showSuggestionDetails'
-    public static applySuggestions: string = 'discopop.applySuggestions' // used from the codelenses
-    public static rollbackSuggestions: string = 'discopop.rollbackSuggestions' // used from the codelenses
+    public static applySuggestions: string = 'discopop.applySuggestions'
+    public static previewSuggestion: string = 'discopop.previewSuggestion'
     public static applySingleSuggestion: string =
-        'discopop.applySingleSuggestion' // used from the tree view
+        'discopop.applySingleSuggestion'
     public static rollbackSingleSuggestion: string =
-        'discopop.rollbackSingleSuggestion' // used from the tree view
-    public static rollbackAllSuggestions: string =
-        'discopop.rollbackAllSuggestions' // used from the tree view
+        'discopop.rollbackSingleSuggestion'
+    public static rollbackAllSuggestions: string = 'discopop.clearSuggestions'
     public static filterSuggestions: string = 'discopop.filterSuggestions'
 
     // hotspots

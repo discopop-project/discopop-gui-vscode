@@ -156,6 +156,12 @@
                 "icon": "$(eye-closed)"
             },
             {
+                "title": "Preview Suggestion",
+                "command": "discopop.previewSuggestion",
+                "category": "DiscoPoP",
+                "icon": "$(eye)"
+            },
+            {
                 "title": "Apply Suggestion",
                 "command": "discopop.applySingleSuggestion",
                 "category": "DiscoPoP",
@@ -174,14 +180,8 @@
                 "icon": "$(check)"
             },
             {
-                "title": "Rollback Multiple Suggestions",
-                "command": "discopop.rollbackSuggestions",
-                "category": "DiscoPoP",
-                "icon": "$(close)"
-            },
-            {
                 "title": "Rollback All Suggestions",
-                "command": "discopop.rollbackAllSuggestions",
+                "command": "discopop.clearSuggestions",
                 "category": "DiscoPoP",
                 "icon": "$(clear-all)"
             },
@@ -231,6 +231,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "discopop.previewSuggestion",
+                    "when": "false"
+                },
+                {
                     "command": "discopop.applySingleSuggestion",
                     "when": "false"
                 },
@@ -239,7 +243,7 @@
                     "when": "false"
                 },
                 {
-                    "command": "discopop.rollbackAllSuggestions",
+                    "command": "discopop.clearSuggestions",
                     "when": "false"
                 },
                 {
@@ -254,7 +258,7 @@
                     "group": "navigation"
                 },
                 {
-                    "command": "discopop.rollbackAllSuggestions",
+                    "command": "discopop.clearSuggestions",
                     "when": "view == sidebar-suggestions-view && discopop.suggestionsAvailable",
                     "group": "navigation"
                 },
@@ -277,6 +281,12 @@
                 }
             ],
             "view/item/context": [
+                {
+                    "command": "discopop.previewSuggestion",
+                    "when": "view == sidebar-suggestions-view && viewItem==suggestion/~",
+                    "group": "inline",
+                    "icon": "$(eye)"
+                },
                 {
                     "command": "discopop.applySingleSuggestion",
                     "when": "view == sidebar-suggestions-view && viewItem==suggestion",
