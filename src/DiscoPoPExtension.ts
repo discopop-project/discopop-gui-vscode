@@ -800,11 +800,13 @@ export class DiscoPoPExtension {
             multiple
         )
 
+        // request confirmation
         if (
             await UIPrompts.actionConfirmed(
                 'Do you want to apply this suggestion?'
             )
         ) {
+            // apply the suggestion
             const dpTools = new ToolSuite(dotDiscoPoP)
             this.codeLensProvider?.wait()
             const returnCode = await dpTools.discopopPatchApplicator.patchApply(
