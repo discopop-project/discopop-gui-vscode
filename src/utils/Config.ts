@@ -26,4 +26,22 @@ export abstract class Config {
             .getConfiguration('discopop')
             .get('skipOverwriteConfirmation', false)
     }
+
+    public static suggestionApplySkipConfirmation(): boolean {
+        return vscode.workspace
+            .getConfiguration('discopop')
+            .get('suggestionApplySkipConfirmation', false)
+    }
+
+    public static suggestionPreviewMode(): SuggestionPreviewMode {
+        return vscode.workspace
+            .getConfiguration('discopop')
+            .get('suggestionPreviewMode', SuggestionPreviewMode.PEEK)
+    }
+}
+
+export enum SuggestionPreviewMode {
+    EDITOR = 'Editor',
+    PEEK = 'Peek',
+    // TODO DIFF
 }
