@@ -34,6 +34,7 @@ import { OptimizerWorkflowUI } from './runners/workflows/OptimizerWorkflowUI'
 import { DiscoPoPConfigProvider } from './runners/tools/DiscoPoPConfigProvider'
 import { CommandExecution } from './runners/helpers/CommandExecution'
 import path = require('path')
+import { Config, SuggestionPreviewMode } from './utils/Config'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
@@ -556,32 +557,43 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.rollbackAllSuggestions,
                 async () => {
-                    const dotDiscoPoP = this.dpResults?.dotDiscoPoP
-                    const dpTools = new ToolSuite(dotDiscoPoP)
-                    this.codeLensProvider?.wait()
-                    const returnCode = await dpTools.discopopPatchApplicator
-                        .patchClear()
-                        .catch(logAndShowErrorMessageHandler)
-                    switch (returnCode) {
-                        case 0:
-                            UIPrompts.showMessageForSeconds(
-                                'Successfully rolled back all suggestions'
-                            )
-                            break
-                        case 3:
-                            UIPrompts.showMessageForSeconds(
-                                'Nothing to rollback, trivially successful'
-                            )
-                            this.codeLensProvider?.stopWaitingForAppliedStatus()
-                            this.codeLensProvider?.stopWaitingForLineMapping()
-                            break
-                        default:
-                            UIPrompts.showMessageForSeconds(
-                                'Failed to rollback all suggestions. Error code: ' +
-                                    returnCode
-                            )
-                            this.codeLensProvider?.stopWaitingForAppliedStatus()
-                            this.codeLensProvider?.stopWaitingForLineMapping()
+                    if (
+                        Config.suggestionApplySkipConfirmation() ||
+                        (await vscode.window.showQuickPick(
+                            ['Rollback', 'Cancel'],
+                            {
+                                placeHolder: `Rollback all suggestions?`,
+                                title: `Rollback all suggestions?`,
+                            }
+                        )) === 'Rollback'
+                    ) {
+                        const dotDiscoPoP = this.dpResults?.dotDiscoPoP
+                        const dpTools = new ToolSuite(dotDiscoPoP)
+                        this.codeLensProvider?.wait()
+                        const returnCode = await dpTools.discopopPatchApplicator
+                            .patchClear()
+                            .catch(logAndShowErrorMessageHandler)
+                        switch (returnCode) {
+                            case 0:
+                                UIPrompts.showMessageForSeconds(
+                                    'Successfully rolled back all suggestions'
+                                )
+                                break
+                            case 3:
+                                UIPrompts.showMessageForSeconds(
+                                    'Nothing to rollback, trivially successful'
+                                )
+                                this.codeLensProvider?.stopWaitingForAppliedStatus()
+                                this.codeLensProvider?.stopWaitingForLineMapping()
+                                break
+                            default:
+                                UIPrompts.showMessageForSeconds(
+                                    'Failed to rollback all suggestions. Error code: ' +
+                                        returnCode
+                                )
+                                this.codeLensProvider?.stopWaitingForAppliedStatus()
+                                this.codeLensProvider?.stopWaitingForLineMapping()
+                        }
                     }
                 }
             )
@@ -634,11 +646,8 @@ export class DiscoPoPExtension {
             vscode.commands.registerCommand(
                 Commands.previewSuggestion,
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
-                    const suggestion = suggestionNode.suggestion
-                    // TODO open in a new editor or in a peek depending on the extension settings
-                    // for now we always open in a peek
-
                     // find the patch files
+                    const suggestion = suggestionNode.suggestion
                     const patchFileUris = fs
                         .readdirSync(
                             path.join(
@@ -657,35 +666,79 @@ export class DiscoPoPExtension {
                                 )
                             )
                         })
-                    const patchFileLocations = patchFileUris.map((uri) => {
-                        return new vscode.Location(
-                            uri,
-                            new vscode.Position(0, 0)
-                        )
-                    })
 
-                    // find the location to show the peek at
-                    const startUri = vscode.Uri.file(
-                        this.dpResults.fileMapping.getFilePath(
-                            suggestion.fileId
-                        )
-                    )
-                    const startPosition = new vscode.Position(
-                        suggestion.getMappedStartLine(
-                            this.dpResults.lineMapping
-                        ),
-                        0
-                    )
+                    const previewMode = Config.suggestionPreviewMode()
+                    switch (previewMode) {
+                        case SuggestionPreviewMode.EDITOR: {
+                            // TODO make sure they open in a single tab group to avoid multiple splits and tiny editors
 
-                    // show the peek
-                    const multiple = 'peek'
-                    vscode.commands.executeCommand(
-                        'editor.action.peekLocations',
-                        startUri,
-                        startPosition,
-                        patchFileLocations,
-                        multiple
-                    )
+                            const viewColumn =
+                                vscode.window.activeTextEditor?.viewColumn +
+                                    1 || vscode.ViewColumn.Beside
+                            patchFileUris.forEach((uri) => {
+                                vscode.workspace.openTextDocument(uri).then(
+                                    (document) => {
+                                        vscode.window.showTextDocument(
+                                            document,
+                                            viewColumn
+                                        )
+                                    },
+                                    (error) => {
+                                        logAndShowErrorMessageHandler(
+                                            error,
+                                            'Failed to open patch file ' +
+                                                uri.fsPath +
+                                                ': '
+                                        )
+                                    }
+                                )
+                            })
+                            break
+                        }
+                        case SuggestionPreviewMode.PEEK: {
+                            // show patchFiles starting at line 0
+                            const patchFileLocations = patchFileUris.map(
+                                (uri) => {
+                                    return new vscode.Location(
+                                        uri,
+                                        new vscode.Position(0, 0)
+                                    )
+                                }
+                            )
+
+                            // the peek will be shown at the startline of the suggestion
+                            const startUri = vscode.Uri.file(
+                                this.dpResults.fileMapping.getFilePath(
+                                    suggestion.fileId
+                                )
+                            )
+                            const startPosition = new vscode.Position(
+                                suggestion.getMappedStartLine(
+                                    this.dpResults.lineMapping
+                                ),
+                                0
+                            )
+
+                            // show the peek
+                            const multiple = 'peek'
+                            vscode.commands.executeCommand(
+                                'editor.action.peekLocations',
+                                startUri,
+                                startPosition,
+                                patchFileLocations,
+                                multiple
+                            )
+                            break
+                        }
+                        default: {
+                            console.error('invalid suggestionPreviewMode')
+                            UIPrompts.showMessageForSeconds(
+                                'invalid suggestionPreviewMode ' +
+                                    previewMode +
+                                    ' - please report this bug'
+                            )
+                        }
+                    }
                 }
             )
         )
@@ -709,8 +762,7 @@ export class DiscoPoPExtension {
                 async (suggestionNode: DiscoPoPSuggestionNode) => {
                     const suggestion = suggestionNode.suggestion
                     if (
-                        // TODO we should add an option to skip this confirmation message to the settings, e.g.
-                        // config.skipSuggestionApplicationConfirmation ||
+                        Config.suggestionApplySkipConfirmation() ||
                         (await vscode.window.showQuickPick(
                             ['Rollback Suggestion', 'Cancel'],
                             {
@@ -831,10 +883,10 @@ export class DiscoPoPExtension {
         dotDiscoPoP: string,
         suggestion: Suggestion
     ) {
-        // TODO before inserting, preview the changes and request confirmation
-        // --> we should also set the detail view to the suggestion that is being applied
+        // TODO
+        // --> we should set the detail view to the suggestion that is being applied
         // --> if hotspot results are available for the loop/function, we should also show them in the detail view
-        // --> we could also highlight the code lines affected by the suggestion in the editor
+        // --> we could highlight the code lines affected by the suggestion in the editor
 
         // request confirmation
         if (
