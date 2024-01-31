@@ -61,6 +61,8 @@ export abstract class DiscoPoPPatternParser {
                     suggestion.start_line as string
                 ).split(':') // fileID:lineNr
                 const [_, end_line] = (suggestion.end_line as string).split(':') // fileID:lineNr
+                const applicable_pattern: boolean | undefined =
+                    suggestion.applicable_pattern
 
                 if (type === 'do_all') {
                     // parse do_all specific fields here, if needed
@@ -72,6 +74,7 @@ export abstract class DiscoPoPPatternParser {
                             Number(start_file),
                             Number(start_line),
                             Number(end_line),
+                            applicable_pattern,
                             suggestion
                             // we can parse more fields from the patterns.json file and use them, if we need to
                         )
@@ -86,6 +89,7 @@ export abstract class DiscoPoPPatternParser {
                             Number(start_file),
                             Number(start_line),
                             Number(end_line),
+                            applicable_pattern,
                             suggestion
                             // we can parse more fields from the patterns.json file and use them, if we need to
                         )
@@ -99,6 +103,7 @@ export abstract class DiscoPoPPatternParser {
                             Number(start_file),
                             Number(start_line),
                             Number(end_line),
+                            applicable_pattern,
                             suggestion
                         )
                     )
