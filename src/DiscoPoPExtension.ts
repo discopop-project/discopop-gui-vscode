@@ -10,11 +10,7 @@ import { Editable } from './configurationManager/Editable'
 import { DiscoPoPCodeLensProvider } from './discoPoP/DiscoPoPCodeLensProvider'
 import { DiscoPoPDetailViewProvider } from './discoPoP/DiscoPoPDetailViewProvider'
 import { DiscoPoPParser } from './discoPoP/DiscoPoPParser'
-import {
-    DiscoPoPSuggestionGroup,
-    DiscoPoPSuggestionNode,
-    SuggestionTree,
-} from './discoPoP/DiscoPoPSuggestionTree'
+import { SuggestionTree } from './discoPoP/suggestionTree/DiscoPoPSuggestionTree'
 import { DiscoPoPResults } from './discoPoP/classes/DiscoPoPResults'
 import { Suggestion } from './discoPoP/classes/Suggestion/Suggestion'
 import { FileMapping } from './fileMapping/FileMapping'
@@ -35,6 +31,8 @@ import { DiscoPoPConfigProvider } from './runners/tools/DiscoPoPConfigProvider'
 import { CommandExecution } from './runners/helpers/CommandExecution'
 import path = require('path')
 import { Config, SuggestionPreviewMode } from './utils/Config'
+import { DiscoPoPSuggestionGroup } from './discoPoP/suggestionTree/DiscoPoPSuggestionGroup'
+import { DiscoPoPSuggestionNode } from './discoPoP/suggestionTree/DiscoPoPSuggestionNode'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
