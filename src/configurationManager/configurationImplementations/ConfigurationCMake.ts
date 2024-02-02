@@ -1,10 +1,16 @@
-import { CancellationError, TreeItem } from 'vscode'
+import { TreeItem } from 'vscode'
+import { DiscoPoPResults } from '../../discoPoP/classes/DiscoPoPResults'
+import { HotspotDetectionResults } from '../../hotspotDetection/classes/HotspotDetectionResults'
+import { DiscoPoPCMakeWorkflowUI } from '../../runners/workflows/DiscoPoPCMakeWorkflowUI'
+import { HotspotDetectionCMakeWorkflowUI } from '../../runners/workflows/HotspotDetectionCMakeWorkflowUI'
+import { OptimizerWorkflowUI } from '../../runners/workflows/OptimizerWorkflowUI'
 import {
     Configuration,
     ConfigurationObserver,
     ConfigurationType,
     RunCapableConfiguration,
 } from '../Configuration'
+import { ConfigurationTreeItem } from '../ConfigurationTreeItem'
 import {
     Property,
     PropertyObserver,
@@ -12,24 +18,24 @@ import {
     StringProperty,
     SupportedType,
 } from '../Property'
-import { DiscoPoPResults } from '../../discoPoP/classes/DiscoPoPResults'
-import { DiscoPoPCMakeWorkflowUI } from '../../runners/workflows/DiscoPoPCMakeWorkflowUI'
-import { HotspotDetectionResults } from '../../hotspotDetection/classes/HotspotDetectionResults'
-import { HotspotDetectionCMakeWorkflowUI } from '../../runners/workflows/HotspotDetectionCMakeWorkflowUI'
+import { AdvancedConfigurationSettings } from './AdvancedConfigurationSettings'
 
 export class ConfigurationCMake
     extends Configuration
     implements RunCapableConfiguration, PropertyObserver
 {
     public constructor(
+        onConfigurationChange: ConfigurationObserver | undefined,
         name: string,
         projectPath: string,
         buildPath: string,
-        buildArguments: string,
         executableName: string,
-        executableArgumentsForDiscoPoP: string,
-        executableArgumentsForHotspotDetection: string[],
-        onConfigurationChange?: ConfigurationObserver
+        executableArgumentsForDiscoPoP: string = '',
+        executableArgumentsForHotspotDetection: string[] = [],
+        buildArguments: string = '',
+        overrideExplorerArguments: string = '',
+        overrideOptimizerArguments: string = '',
+        overrideHotspotDetectionArguments: string = ''
     ) {
         super(name, onConfigurationChange)
         this._projectPath = new StringProperty(
@@ -68,6 +74,12 @@ export class ConfigurationCMake
             StringProperty,
             'Arguments to pass to the executable when running the Hotspot Detection.',
             this
+        )
+        this._advancedConfigurationSettings = new AdvancedConfigurationSettings(
+            this,
+            overrideExplorerArguments,
+            overrideOptimizerArguments,
+            overrideHotspotDetectionArguments
         )
     }
 
@@ -145,6 +157,31 @@ export class ConfigurationCMake
         this.refresh()
     }
 
+    private readonly _advancedConfigurationSettings: AdvancedConfigurationSettings
+    public get overrideExplorerArguments(): string {
+        return this._advancedConfigurationSettings.overrideExplorerArguments
+    }
+    public set overrideExplorerArguments(value: string) {
+        this._advancedConfigurationSettings.overrideExplorerArguments = value
+        this.refresh()
+    }
+    public get overrideOptimizerArguments(): string {
+        return this._advancedConfigurationSettings.overrideOptimizerArguments
+    }
+    public set overrideOptimizerArguments(value: string) {
+        this._advancedConfigurationSettings.overrideOptimizerArguments = value
+        this.refresh()
+    }
+    public get overrideHotspotDetectionArguments(): string {
+        return this._advancedConfigurationSettings
+            .overrideHotspotDetectionArguments
+    }
+    public set overrideHotspotDetectionArguments(value: string) {
+        this._advancedConfigurationSettings.overrideHotspotDetectionArguments =
+            value
+        this.refresh()
+    }
+
     // TODO note to self: we should add a PropertyGroup class, which will be collapsible and will contain multiple properties to allow changing advanced settings
     // e.g. should another discopop installation be used?
     // e.g. should the build directory be cleared?
@@ -159,11 +196,15 @@ export class ConfigurationCMake
             name: this.name,
             projectPath: this.projectPath,
             buildPath: this.buildPath,
-            buildArguments: this.buildArguments,
             executableName: this.executableName,
             executableArgumentsForDiscoPoP: this.executableArgumentsForDiscoPoP,
             executableArgumentsForHotspotDetection:
                 this.executableArgumentsForHotspotDetection,
+            buildArguments: this.buildArguments,
+            overrideExplorerArguments: this.overrideExplorerArguments,
+            overrideOptimizerArguments: this.overrideOptimizerArguments,
+            overrideHotspotDetectionArguments:
+                this.overrideHotspotDetectionArguments,
         }
     }
 
@@ -173,7 +214,7 @@ export class ConfigurationCMake
         return treeItem
     }
 
-    public getChildren(): Property<SupportedType | SupportedType[]>[] {
+    public getChildren(): ConfigurationTreeItem[] {
         return [
             this._projectPath,
             this._buildPath,
@@ -181,6 +222,7 @@ export class ConfigurationCMake
             this._executableName,
             this._executableArgumentsForDiscoPoP,
             this._executableArgumentsForHotspotDetection,
+            this._advancedConfigurationSettings,
         ]
     }
 
@@ -192,7 +234,10 @@ export class ConfigurationCMake
                 this.executableName,
                 this.executableArgumentsForDiscoPoP,
                 this.buildPathForDiscoPoP,
-                this.dotDiscoPoP
+                this.dotDiscoPoP,
+                this.buildArguments,
+                this.overrideExplorerArguments,
+                this.overrideOptimizerArguments
             )
             return await dpRunner.run() // await because we want to catch errors here
         } catch (error) {
@@ -210,7 +255,11 @@ export class ConfigurationCMake
                 this.executableName,
                 this.executableArgumentsForHotspotDetection,
                 this.dotDiscoPoP,
-                this.buildPathForHotspotDetection
+                this.buildPathForHotspotDetection,
+                this.buildArguments,
+                this.overrideHotspotDetectionArguments
+                    ? this.overrideHotspotDetectionArguments
+                    : undefined
             )
             return await hsRunner.run() // await because we want to catch errors here
         } catch (error) {
@@ -218,5 +267,10 @@ export class ConfigurationCMake
         } finally {
             this.running = false
         }
+    }
+
+    public async runOptimizer(): Promise<DiscoPoPResults> {
+        const optimizerRunner = new OptimizerWorkflowUI(this.dotDiscoPoP)
+        return optimizerRunner.run(this.overrideOptimizerArguments)
     }
 }

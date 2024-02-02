@@ -1,8 +1,8 @@
 import * as vscode from 'vscode'
+import { HotspotDetectionResults } from '../../hotspotDetection/classes/HotspotDetectionResults'
 import { UIPrompts } from '../../utils/UIPrompts'
 import { CancelToken } from '../helpers/cancellation/CancelToken'
 import { UICancelTokenWrapper as UICancelToken } from '../helpers/cancellation/UICancelTokenWrapper'
-import { HotspotDetectionResults } from '../../hotspotDetection/classes/HotspotDetectionResults'
 import { HotspotDetectionCMakeWorkflow } from './HotspotDetectionCMakeWorkflow'
 
 export class HotspotDetectionCMakeWorkflowUI {
@@ -13,7 +13,9 @@ export class HotspotDetectionCMakeWorkflowUI {
         public readonly dotDiscoPoP: string = projectDirectory +
             'build/.discopop',
         public readonly buildDirectory: string = projectDirectory +
-            '/build/HotspotDetection'
+            '/build/HotspotDetection',
+        public readonly buildArguments: string = '',
+        public readonly overridHotspotDetectionArguments?: string
     ) {}
 
     public async run(): Promise<HotspotDetectionResults> {
@@ -58,7 +60,9 @@ export class HotspotDetectionCMakeWorkflowUI {
                     this.executableName,
                     this.executableArguments,
                     this.dotDiscoPoP,
-                    this.buildDirectory
+                    this.buildDirectory,
+                    this.buildArguments,
+                    this.overridHotspotDetectionArguments
                 )
 
                 // await because we want to catch errors

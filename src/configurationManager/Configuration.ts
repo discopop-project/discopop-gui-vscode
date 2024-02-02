@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
-import { TreeItem, ThemeIcon, TreeItemCollapsibleState } from 'vscode'
-import { ConfigurationTreeItem } from './ConfigurationTreeItem'
-import { Editable } from './Editable'
+import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode'
 import { DiscoPoPResults } from '../discoPoP/classes/DiscoPoPResults'
 import { HotspotDetectionResults } from '../hotspotDetection/classes/HotspotDetectionResults'
+import { ConfigurationTreeItem } from './ConfigurationTreeItem'
+import { Editable } from './Editable'
 
 export interface ConfigurationObserver {
     onConfigurationChange(configuration: Configuration): void
@@ -12,7 +12,7 @@ export interface ConfigurationObserver {
 export abstract class Configuration implements ConfigurationTreeItem, Editable {
     public constructor(
         private _name: string,
-        onConfigurationChange: ConfigurationObserver
+        onConfigurationChange: ConfigurationObserver | undefined
     ) {
         this._running = false
         if (onConfigurationChange !== undefined) {
@@ -96,11 +96,17 @@ export interface RunCapableConfiguration extends Configuration {
     runDiscoPoP(): Promise<DiscoPoPResults>
 
     /**
-     * Runs the HotspotDetection using the configuration's settings. After running, the results are stored in the .discopop directory.
-     * @returns true if successfully completed, false if aborted
+     * Runs the HotspotDetection using the configuration's settings. Returns the parsed results
      * @throws if errors occured
      */
     runHotspotDetection(): Promise<HotspotDetectionResults>
+
+    /**
+     * !!! Assumes that DiscoPoP was run before !!!
+     * Runs the optimizer using the configuration's settings. Returns the parsed results
+     * @throws if errors occured
+     */
+    runOptimizer(): Promise<DiscoPoPResults>
 }
 
 export enum ConfigurationType {

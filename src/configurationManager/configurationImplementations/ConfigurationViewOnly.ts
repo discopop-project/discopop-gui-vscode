@@ -35,6 +35,10 @@ export class ConfigurationViewOnly
         this.refresh()
     }
 
+    public get overrideOptimizerArguments(): string | undefined {
+        return undefined
+    }
+
     public readonly configurationType = ConfigurationType.ViewOnly
 
     public constructor(

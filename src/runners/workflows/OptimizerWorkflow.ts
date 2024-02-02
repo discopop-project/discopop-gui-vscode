@@ -10,13 +10,16 @@ export class OptimizerWorkflow {
     public async run(
         reportMessage: (message: string, nesting: number) => void,
         reportProgress: (progress: number) => void,
-        cancelToken: CancelToken
+        cancelToken: CancelToken,
+        overrideOptionsString?: string
     ): Promise<DiscoPoPResults> {
         const toolSuite = new ToolSuite(this.dotDiscoPoP)
 
         reportMessage('Running Optimizer...', 0)
         await toolSuite.discopopOptimizer.run(
-            DefaultOptimizerOptions,
+            overrideOptionsString
+                ? overrideOptionsString
+                : DefaultOptimizerOptions,
             cancelToken
         )
         reportProgress(80)

@@ -64,7 +64,7 @@ export class DiscoPoPOptimizer {
     }
 
     public async run(
-        options: OptimizerOptions = DefaultOptimizerOptions,
+        options: OptimizerOptions | string = DefaultOptimizerOptions,
         cancelToken?: CancelToken
     ): Promise<void> {
         await CommandExecution.commandExists(
@@ -73,10 +73,16 @@ export class DiscoPoPOptimizer {
             'Is DiscoPoP installed?'
         )
 
-        // merge provided options with default options
-        options = { ...DefaultOptimizerOptions, ...options }
-
-        const command = this._buildCommand(options)
+        // build the command string
+        let command: string
+        if (typeof options === 'string') {
+            console.log('Using override options for optimizer') // TODO: remove (or add it to the other overrides as well)
+            command = `discopop_optimizer ${options}`
+        } else {
+            // merge provided options with default options
+            options = { ...DefaultOptimizerOptions, ...options }
+            command = this._buildCommand(options)
+        }
 
         await CommandExecution.execute({
             command: command,

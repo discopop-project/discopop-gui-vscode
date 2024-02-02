@@ -13,14 +13,17 @@ export default function configurationFromJSON(
     switch (json.configurationType) {
         case ConfigurationType.CMake:
             return new ConfigurationCMake(
+                observer,
                 json.name,
                 json.projectPath,
                 json.buildPath,
-                json.buildArguments,
                 json.executableName,
                 json.executableArgumentsForDiscoPoP,
                 json.executableArgumentsForHotspotDetection,
-                observer
+                json.buildArguments || '',
+                json.overrideExplorerArguments || '',
+                json.overrideOptimizerArguments || '',
+                json.overrideHotspotDetectionArguments || ''
             )
         case ConfigurationType.ViewOnly:
             return new ConfigurationViewOnly(

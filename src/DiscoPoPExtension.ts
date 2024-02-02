@@ -32,6 +32,7 @@ import { Decoration } from './utils/Decorations'
 import { SimpleTreeNode } from './utils/SimpleTree'
 import { UIPrompts } from './utils/UIPrompts'
 import path = require('path')
+import { config } from 'process'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
@@ -328,13 +329,9 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.runOptimizer,
-                async (configuration: Configuration) => {
-                    // HotspotDetection
+                async (configuration: RunCapableConfiguration) => {
                     try {
-                        const hsRunner = new OptimizerWorkflowUI(
-                            configuration.dotDiscoPoP
-                        )
-                        this.dpResults = await hsRunner.run()
+                        this.dpResults = await configuration.runOptimizer()
                     } catch (error: any) {
                         if (error instanceof CancellationError) {
                             UIPrompts.showMessageForSeconds(
