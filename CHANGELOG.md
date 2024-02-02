@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.0.9
+
+-   previewing of suggestions improved:
+    -   separated preview from application
+    -   settings to control previewing and application
+-   do NOT show patterns that have applicable_pattern=false in patterns.json
+-   option to override arguments for explorer, optimizer, hotspot_analysis
+
 ## 0.0.8
 
 -   fix loading of results when hotspot detection was not executed
