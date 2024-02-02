@@ -23,7 +23,9 @@ export class HotspotDetectionCMakeWorkflow {
         public readonly executableArguments: string[],
         public readonly dotDiscoPoP: string = srcDirectory + 'build/.discopop',
         public readonly buildDirectory: string = srcDirectory +
-            '/build/HotspotDetection'
+            '/build/HotspotDetection',
+        public readonly buildArguments: string = '',
+        public readonly overrideExplorerArguments?: string
     ) {}
 
     /**
@@ -49,6 +51,7 @@ export class HotspotDetectionCMakeWorkflow {
                 executableName: this.executableName,
                 executableArguments: this.executableArguments,
                 buildDirectory: this.buildDirectory,
+                buildArguments: this.buildArguments,
             }
         )
 
@@ -87,7 +90,10 @@ export class HotspotDetectionCMakeWorkflow {
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running Hotspot Analysis...', 0)
-        await dpRunner.hotspotDetection.run(cancelToken) // TODO allow additional arguments?
+        await dpRunner.hotspotDetection.run(
+            cancelToken,
+            this.overrideExplorerArguments
+        ) // TODO allow additional arguments?
         reportProgress(30)
         this.throwUponCancellation(cancelToken)
 

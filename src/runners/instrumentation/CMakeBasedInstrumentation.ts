@@ -19,6 +19,7 @@ export interface CMakeProjectInfo {
     readonly executableName: string
     /** the executable will be run once for each entry in the array, providing the entry as command line arguments */
     readonly executableArguments: string[]
+    readonly buildArguments?: string
 }
 
 export class CMakeBasedInstrumentation {
@@ -56,8 +57,8 @@ export class CMakeBasedInstrumentation {
         }
         await CommandExecution.execute({
             command: `${await this.wrapperInfo.cmakeWrapper} ${
-                this.projectInfo.srcDirectory
-            }`,
+                this.projectInfo.buildArguments || ''
+            } ${this.projectInfo.srcDirectory}`,
             cwd: this.projectInfo.buildDirectory,
             cancelToken: cancelToken,
             throwOnNonZeroExitCode: true,

@@ -75,13 +75,13 @@ export class ConfigurationTreeDataProvider
                     return
                 }
 
-                const buildArguments = await vscode.window.showInputBox({
-                    prompt: 'Enter the build arguments',
-                    ignoreFocusOut: true,
-                })
-                if (buildArguments === undefined) {
-                    return
-                }
+                // const buildArguments = await vscode.window.showInputBox({
+                //     prompt: 'Enter the build arguments',
+                //     ignoreFocusOut: true,
+                // })
+                // if (buildArguments === undefined) {
+                //     return
+                // }
 
                 const executableName = await vscode.window.showInputBox({
                     prompt: 'Enter the name of the executable',
@@ -105,14 +105,15 @@ export class ConfigurationTreeDataProvider
                 )
 
                 configuration = new ConfigurationCMake(
+                    this,
                     name,
                     projectPath,
                     buildPath,
-                    buildArguments,
                     executableName,
                     executableArgumentsForDiscoPoP,
-                    [],
-                    this
+                    []
+                    // use default for the buildArguments
+                    // use default for all override... arguements
                 )
                 break
             case ConfigurationType.ViewOnly:

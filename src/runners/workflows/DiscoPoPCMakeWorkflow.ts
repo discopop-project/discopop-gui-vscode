@@ -23,7 +23,10 @@ export class DiscoPoPCMakeWorkflow {
         public readonly executableArguments: string = '',
         public readonly dotDiscoPoP: string = srcDirectory + 'build/.discopop',
         public readonly buildDirectory: string = srcDirectory +
-            '/build/DiscoPoP'
+            '/build/DiscoPoP',
+        public readonly buildArguments: string = '',
+        public readonly overrideExplorerArguments?: string,
+        public readonly overrideOptimizerArguments?: string
     ) {}
 
     /**
@@ -49,6 +52,7 @@ export class DiscoPoPCMakeWorkflow {
                 executableName: this.executableName,
                 executableArguments: [this.executableArguments],
                 buildDirectory: this.buildDirectory,
+                buildArguments: this.buildArguments,
             }
         )
 
@@ -87,7 +91,10 @@ export class DiscoPoPCMakeWorkflow {
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running Pattern Detection...', 0)
-        await toolSuite.discopopExplorer.run(cancelToken) // TODO allow additional arguments?
+        await toolSuite.discopopExplorer.run(
+            cancelToken,
+            this.overrideExplorerArguments
+        ) // TODO allow additional arguments?
         reportProgress(30)
         this.throwUponCancellation(cancelToken)
 

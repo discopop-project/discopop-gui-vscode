@@ -7,7 +7,7 @@ import { OptimizerWorkflow } from './OptimizerWorkflow'
 export class OptimizerWorkflowUI {
     public constructor(public readonly dotDiscoPoP: string) {}
 
-    public async run(): Promise<DiscoPoPResults> {
+    public async run(overrideOptionsString?: string): Promise<DiscoPoPResults> {
         return vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
@@ -38,12 +38,13 @@ export class OptimizerWorkflowUI {
 
                 const cancelToken: CancelToken = new UICancelTokenWrapper(token)
 
-                const dpRunnerCMake = new OptimizerWorkflow(this.dotDiscoPoP)
+                const optimizerRunner = new OptimizerWorkflow(this.dotDiscoPoP)
 
-                return await dpRunnerCMake.run(
+                return await optimizerRunner.run(
                     reportMessageWrapper,
                     reportProgressWrapper,
-                    cancelToken
+                    cancelToken,
+                    overrideOptionsString ? overrideOptionsString : undefined // ternary operator to avoid passing empty string, instead pass undefined
                 )
             }
         )

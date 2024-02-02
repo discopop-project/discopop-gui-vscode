@@ -11,7 +11,10 @@ export class DiscoPoPCMakeWorkflowUI {
         public readonly executableName: string,
         public readonly executableArguments: string = '',
         public readonly buildDirectory?: string,
-        public readonly dotDiscoPoP?: string
+        public readonly dotDiscoPoP?: string,
+        public readonly buildArguments?: string,
+        public readonly overrideExplorerArguments?: string,
+        public readonly overrideOptimizerArguments?: string
     ) {
         if (!this.buildDirectory) {
             this.buildDirectory = projectDirectory + '/build/DiscoPoP'
@@ -62,7 +65,10 @@ export class DiscoPoPCMakeWorkflowUI {
                     this.executableName,
                     this.executableArguments,
                     this.dotDiscoPoP,
-                    this.buildDirectory
+                    this.buildDirectory,
+                    this.buildArguments,
+                    this.overrideExplorerArguments,
+                    this.overrideOptimizerArguments
                 )
 
                 // await because we want to catch errors
