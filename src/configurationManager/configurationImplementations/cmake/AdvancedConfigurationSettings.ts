@@ -1,7 +1,7 @@
 import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode'
-import { ConfigurationTreeItem } from '../ConfigurationTreeItem'
-import { Property, PropertyObserver, StringProperty } from '../Property'
 import { ConfigurationCMake } from './ConfigurationCMake'
+import { ConfigurationTreeItem } from '../../ConfigurationTreeItem'
+import { Property, PropertyObserver, StringProperty } from '../../Property'
 
 export class AdvancedConfigurationSettings
     implements ConfigurationTreeItem, PropertyObserver
