@@ -1,23 +1,23 @@
 import { TreeItem } from 'vscode'
-import { DiscoPoPResults } from '../../discoPoP/classes/DiscoPoPResults'
-import { HotspotDetectionResults } from '../../hotspotDetection/classes/HotspotDetectionResults'
-import { DiscoPoPCMakeWorkflowUI } from '../../runners/workflows/DiscoPoPCMakeWorkflowUI'
-import { HotspotDetectionCMakeWorkflowUI } from '../../runners/workflows/HotspotDetectionCMakeWorkflowUI'
-import { OptimizerWorkflowUI } from '../../runners/workflows/OptimizerWorkflowUI'
+import { DiscoPoPResults } from '../../../discoPoP/classes/DiscoPoPResults'
+import { HotspotDetectionResults } from '../../../hotspotDetection/classes/HotspotDetectionResults'
+import { DiscoPoPCMakeWorkflowUI } from '../../../runners/workflows/DiscoPoPCMakeWorkflowUI'
+import { HotspotDetectionCMakeWorkflowUI } from '../../../runners/workflows/HotspotDetectionCMakeWorkflowUI'
+import { OptimizerWorkflowUI } from '../../../runners/workflows/OptimizerWorkflowUI'
 import {
     Configuration,
     ConfigurationObserver,
     ConfigurationType,
     RunCapableConfiguration,
-} from '../Configuration'
-import { ConfigurationTreeItem } from '../ConfigurationTreeItem'
+} from '../../Configuration'
+import { ConfigurationTreeItem } from '../../ConfigurationTreeItem'
 import {
     Property,
     PropertyObserver,
     StringArrayProperty,
     StringProperty,
     SupportedType,
-} from '../Property'
+} from '../../Property'
 import { AdvancedConfigurationSettings } from './AdvancedConfigurationSettings'
 
 export class ConfigurationCMake

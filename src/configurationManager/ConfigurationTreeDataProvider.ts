@@ -6,10 +6,10 @@ import {
     ConfigurationObserver,
     ConfigurationType,
 } from './Configuration'
-import { ConfigurationTreeItem } from './ConfigurationTreeItem'
 import configurationFromJSON from './ConfigurationDeserializer'
-import { ConfigurationCMake } from './configurationImplementations/ConfigurationCMake'
-import { ConfigurationViewOnly } from './configurationImplementations/ConfigurationViewOnly'
+import { ConfigurationTreeItem } from './ConfigurationTreeItem'
+import { ConfigurationCMake } from './configurationImplementations/cmake/ConfigurationCMake'
+import { ConfigurationViewOnly } from './configurationImplementations/viewOnly/ConfigurationViewOnly'
 
 export class ConfigurationTreeDataProvider
     extends SimpleTree<ConfigurationTreeItem>
@@ -75,6 +75,7 @@ export class ConfigurationTreeDataProvider
                     return
                 }
 
+                // TODO: update docs to reflect that this is not used anymore
                 // const buildArguments = await vscode.window.showInputBox({
                 //     prompt: 'Enter the build arguments',
                 //     ignoreFocusOut: true,
