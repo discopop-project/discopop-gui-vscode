@@ -36,6 +36,18 @@ export class DiscoPoPResults {
         return count
     }
 
+    public get countApplicable(): number {
+        let count = 0
+        for (const suggestions of this.suggestionsByType.values()) {
+            for (const suggestion of suggestions) {
+                if (suggestion.applicable_pattern) {
+                    count++
+                }
+            }
+        }
+        return count
+    }
+
     // TODO getSuggestionsForFileId(fileId: number): Suggestion[] { ... }
     // TODO getSuggestionsForFile(file: string): Suggestion[] { ... }
     // TODO getSuggestionsForType(type: string): Suggestion[] { ... }

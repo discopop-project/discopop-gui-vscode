@@ -39,18 +39,26 @@ export class SuggestionTree extends SimpleTree<
             )
         })
         discoPoPResults.appliedStatus.onDidChange(this._appliedStatusCallback)
+        this._applyFilter()
         this.refresh()
     }
 
+    // default filter: shows all suggestions which are NOT marked with applicable_pattern=false in patterns.json
     private _filter: (
         node: DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode
-    ) => boolean = () => true
+    ) => boolean = (node) =>
+        node instanceof DiscoPoPSuggestionGroup
+            ? true
+            : node.suggestion.applicable_pattern
+
+    /** supply a filter function to remove some of the suggestions from the view */
     public filter(
         filter: (
             node: DiscoPoPSuggestionNode | DiscoPoPSuggestionGroup
         ) => boolean
     ): void {
         this._filter = filter
+        this._applyFilter()
         this.refresh()
     }
 
@@ -69,7 +77,6 @@ export class SuggestionTree extends SimpleTree<
     }
 
     public refresh(): void {
-        this._applyFilter()
         super.refresh()
     }
 
@@ -92,8 +99,9 @@ export class SuggestionTree extends SimpleTree<
         return count
     }
 
-    public get countAll(): number {
-        return this._discoPoPResults.count
+    /** does not consider patterns that are marked with applicable_pattern=false in patterns.json */
+    public get countTotalApplicable(): number {
+        return this._discoPoPResults.countApplicable
     }
 
     public updateAppliedStatus(
