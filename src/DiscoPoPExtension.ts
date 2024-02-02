@@ -1,5 +1,5 @@
-import * as vscode from 'vscode'
 import * as fs from 'fs'
+import * as vscode from 'vscode'
 import {
     Configuration,
     RunCapableConfiguration,
@@ -10,29 +10,28 @@ import { Editable } from './configurationManager/Editable'
 import { DiscoPoPCodeLensProvider } from './discoPoP/DiscoPoPCodeLensProvider'
 import { DiscoPoPDetailViewProvider } from './discoPoP/DiscoPoPDetailViewProvider'
 import { DiscoPoPParser } from './discoPoP/DiscoPoPParser'
-import { SuggestionTree } from './discoPoP/suggestionTree/DiscoPoPSuggestionTree'
 import { DiscoPoPResults } from './discoPoP/classes/DiscoPoPResults'
 import { Suggestion } from './discoPoP/classes/Suggestion/Suggestion'
+import { DiscoPoPSuggestionGroup } from './discoPoP/suggestionTree/DiscoPoPSuggestionGroup'
+import { DiscoPoPSuggestionNode } from './discoPoP/suggestionTree/DiscoPoPSuggestionNode'
+import { SuggestionTree } from './discoPoP/suggestionTree/DiscoPoPSuggestionTree'
 import { FileMapping } from './fileMapping/FileMapping'
 import { HotspotDetailViewProvider } from './hotspotDetection/HotspotDetailViewProvider'
 import { HotspotDetectionParser } from './hotspotDetection/HotspotDetectionParser'
 import { HotspotTree } from './hotspotDetection/HotspotTree'
 import { Hotspot } from './hotspotDetection/classes/Hotspot'
 import { HotspotDetectionResults } from './hotspotDetection/classes/HotspotDetectionResults'
+import { CommandExecution } from './runners/helpers/CommandExecution'
+import { CancellationError } from './runners/helpers/cancellation/CancellationError'
+import { DiscoPoPConfigProvider } from './runners/tools/DiscoPoPConfigProvider'
+import { ToolSuite } from './runners/tools/ToolSuite'
+import { OptimizerWorkflowUI } from './runners/workflows/OptimizerWorkflowUI'
 import { Commands } from './utils/Commands'
+import { Config, SuggestionPreviewMode } from './utils/Config'
 import { Decoration } from './utils/Decorations'
 import { SimpleTreeNode } from './utils/SimpleTree'
 import { UIPrompts } from './utils/UIPrompts'
-import { ToolSuite } from './runners/tools/ToolSuite'
-import { CancellationError } from './runners/helpers/cancellation/CancellationError'
-import { OptimizerWorkflow } from './runners/workflows/OptimizerWorkflow'
-import { OptimizerWorkflowUI } from './runners/workflows/OptimizerWorkflowUI'
-import { DiscoPoPConfigProvider } from './runners/tools/DiscoPoPConfigProvider'
-import { CommandExecution } from './runners/helpers/CommandExecution'
 import path = require('path')
-import { Config, SuggestionPreviewMode } from './utils/Config'
-import { DiscoPoPSuggestionGroup } from './discoPoP/suggestionTree/DiscoPoPSuggestionGroup'
-import { DiscoPoPSuggestionNode } from './discoPoP/suggestionTree/DiscoPoPSuggestionNode'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
@@ -828,6 +827,10 @@ export class DiscoPoPExtension {
                         await vscode.window.showQuickPick(
                             [
                                 {
+                                    label: 'All (default)',
+                                    description: 'Show all suggestions',
+                                },
+                                {
                                     label: 'Applied',
                                     description:
                                         'Show only applied suggestions',
@@ -837,10 +840,10 @@ export class DiscoPoPExtension {
                                     description:
                                         'Show only unapplied suggestions',
                                 },
-                                {
-                                    label: 'All',
-                                    description: 'Show all suggestions',
-                                },
+                                // {
+                                //     label: "All, including unapplicable patterns",
+                                //     description: "Show all suggestions, including unapplicable patterns."
+                                // }
                             ],
                             {
                                 placeHolder: 'Select what suggestions to show',
@@ -854,18 +857,24 @@ export class DiscoPoPExtension {
                     this.suggestionTree?.filter((node) => {
                         if (node instanceof DiscoPoPSuggestionNode) {
                             if (filterQuickPickItem.label === 'Applied') {
-                                return node.suggestion.isApplied(
-                                    this.dpResults.appliedStatus
-                                )
+                                return (
+                                    node.suggestion.isApplied(
+                                        this.dpResults.appliedStatus // only show applied suggestions
+                                    ) && node.suggestion.applicable_pattern
+                                ) // only show applicable patterns
                             } else if (
                                 filterQuickPickItem.label === 'Unapplied'
                             ) {
-                                return !node.suggestion.isApplied(
-                                    this.dpResults.appliedStatus
-                                )
+                                return (
+                                    !node.suggestion.isApplied(
+                                        this.dpResults.appliedStatus // only show unapplied suggestions
+                                    ) && node.suggestion.applicable_pattern
+                                ) // only show applicable patterns
                             }
-                            return true
+                            // All (default)
+                            return node.suggestion.applicable_pattern // only show applicable patterns
                         } else {
+                            // show all groups (empty groups will internally be removed by the treeDataProvider)
                             return true
                         }
                     })
@@ -923,7 +932,7 @@ export class DiscoPoPExtension {
     private _updateTreeViewTitleAndMessage() {
         if (this.suggestionTreeView && this.suggestionTree && this.dpResults) {
             const visible = this.suggestionTree.countVisible
-            const total = this.suggestionTree.countAll
+            const total = this.suggestionTree.countTotalApplicable
             this.suggestionTreeView.title = `Suggestions (${total})`
             if (visible !== total) {
                 this.suggestionTreeView.message = `Showing ${visible} out of ${total} suggestions`

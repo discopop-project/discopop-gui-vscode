@@ -27,17 +27,6 @@ export class DiscoPoPSuggestionGroup
     }
 
     public getChildren(): (DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode)[] {
-        return this.children.filter((child) => {
-            const accept =
-                child instanceof DiscoPoPSuggestionGroup ||
-                child.suggestion.applicable_pattern
-            if (!accept) {
-                console.log(
-                    'Not showing unapplicable suggestion: ' +
-                        child.suggestion.id
-                )
-            }
-            return accept
-        })
+        return this.children
     }
 }
