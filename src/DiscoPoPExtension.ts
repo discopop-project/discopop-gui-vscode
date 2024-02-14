@@ -893,7 +893,7 @@ export class DiscoPoPExtension {
         // request confirmation
         if (
             // TODO we should add an option to skip this confirmation message to the settings, e.g.
-            // config.skipSuggestionApplicationConfirmation ||
+            Config.suggestionApplySkipConfirmation ||
             (await vscode.window.showQuickPick(['Apply Suggestion', 'Cancel'], {
                 placeHolder: `Apply suggestion ${suggestion.id}?`,
                 title: `Apply suggestion ${suggestion.id}?`,

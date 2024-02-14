@@ -5,12 +5,12 @@ import { CommandExecution } from '../helpers/CommandExecution'
 
 export interface WrapperInfo {
     readonly cmakeWrapper: Promise<string>
-    // ccWrapper
-    // cxxWrapper
-    // ldWrapper
-    // mpiccWrapper
-    // mpicxxWrapper
-    // mpildWrapper
+    readonly ccWrapper?: Promise<string>
+    readonly cxxWrapper?: Promise<string>
+    readonly ldWrapper?: Promise<string>
+    readonly mpiccWrapper?: Promise<string>
+    readonly mpicxxWrapper?: Promise<string>
+    readonly mpildWrapper?: Promise<string>
 }
 
 export interface CMakeProjectInfo {
@@ -29,11 +29,11 @@ export class CMakeBasedInstrumentation {
         public readonly projectInfo: CMakeProjectInfo
     ) {
         // cmake has some compiler tests that mess up our results
-        // fix:
+        // implemented workaround:
         //  --> run cmake without providing a path to .discopop --> will create a local .discopop directory
         //  --> then delete the local .discopop directory as it only contains invalid information
         // this fix requires however that the provided .discopop directory is not the same as the local .discopop directory
-        // (otherwise we might delete information that we still need)
+        // (otherwise we might delete information that we still need, e.g. results from other instrumentation passes)
         if (dotDiscoPoP === projectInfo.buildDirectory + '/.discopop') {
             throw new Error(
                 'Currently we do not support .discopop inside the build directory. Please provide a different location for .discopop.'
