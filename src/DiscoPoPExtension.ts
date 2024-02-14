@@ -4,9 +4,9 @@ import {
     Configuration,
     RunCapableConfiguration,
 } from './configurationManager/Configuration'
-import configurationFromJSON from './configurationManager/ConfigurationDeserializer'
 import { ConfigurationTreeDataProvider } from './configurationManager/ConfigurationTreeDataProvider'
 import { Editable } from './configurationManager/Editable'
+import configurationFromJSON from './configurationManager/configurationImplementations/ConfigurationDeserializer'
 import { DiscoPoPCodeLensProvider } from './discoPoP/DiscoPoPCodeLensProvider'
 import { DiscoPoPDetailViewProvider } from './discoPoP/DiscoPoPDetailViewProvider'
 import { DiscoPoPParser } from './discoPoP/DiscoPoPParser'
@@ -25,14 +25,12 @@ import { CommandExecution } from './runners/helpers/CommandExecution'
 import { CancellationError } from './runners/helpers/cancellation/CancellationError'
 import { DiscoPoPConfigProvider } from './runners/tools/DiscoPoPConfigProvider'
 import { ToolSuite } from './runners/tools/ToolSuite'
-import { OptimizerWorkflowUI } from './runners/workflows/OptimizerWorkflowUI'
 import { Commands } from './utils/Commands'
 import { Config, SuggestionPreviewMode } from './utils/Config'
 import { Decoration } from './utils/Decorations'
 import { SimpleTreeNode } from './utils/SimpleTree'
 import { UIPrompts } from './utils/UIPrompts'
 import path = require('path')
-import { config } from 'process'
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {

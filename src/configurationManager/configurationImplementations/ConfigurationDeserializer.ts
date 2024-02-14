@@ -2,9 +2,9 @@ import {
     Configuration,
     ConfigurationObserver,
     ConfigurationType,
-} from './Configuration'
-import { ConfigurationCMake } from './configurationImplementations/cmake/ConfigurationCMake'
-import { ConfigurationViewOnly } from './configurationImplementations/viewOnly/ConfigurationViewOnly'
+} from '../Configuration'
+import { ConfigurationCMake } from './cmake/ConfigurationCMake'
+import { ConfigurationViewOnly } from './viewOnly/ConfigurationViewOnly'
 
 export default function configurationFromJSON(
     json: any,
