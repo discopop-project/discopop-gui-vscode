@@ -7,6 +7,10 @@ import {
 import { ConfigurationTreeDataProvider } from './configurationManager/ConfigurationTreeDataProvider'
 import { Editable } from './configurationManager/Editable'
 import configurationFromJSON from './configurationManager/configurationImplementations/ConfigurationDeserializer'
+import {
+    CustomScripts,
+    Script,
+} from './configurationManager/configurationImplementations/viewOnly/CustomScripts'
 import { DiscoPoPCodeLensProvider } from './discoPoP/DiscoPoPCodeLensProvider'
 import { DiscoPoPDetailViewProvider } from './discoPoP/DiscoPoPDetailViewProvider'
 import { DiscoPoPParser } from './discoPoP/DiscoPoPParser'
@@ -417,6 +421,103 @@ export class DiscoPoPExtension {
                             message += ': ' + error.message
                         }
                         UIPrompts.showMessageForSeconds(message, 8)
+                    }
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.addScript,
+                async (customScripts: CustomScripts) => {
+                    // let the user input the path to the script
+                    const config = customScripts.configuration
+                    let defaultScriptPath = config.dotDiscoPoP
+                    defaultScriptPath = defaultScriptPath.slice(
+                        0,
+                        defaultScriptPath.lastIndexOf(path.sep)
+                    )
+                    defaultScriptPath = defaultScriptPath + '/run.sh'
+                    const scriptPath = await vscode.window.showInputBox({
+                        placeHolder: 'Enter the path to the script',
+                        title: 'Add a new script',
+                        value: defaultScriptPath,
+                    })
+                    if (!scriptPath) {
+                        return
+                    }
+                    config.addScript(scriptPath)
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.runScript,
+                async (script: Script) => {
+                    // indicate if the script does not exist
+                    if (!fs.existsSync(script.value)) {
+                        vscode.window.showErrorMessage(
+                            `The script "${script.value}" does not exist.`
+                        )
+                        return
+                    }
+
+                    // indicate if the script is not a file
+                    if (!fs.statSync(script.value).isFile()) {
+                        vscode.window.showErrorMessage(
+                            `The script "${script.value}" is not a file.`
+                        )
+                        return
+                    }
+
+                    // indicate if the script is not executable
+                    if (!(fs.statSync(script.value).mode & 0o111)) {
+                        vscode.window.showErrorMessage(
+                            `The script "${script.value}" is not executable.`
+                        )
+                        return
+                    }
+
+                    try {
+                        // execute the script
+                        // TODO make cancellation possible
+                        const execResult = await script.run()
+                        // show the output
+                        // TODO surely there is a better way to show the output
+                        if (execResult.stdout) {
+                            vscode.window.showInformationMessage(
+                                execResult.stdout
+                            )
+                        }
+                        if (execResult.stderr) {
+                            vscode.window.showErrorMessage(execResult.stderr)
+                        }
+                        if (execResult.exitCode !== 0) {
+                            vscode.window.showErrorMessage(
+                                `The script "${script.value}" exited with code ${execResult.exitCode}.`
+                            )
+                        }
+                    } catch (error: any) {
+                        logAndShowErrorMessageHandler(
+                            error,
+                            'Failed to run script: '
+                        )
+                    }
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.removeScript,
+                async (script: Script) => {
+                    if (
+                        await UIPrompts.actionConfirmed(
+                            `Are you sure you want to remove the script "${script.value}"?`
+                        )
+                    ) {
+                        script.parent.removeScript(script)
                     }
                 }
             )

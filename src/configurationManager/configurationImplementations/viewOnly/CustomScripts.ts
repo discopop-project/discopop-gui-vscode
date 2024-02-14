@@ -1,8 +1,11 @@
 import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode'
+import {
+    CommandExecution,
+    ExecutionResult,
+} from '../../../runners/helpers/CommandExecution'
 import { ConfigurationTreeItem } from '../../ConfigurationTreeItem'
 import { Property, PropertyObserver, StringProperty } from '../../Property'
 import { ConfigurationViewOnly } from './ConfigurationViewOnly'
-import { CommandExecution } from '../../../runners/helpers/CommandExecution'
 
 export class Script extends StringProperty {
     // TODO add a way to actually run the script
@@ -16,15 +19,19 @@ export class Script extends StringProperty {
     private static counter = 0
     public constructor(
         scriptPath: string,
-        onPropertyChanged: PropertyObserver
+        private _parent: CustomScripts & PropertyObserver // we may want to separate them in the future
     ) {
-        super('' + Script.counter++, scriptPath, '', onPropertyChanged)
+        super('' + Script.counter++, scriptPath, '', _parent)
     }
 
-    public run() {
-        CommandExecution.execute({
+    public get parent(): CustomScripts {
+        return this._parent
+    }
+
+    public run(): Promise<ExecutionResult> {
+        return CommandExecution.execute({
             command: this.value,
-            throwOnNonZeroExitCode: true,
+            throwOnNonZeroExitCode: false,
             // cwd?
             // env?
             // cancellation?
@@ -48,6 +55,10 @@ export class CustomScripts implements ConfigurationTreeItem, PropertyObserver {
         scripts: string[]
     ) {
         this._scripts = scripts.map((script) => new Script(script, this))
+    }
+
+    public get configuration(): ConfigurationViewOnly {
+        return this.viewOnlyConfig
     }
 
     private _scripts: Script[]
@@ -82,10 +93,9 @@ export class CustomScripts implements ConfigurationTreeItem, PropertyObserver {
             TreeItemCollapsibleState.Collapsed
         )
         treeItem.iconPath = new ThemeIcon('symbol-class')
-        treeItem.description = 'TODO'
-        treeItem.tooltip = 'TODO'
+        treeItem.description = undefined
+        treeItem.tooltip = 'Define custom scripts and run them at will'
         treeItem.contextValue = 'customScripts'
-        // TODO add a command to add scripts
         return treeItem
     }
 

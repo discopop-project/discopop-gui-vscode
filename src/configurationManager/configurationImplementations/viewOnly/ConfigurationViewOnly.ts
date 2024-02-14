@@ -36,6 +36,9 @@ export class ConfigurationViewOnly
     public set scripts(scripts: string[]) {
         this._scripts.scripts = scripts
     }
+    addScript(scriptPath: string): void {
+        this._scripts.addScript(scriptPath)
+    }
 
     public constructor(
         name: string,
@@ -66,12 +69,8 @@ export class ConfigurationViewOnly
     }
 
     getChildren(): ConfigurationTreeItem[] {
-        // dotDiscoPoP and scripts (if there are any) are the only children
-        // TODO always show scripts
-        return [
-            this._dotDiscoPoP,
-            ...(this._scripts.count > 0 ? [this._scripts] : []),
-        ]
+        // dotDiscoPoP and scripts are the only children
+        return [this._dotDiscoPoP, this._scripts]
     }
 
     toJSON(): any {
