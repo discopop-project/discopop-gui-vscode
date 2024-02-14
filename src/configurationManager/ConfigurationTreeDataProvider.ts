@@ -6,8 +6,8 @@ import {
     ConfigurationObserver,
     ConfigurationType,
 } from './Configuration'
-import configurationFromJSON from './ConfigurationDeserializer'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
+import configurationFromJSON from './configurationImplementations/ConfigurationDeserializer'
 import { ConfigurationCMake } from './configurationImplementations/cmake/ConfigurationCMake'
 import { ConfigurationViewOnly } from './configurationImplementations/viewOnly/ConfigurationViewOnly'
 
@@ -18,7 +18,6 @@ export class ConfigurationTreeDataProvider
     public constructor(private _context: ExtensionContext) {
         super([])
         this._loadConfigurationsFromStableStorage()
-        this.refresh()
     }
 
     public async createAndAddConfiguration(): Promise<void> {
