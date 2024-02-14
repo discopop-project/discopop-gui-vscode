@@ -763,8 +763,6 @@ export class DiscoPoPExtension {
                     const previewMode = Config.suggestionPreviewMode()
                     switch (previewMode) {
                         case SuggestionPreviewMode.EDITOR: {
-                            // TODO make sure they open in a single tab group to avoid multiple splits and tiny editors
-
                             const viewColumn =
                                 vscode.window.activeTextEditor?.viewColumn +
                                     1 || vscode.ViewColumn.Beside
@@ -991,37 +989,49 @@ export class DiscoPoPExtension {
         // --> if hotspot results are available for the loop/function, we should also show them in the detail view
         // --> we could highlight the code lines affected by the suggestion in the editor
 
-        // request confirmation
-        if (
-            // TODO we should add an option to skip this confirmation message to the settings, e.g.
-            Config.suggestionApplySkipConfirmation ||
-            (await vscode.window.showQuickPick(['Apply Suggestion', 'Cancel'], {
-                placeHolder: `Apply suggestion ${suggestion.id}?`,
-                title: `Apply suggestion ${suggestion.id}?`,
-            })) === 'Apply Suggestion'
-        ) {
-            // apply the suggestion
-            const dpTools = new ToolSuite(dotDiscoPoP)
-            this.codeLensProvider?.wait()
-            const returnCode = await dpTools.discopopPatchApplicator.patchApply(
-                suggestion.id
-            )
-            switch (returnCode) {
-                case 0:
-                    UIPrompts.showMessageForSeconds(
-                        'Successfully applied suggestion ' + suggestion.id
-                    )
-                    break
-                default:
-                    UIPrompts.showMessageForSeconds(
-                        'Failed to apply suggestion ' +
-                            suggestion.id +
-                            '. Error code: ' +
-                            returnCode
-                    )
-                    this.codeLensProvider?.stopWaitingForAppliedStatus()
-                    this.codeLensProvider?.stopWaitingForLineMapping()
+        // if settings specify to skip confirmation, apply the suggestion immediately
+        if (Config.suggestionApplySkipConfirmation()) {
+            this._applySuggestionWithoutConfirmation(dotDiscoPoP, suggestion)
+        } else {
+            // otherwise, ask for confirmation
+            if (
+                await UIPrompts.actionConfirmed(
+                    `Are you sure you want to apply suggestion ${suggestion.id}? This will modify your source code! You can disable this message in the settings.`
+                )
+            ) {
+                this._applySuggestionWithoutConfirmation(
+                    dotDiscoPoP,
+                    suggestion
+                )
             }
+        }
+    }
+
+    private async _applySuggestionWithoutConfirmation(
+        dotDiscoPoP: string,
+        suggestion: Suggestion
+    ) {
+        // apply the suggestion
+        const dpTools = new ToolSuite(dotDiscoPoP)
+        this.codeLensProvider?.wait()
+        const returnCode = await dpTools.discopopPatchApplicator.patchApply(
+            suggestion.id
+        )
+        switch (returnCode) {
+            case 0:
+                UIPrompts.showMessageForSeconds(
+                    'Successfully applied suggestion ' + suggestion.id
+                )
+                break
+            default:
+                UIPrompts.showMessageForSeconds(
+                    'Failed to apply suggestion ' +
+                        suggestion.id +
+                        '. Error code: ' +
+                        returnCode
+                )
+                this.codeLensProvider?.stopWaitingForAppliedStatus()
+                this.codeLensProvider?.stopWaitingForLineMapping()
         }
     }
 
