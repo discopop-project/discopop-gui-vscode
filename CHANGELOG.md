@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.0.10
+
+-   you can now add scripts to viewOnly configurations and run them at will
+-   more documentation for extension developers
+-   changes to suggestion application confirmations:
+    -   feat: the dialog before apply a suggestion is now more aggressive to prevent accidental source code modifications.
+    -   fix: the dialog can be disabled in the settings
+
 ## 0.0.9
 
 -   previewing of suggestions improved:
