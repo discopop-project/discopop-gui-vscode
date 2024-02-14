@@ -30,20 +30,46 @@ export class Script extends StringProperty {
             // cancellation?
         })
     }
+
+    public getView(): TreeItem {
+        const treeItem = super.getView()
+        treeItem.iconPath = new ThemeIcon('terminal')
+        treeItem.label = this.value.split('/').pop() || this.value
+        treeItem.description = undefined
+        treeItem.tooltip = this.value
+        treeItem.contextValue = 'script'
+        return treeItem
+    }
 }
 
 export class CustomScripts implements ConfigurationTreeItem, PropertyObserver {
     public constructor(
         private viewOnlyConfig: ConfigurationViewOnly,
-        private _scripts: Script[] = []
+        scripts: string[]
     ) {
-        this._scripts.forEach((script) => script.addObserver(this))
+        this._scripts = scripts.map((script) => new Script(script, this))
     }
 
+    private _scripts: Script[]
     public addScript(scriptPath: string): void {
         const script = new Script(scriptPath, this)
         this._scripts.push(script)
         this.refresh()
+    }
+    public removeScript(script: Script): void {
+        this._scripts = this._scripts.filter((s) => s !== script)
+        this.refresh()
+    }
+    public get scripts(): string[] {
+        return this._scripts.map((script) => script.value)
+    }
+    public set scripts(scripts: string[]) {
+        this._scripts = scripts.map((script) => new Script(script, this))
+        this.refresh()
+    }
+
+    public get count(): number {
+        return this._scripts.length
     }
 
     public onPropertyChanged(property: Property<string | string[]>): void {

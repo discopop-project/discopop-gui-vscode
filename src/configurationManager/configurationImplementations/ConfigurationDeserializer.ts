@@ -29,7 +29,8 @@ export default function configurationFromJSON(
             return new ConfigurationViewOnly(
                 json.name,
                 observer,
-                json.dotDiscoPoP
+                json.dotDiscoPoP,
+                json.scripts
             )
         default:
             throw new Error('Unknown configuration type')
