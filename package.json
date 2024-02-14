@@ -120,16 +120,34 @@
                 "icon": "$(trashcan)"
             },
             {
+                "title": "Copy Configuration",
+                "command": "discopop.copyConfiguration",
+                "category": "DiscoPoP",
+                "icon": "$(copy)"
+            },
+            {
                 "title": "Edit",
                 "command": "discopop.editConfigurationOrProperty",
                 "category": "DiscoPoP",
                 "icon": "$(edit)"
             },
             {
-                "title": "Copy Configuration",
-                "command": "discopop.copyConfiguration",
+                "title": "Add Script",
+                "command": "discopop.addScript",
                 "category": "DiscoPoP",
-                "icon": "$(copy)"
+                "icon": "$(add)"
+            },
+            {
+                "title": "Remove Script",
+                "command": "discopop.removeScript",
+                "category": "DiscoPoP",
+                "icon": "$(trashcan)"
+            },
+            {
+                "title": "Run Script",
+                "command": "discopop.runScript",
+                "category": "DiscoPoP",
+                "icon": "$(play)"
             },
             {
                 "title": "Run DiscoPoP and Hotspot Detection",
@@ -223,11 +241,11 @@
                     "when": "false"
                 },
                 {
-                    "command": "discopop.editConfigurationOrProperty",
+                    "command": "discopop.copyConfiguration",
                     "when": "false"
                 },
                 {
-                    "command": "discopop.copyConfiguration",
+                    "command": "discopop.editConfigurationOrProperty",
                     "when": "false"
                 },
                 {
@@ -248,6 +266,18 @@
                 },
                 {
                     "command": "discopop.loadResults",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.addScript",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.removeScript",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.runScript",
                     "when": "false"
                 },
                 {
@@ -338,6 +368,21 @@
                     "command": "discopop.editConfigurationOrProperty",
                     "when": "view == sidebar-projects-view && (viewItem=~/configuration/ || viewItem==propertyElement || viewItem==propertyArray)",
                     "group": "context@1"
+                },
+                {
+                    "command": "discopop.addScript",
+                    "when": "view == sidebar-projects-view && viewItem==customScripts",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "discopop.removeScript",
+                    "when": "view == sidebar-projects-view && viewItem==script",
+                    "group": "inline@2"
+                },
+                {
+                    "command": "discopop.runScript",
+                    "when": "view == sidebar-projects-view && viewItem==script",
+                    "group": "inline@4"
                 },
                 {
                     "command": "discopop.runDiscoPoPAndHotspotDetection",

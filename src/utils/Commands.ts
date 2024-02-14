@@ -6,6 +6,10 @@ export class Commands {
     public static editConfigurationOrProperty: string =
         'discopop.editConfigurationOrProperty'
 
+    public static addScript: string = 'discopop.addScript'
+    public static removeScript: string = 'discopop.removeScript'
+    public static runScript: string = 'discopop.runScript'
+
     // runners
     public static runDiscoPoP: string = 'discopop.runDiscoPoP'
     public static runHotspotDetection: string = 'discopop.runHotspotDetection'
