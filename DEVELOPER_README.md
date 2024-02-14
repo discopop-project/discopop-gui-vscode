@@ -63,3 +63,10 @@ Tip: The debugging support of vs code is quite good: Set breakpoints and then in
     -   **JSONWebViewProvider:** functionality to show json files in a vs code view. (e.g. Suggestion Details, Hotspot Details)
     -   **SimpleTree:** base class for tree views, (e.g. Configurations and Suggestions views.)
     -   **UIPrompts:** helpers to simplify user interaction
+
+## Creating Releases
+
+-   update the version in package.json
+-   update the CHANGELOG.md
+-   update the README.md compatibility table
+-   create a release using the github user interface
