@@ -8,34 +8,40 @@ import { ConfigurationTreeItem } from '../../ConfigurationTreeItem'
 import {
     Property,
     PropertyObserver,
-    StringArrayProperty,
     StringProperty,
     SupportedType,
 } from '../../Property'
+import { CustomScripts } from './CustomScripts'
 
 export class ConfigurationViewOnly
     extends Configuration
     implements PropertyObserver
 {
+    public readonly configurationType = ConfigurationType.ViewOnly
+
     private readonly _dotDiscoPoP: StringProperty
+
     public get dotDiscoPoP(): string {
         return this._dotDiscoPoP.value
     }
     public set dotDiscoPoP(value: string) {
         this._dotDiscoPoP.value = value
-        this.refresh()
+        this.refresh() // should happen automatically? can we remove this?
     }
 
-    public get overrideOptimizerArguments(): string | undefined {
-        return undefined
+    private _scripts: CustomScripts
+    public get scripts(): string[] {
+        return this._scripts.scripts
     }
-
-    public readonly configurationType = ConfigurationType.ViewOnly
+    public set scripts(scripts: string[]) {
+        this._scripts.scripts = scripts
+    }
 
     public constructor(
         name: string,
         onConfigurationChange: ConfigurationObserver,
-        dotDiscoPoP: string
+        dotDiscoPoP: string,
+        scripts: string[] = []
     ) {
         super(name, onConfigurationChange)
         this._dotDiscoPoP = new StringProperty(
@@ -44,6 +50,7 @@ export class ConfigurationViewOnly
             'Enter the path to the .discopop directory with the analysis results',
             this
         )
+        this._scripts = new CustomScripts(this, scripts)
     }
 
     onPropertyChanged(
@@ -59,14 +66,20 @@ export class ConfigurationViewOnly
     }
 
     getChildren(): ConfigurationTreeItem[] {
-        return [this._dotDiscoPoP]
+        // dotDiscoPoP and scripts (if there are any) are the only children
+        // TODO always show scripts
+        return [
+            this._dotDiscoPoP,
+            ...(this._scripts.count > 0 ? [this._scripts] : []),
+        ]
     }
 
     toJSON(): any {
         return {
             configurationType: this.configurationType,
             name: this.name,
-            dotDiscoPoP: this._dotDiscoPoP.value,
+            dotDiscoPoP: this.dotDiscoPoP,
+            scripts: this.scripts,
         }
     }
 }
