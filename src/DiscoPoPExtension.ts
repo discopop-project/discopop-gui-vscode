@@ -112,6 +112,8 @@ export class DiscoPoPExtension {
         })
     }
 
+    private markedSuggestions: number[] = []
+
     public constructor(private context: vscode.ExtensionContext) {
         //this.projectManager = new ProjectManager(context)
         this.configurationTreeDataProvider = new ConfigurationTreeDataProvider(
@@ -976,6 +978,77 @@ export class DiscoPoPExtension {
 
                     // update view
                     this._updateTreeViewTitleAndMessage()
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.markSuggestionForInteractiveExport,
+                async (suggestionNode: DiscoPoPSuggestionNode) => {
+                    if (
+                        this.markedSuggestions.includes(
+                            suggestionNode.suggestion.id
+                        )
+                    ) {
+                        this.markedSuggestions = this.markedSuggestions.filter(
+                            (id) => id !== suggestionNode.suggestion.id
+                        )
+                    } else {
+                        this.markedSuggestions.push(
+                            suggestionNode.suggestion.id
+                        )
+                    }
+                }
+            )
+        )
+
+        this.context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.createInteractiveExport,
+                async () => {
+                    if (!this.dpResults) {
+                        vscode.window.showErrorMessage(
+                            'No DiscoPoP results available.'
+                        )
+                        return
+                    }
+                    if (this.markedSuggestions.length === 0) {
+                        vscode.window.showErrorMessage(
+                            'No suggestions marked for interactive export.'
+                        )
+                        return
+                    }
+                    const dotDiscoPoP = this.dpResults.dotDiscoPoP
+                    const dpTools = new ToolSuite(dotDiscoPoP)
+
+                    try {
+                        await dpTools.discopopOptimizer.run({
+                            interactiveExport: this.markedSuggestions,
+                        })
+                        this.markedSuggestions = []
+                        UIPrompts.showMessageForSeconds(
+                            'Interactive export created.'
+                        )
+
+                        // reload discopop results
+                        try {
+                            this.dpResults = await DiscoPoPParser.parse(
+                                dotDiscoPoP
+                            )
+                        } catch (error: any) {
+                            let message = 'Failed to load DiscoPoP results'
+                            if (error.message) {
+                                message += ': ' + error.message
+                            }
+                            UIPrompts.showMessageForSeconds(message, 8)
+                        }
+                    } catch (error: any) {
+                        logAndShowErrorMessageHandler(
+                            error,
+                            `Failed to create interactive export: `
+                        )
+                    }
                 }
             )
         )

@@ -228,6 +228,18 @@
                 "command": "discopop.filterSuggestions",
                 "category": "DiscoPoP",
                 "icon": "$(filter)"
+            },
+            {
+                "title": "Mark/Demark Suggestion for Interactive Export (BETA)",
+                "command": "discopop.markSuggestionForInteractiveExport",
+                "category": "DiscoPoP",
+                "icon": "$(star)"
+            },
+            {
+                "title": "Create Interactive Export (BETA)",
+                "command": "discopop.createInteractiveExport",
+                "category": "DiscoPoP",
+                "icon": "$(star)"
             }
         ],
         "menus": {
@@ -299,6 +311,14 @@
                 {
                     "command": "discopop.filterSuggestions",
                     "when": "false"
+                },
+                {
+                    "command": "discopop.markSuggestionForInteractiveExport",
+                    "when": "false"
+                },
+                {
+                    "command": "discopop.createInteractiveExport",
+                    "when": "true"
                 }
             ],
             "view/title": [
@@ -314,6 +334,11 @@
                 },
                 {
                     "command": "discopop.filterSuggestions",
+                    "when": "view == sidebar-suggestions-view && discopop.suggestionsAvailable",
+                    "group": "navigation"
+                },
+                {
+                    "command": "discopop.createInteractiveExport",
                     "when": "view == sidebar-suggestions-view && discopop.suggestionsAvailable",
                     "group": "navigation"
                 }
@@ -348,6 +373,12 @@
                     "when": "view == sidebar-suggestions-view && viewItem==suggestion_applied",
                     "group": "inline@2",
                     "icon": "$(close)"
+                },
+                {
+                    "command": "discopop.markSuggestionForInteractiveExport",
+                    "when": "view == sidebar-suggestions-view && (viewItem==suggestion || viewItem==suggestion_applied)",
+                    "group": "context",
+                    "icon": "$(star)"
                 },
                 {
                     "command": "discopop.removeConfiguration",
