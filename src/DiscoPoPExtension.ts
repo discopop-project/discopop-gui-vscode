@@ -1019,30 +1019,43 @@ export class DiscoPoPExtension {
                         )
                         return
                     }
+
+                    // always reset the marked suggestions first (we work on a copy)
+                    const markedSuggestions = []
+                    for (const suggestionId of this.markedSuggestions) {
+                        markedSuggestions.push(suggestionId)
+                    }
+                    this.markedSuggestions = []
+
                     const dotDiscoPoP = this.dpResults.dotDiscoPoP
                     const dpTools = new ToolSuite(dotDiscoPoP)
 
                     try {
+                        // TODO create a workflow for this
+                        // - run optimizer
+                        // - run optimizer with interactive export
+                        // - create patches
+                        // - reload discopop results
+                        // make sure that aborting leaves everything in a stable state
+
+                        // run optimizer
+                        // TODO we probably don't want to run it every time...
+                        // for now we leave running the optimizer to the user
+
+                        // create interactive export
                         await dpTools.discopopOptimizer.run({
-                            interactiveExport: this.markedSuggestions,
+                            interactiveExport: markedSuggestions,
                         })
-                        this.markedSuggestions = []
-                        UIPrompts.showMessageForSeconds(
-                            'Interactive export created.'
-                        )
+
+                        // create patches
+                        await dpTools.discopopPatchGenerator.createOptimizedPatches()
 
                         // reload discopop results
-                        try {
-                            this.dpResults = await DiscoPoPParser.parse(
-                                dotDiscoPoP
-                            )
-                        } catch (error: any) {
-                            let message = 'Failed to load DiscoPoP results'
-                            if (error.message) {
-                                message += ': ' + error.message
-                            }
-                            UIPrompts.showMessageForSeconds(message, 8)
-                        }
+                        this.dpResults = await DiscoPoPParser.parse(dotDiscoPoP)
+
+                        UIPrompts.showMessageForSeconds(
+                            'Interactive export created successfully.'
+                        )
                     } catch (error: any) {
                         logAndShowErrorMessageHandler(
                             error,
