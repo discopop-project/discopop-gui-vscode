@@ -1,26 +1,64 @@
 import { CancelToken } from '../helpers/cancellation/CancelToken'
 import { CommandExecution } from '../helpers/CommandExecution'
 
-export enum OptimizerExecutionType {
-    Exhaustive = 'exhaustive',
-    Evolutionary = 'evolutionary',
-    Greedy = 'greedy',
+export enum OptimizationLevel {
+    None = 0,
+    Greedy = 1,
+    Evolutionary = 2,
+    Exhaustive = 3,
+}
+
+/** Program path pruning aggressiveness */
+export enum PathPruningAggressiveness {
+    /** no pruning */
+    None = 0,
+    /** prune to paths that cover 80% of observed decisions per path split */
+    One = 1,
+    /** prune to most likely path */
+    Two = 2,
+}
+
+export enum LogLevel {
+    DEBUG = 'DEBUG',
+    INFO = 'INFO',
+    WARNING = 'WARNING',
+    ERROR = 'ERROR',
+    CRITICAL = 'CRITICAL',
 }
 
 export interface OptimizerOptions {
-    executionType?: OptimizerExecutionType
+    // -h not modeled
     verbose?: boolean
+    pathPruningAggressiveness?: PathPruningAggressiveness
+    optimizationLevel?: OptimizationLevel
+    opt2Params?: string // TODO model them more explicitly
+    singleSuggestions?: boolean
     doallMicrobenchFile?: string
     reductionMicrobenchFile?: string
     systemConfigurationFile?: string
+    enableProfiling?: boolean
+    pinFunctionCallsToHost?: boolean
+    logLevel?: LogLevel
+    writeLog?: boolean
+
+    interactiveExport?: number[]
 }
 
 export const DefaultOptimizerOptions: OptimizerOptions = {
-    executionType: OptimizerExecutionType.Evolutionary,
     verbose: false,
+    pathPruningAggressiveness: undefined,
+    optimizationLevel: undefined,
+    opt2Params: undefined,
+    singleSuggestions: undefined,
     doallMicrobenchFile: undefined,
     reductionMicrobenchFile: undefined,
     systemConfigurationFile: undefined,
+    enableProfiling: undefined,
+    pinFunctionCallsToHost: undefined,
+    logLevel: undefined,
+    writeLog: undefined,
+
+    interactiveExport: undefined,
 }
 
 export class DiscoPoPOptimizer {
@@ -29,23 +67,24 @@ export class DiscoPoPOptimizer {
     private _buildCommand(options: OptimizerOptions): string {
         let command = `discopop_optimizer`
 
-        switch (options.executionType) {
-            case OptimizerExecutionType.Evolutionary:
-                break // default, does not need to be specified
-            case OptimizerExecutionType.Exhaustive:
-                command += ' --exhaustive'
-                break
-            case OptimizerExecutionType.Greedy:
-                command += ' --greedy'
-                break
-            default:
-                throw new Error(
-                    `Unknown execution type: ${options.executionType}`
-                )
-        }
-
         if (options.verbose) {
             command += ' --verbose'
+        }
+
+        if (options.pathPruningAggressiveness) {
+            command += ` -p ${options.pathPruningAggressiveness}`
+        }
+
+        if (options.optimizationLevel) {
+            command += ` -o ${options.optimizationLevel}`
+        }
+
+        if (options.opt2Params) {
+            command += ` -opt-2-params ${options.opt2Params}`
+        }
+
+        if (options.singleSuggestions) {
+            command += ' --single-suggestions'
         }
 
         if (options.doallMicrobenchFile) {
@@ -58,6 +97,28 @@ export class DiscoPoPOptimizer {
 
         if (options.systemConfigurationFile) {
             command += ` --system-configuration ${options.systemConfigurationFile}`
+        }
+
+        if (options.enableProfiling) {
+            command += ' --profiling'
+        }
+
+        if (options.pinFunctionCallsToHost) {
+            command += ' --pin-function-calls-to-host'
+        }
+
+        if (options.logLevel) {
+            command += ` --log ${options.logLevel}`
+        }
+
+        if (options.writeLog) {
+            command += ' --write-log'
+        }
+
+        if (options.interactiveExport) {
+            command += ` -i --interactive-export ${options.interactiveExport.join(
+                ','
+            )}`
         }
 
         return command
