@@ -30,6 +30,12 @@ export class Commands {
     public static rollbackAllSuggestions: string = 'discopop.clearSuggestions'
     public static filterSuggestions: string = 'discopop.filterSuggestions'
 
+    // interactive export
+    public static markSuggestionForInteractiveExport: string =
+        'discopop.markSuggestionForInteractiveExport'
+    public static createInteractiveExport: string =
+        'discopop.createInteractiveExport'
+
     // hotspots
     public static showHotspotDetails: string = 'discopop.showHotspotDetails'
 
