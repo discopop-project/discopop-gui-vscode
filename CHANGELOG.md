@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.11
+
+-   experimental support for pattern merging (BETA)
+
 ## 0.0.10
 
 -   you can now add scripts to viewOnly configurations and run them at will
