@@ -117,6 +117,7 @@ export class DiscoPoPExtension {
         this.configurationTreeDataProvider = new ConfigurationTreeDataProvider(
             context
         )
+
         const projectViewer = vscode.window.createTreeView(
             'sidebar-projects-view',
             { treeDataProvider: this.configurationTreeDataProvider }
@@ -797,16 +798,16 @@ export class DiscoPoPExtension {
                                 }
                             )
 
-                            // the peek will be shown at the startline of the suggestion
+                            // the peek will be shown at the endLine of the suggestion
                             const startUri = vscode.Uri.file(
                                 this.dpResults.fileMapping.getFilePath(
                                     suggestion.fileId
                                 )
                             )
                             const startPosition = new vscode.Position(
-                                suggestion.getMappedStartLine(
+                                suggestion.getMappedEndLine(
                                     this.dpResults.lineMapping
-                                ),
+                                ) - 1,
                                 0
                             )
 
