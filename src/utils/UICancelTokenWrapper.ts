@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { SimpleCancelToken } from './SimpleCancelToken'
+import { SimpleCancelToken } from '../runners/helpers/cancellation/SimpleCancelToken'
 
 export class UICancelTokenWrapper extends SimpleCancelToken {
     public constructor(private token: vscode.CancellationToken) {
