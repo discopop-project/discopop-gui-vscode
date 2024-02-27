@@ -22,9 +22,8 @@ export class ConfigurationTreeDataProvider
 
     public async createAndAddConfiguration(): Promise<void> {
         // let the user input all the necessary information for a new configuration
-        // using a vscode input box
-        // TODO this is ugly and should be replaced by a proper UI (nicer path selection, back button, step count, ...)
 
+        // type of configuration
         const type = await vscode.window.showQuickPick(
             Object.values(ConfigurationType),
             {
@@ -36,6 +35,7 @@ export class ConfigurationTreeDataProvider
             return
         }
 
+        // name of configuration
         const name = await vscode.window.showInputBox({
             prompt: 'Enter a name for the configuration',
             ignoreFocusOut: true,
@@ -73,15 +73,6 @@ export class ConfigurationTreeDataProvider
                 if (buildPath === undefined) {
                     return
                 }
-
-                // TODO: update docs to reflect that this is not used anymore
-                // const buildArguments = await vscode.window.showInputBox({
-                //     prompt: 'Enter the build arguments',
-                //     ignoreFocusOut: true,
-                // })
-                // if (buildArguments === undefined) {
-                //     return
-                // }
 
                 const executableName = await vscode.window.showInputBox({
                     prompt: 'Enter the name of the executable',

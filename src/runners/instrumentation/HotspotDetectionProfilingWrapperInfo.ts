@@ -1,5 +1,4 @@
-import { Config } from '../../utils/Config'
-import { CommandExecution } from '../helpers/CommandExecution'
+import { CommandExecution } from '../../utils/CommandExecution'
 import { WrapperInfo } from './CMakeBasedInstrumentation'
 
 export class HotspotDetectionProfilingWrapperInfo implements WrapperInfo {

@@ -1,7 +1,7 @@
 import * as fs from 'fs'
-import { CancellationError } from '../helpers/cancellation/CancellationError'
-import { CancelToken } from '../helpers/cancellation/CancelToken'
-import { CommandExecution } from '../helpers/CommandExecution'
+import { CommandExecution } from '../../utils/CommandExecution'
+import { CancelToken } from '../../utils/cancellation/CancelToken'
+import { CancellationError } from '../../utils/cancellation/CancellationError'
 
 export interface WrapperInfo {
     readonly cmakeWrapper: Promise<string>

@@ -1,4 +1,4 @@
-import { CommandExecution } from '../helpers/CommandExecution'
+import { CommandExecution } from '../../utils/CommandExecution'
 
 // TODO make sure we handle all error codes correctly!!!
 
