@@ -1,5 +1,5 @@
-import { CancelToken } from '../helpers/cancellation/CancelToken'
-import { CommandExecution } from '../helpers/CommandExecution'
+import { CommandExecution } from '../../utils/CommandExecution'
+import { CancelToken } from '../../utils/cancellation/CancelToken'
 
 export class DiscoPoPExplorer {
     public constructor(public readonly dotDiscoPoP: string) {}

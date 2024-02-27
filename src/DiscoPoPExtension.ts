@@ -5,36 +5,44 @@ import {
     RunCapableConfiguration,
 } from './configurationManager/Configuration'
 import { ConfigurationTreeDataProvider } from './configurationManager/ConfigurationTreeDataProvider'
-import { Editable } from './configurationManager/Editable'
 import configurationFromJSON from './configurationManager/configurationImplementations/ConfigurationDeserializer'
 import {
     CustomScripts,
     Script,
 } from './configurationManager/configurationImplementations/viewOnly/CustomScripts'
-import { DiscoPoPCodeLensProvider } from './discoPoP/DiscoPoPCodeLensProvider'
-import { DiscoPoPDetailViewProvider } from './discoPoP/DiscoPoPDetailViewProvider'
-import { DiscoPoPParser } from './discoPoP/DiscoPoPParser'
-import { DiscoPoPResults } from './discoPoP/classes/DiscoPoPResults'
-import { Suggestion } from './discoPoP/classes/Suggestion/Suggestion'
-import { DiscoPoPSuggestionGroup } from './discoPoP/suggestionTree/DiscoPoPSuggestionGroup'
-import { DiscoPoPSuggestionNode } from './discoPoP/suggestionTree/DiscoPoPSuggestionNode'
-import { SuggestionTree } from './discoPoP/suggestionTree/DiscoPoPSuggestionTree'
-import { FileMapping } from './fileMapping/FileMapping'
-import { HotspotDetailViewProvider } from './hotspotDetection/HotspotDetailViewProvider'
-import { HotspotDetectionParser } from './hotspotDetection/HotspotDetectionParser'
-import { HotspotTree } from './hotspotDetection/HotspotTree'
-import { Hotspot } from './hotspotDetection/classes/Hotspot'
-import { HotspotDetectionResults } from './hotspotDetection/classes/HotspotDetectionResults'
-import { CommandExecution } from './runners/helpers/CommandExecution'
-import { CancellationError } from './runners/helpers/cancellation/CancellationError'
+import { DiscoPoPResults } from './discopop/model/DiscoPoPResults'
+import { DiscoPoPSuggestion } from './discopop/model/DiscoPoPSuggestion'
+import { FileMapping } from './discopop/model/FileMapping'
+import { Hotspot } from './discopop/model/Hotspot'
+import { HotspotDetectionResults } from './discopop/model/HotspotDetectionResults'
+import { DiscoPoPCodeLensProvider } from './discopop/providers/DiscoPoPCodeLensProvider'
+import { DiscoPoPDetailViewProvider } from './discopop/providers/DiscoPoPDetailViewProvider'
+import { HotspotDetailViewProvider } from './discopop/providers/HotspotDetailViewProvider'
+import { HotspotTree } from './discopop/providers/HotspotTree'
+import { DiscoPoPSuggestionGroup } from './discopop/providers/discoPoPSuggestionTree/DiscoPoPSuggestionGroup'
+import { DiscoPoPSuggestionNode } from './discopop/providers/discoPoPSuggestionTree/DiscoPoPSuggestionNode'
+import { SuggestionTree } from './discopop/providers/discoPoPSuggestionTree/DiscoPoPSuggestionTree'
+import { ToolSuite } from './runners/ToolSuite'
 import { DiscoPoPConfigProvider } from './runners/tools/DiscoPoPConfigProvider'
-import { ToolSuite } from './runners/tools/ToolSuite'
+import { CommandExecution } from './utils/CommandExecution'
 import { Commands } from './utils/Commands'
 import { Config, SuggestionPreviewMode } from './utils/Config'
 import { Decoration } from './utils/Decorations'
 import { SimpleTreeNode } from './utils/SimpleTree'
 import { UIPrompts } from './utils/UIPrompts'
+import { CancellationError } from './utils/cancellation/CancellationError'
 import path = require('path')
+
+let extension: DiscoPoPExtension | undefined = undefined
+
+export async function activate(context: vscode.ExtensionContext) {
+    extension = new DiscoPoPExtension(context)
+    await extension.activate()
+}
+
+export function deactivate() {
+    extension?.deactivate()
+}
 
 function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
     if (optionalMessage) {
@@ -240,7 +248,7 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.editConfigurationOrProperty,
-                async (editable: Editable) => {
+                async (editable) => {
                     await editable.edit()
                 }
             )
@@ -402,7 +410,7 @@ export class DiscoPoPExtension {
                 async (configuration: Configuration) => {
                     // DiscoPoP
                     try {
-                        this.dpResults = await DiscoPoPParser.parse(
+                        this.dpResults = await DiscoPoPResults.parse(
                             configuration.dotDiscoPoP
                         )
                     } catch (error: any) {
@@ -415,7 +423,7 @@ export class DiscoPoPExtension {
 
                     // HotspotDetection
                     try {
-                        this.hsResults = await HotspotDetectionParser.parse(
+                        this.hsResults = await HotspotDetectionResults.parse(
                             configuration.dotDiscoPoP
                         )
                     } catch (error: any) {
@@ -699,8 +707,11 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.applySuggestions,
-                async (dotDiscoPoP: string, suggestions: Suggestion[]) => {
-                    let suggestion: Suggestion | undefined = undefined
+                async (
+                    dotDiscoPoP: string,
+                    suggestions: DiscoPoPSuggestion[]
+                ) => {
+                    let suggestion: DiscoPoPSuggestion | undefined = undefined
                     if (suggestions.length === 1) {
                         suggestion = suggestions[0]
                     } else {
@@ -1051,7 +1062,9 @@ export class DiscoPoPExtension {
                         await dpTools.discopopPatchGenerator.createOptimizedPatches()
 
                         // reload discopop results
-                        this.dpResults = await DiscoPoPParser.parse(dotDiscoPoP)
+                        this.dpResults = await DiscoPoPResults.parse(
+                            dotDiscoPoP
+                        )
 
                         UIPrompts.showMessageForSeconds(
                             'Interactive export created successfully.'
@@ -1069,7 +1082,7 @@ export class DiscoPoPExtension {
 
     private async _applySuggestionConfirmed(
         dotDiscoPoP: string,
-        suggestion: Suggestion
+        suggestion: DiscoPoPSuggestion
     ) {
         // TODO
         // --> we should set the detail view to the suggestion that is being applied
@@ -1096,7 +1109,7 @@ export class DiscoPoPExtension {
 
     private async _applySuggestionWithoutConfirmation(
         dotDiscoPoP: string,
-        suggestion: Suggestion
+        suggestion: DiscoPoPSuggestion
     ) {
         // apply the suggestion
         const dpTools = new ToolSuite(dotDiscoPoP)

@@ -19,7 +19,7 @@
     "activationEvents": [
         "onView:discopop-sidebar-view"
     ],
-    "main": "./out/extension.js",
+    "main": "./out/DiscoPoPExtension.js",
     "contributes": {
         "viewsContainers": {
             "activitybar": [
@@ -467,12 +467,11 @@
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "pretest": "npm run compile && npm run lint && npm run prettier",
         "prettier": "prettier --write \"src/**/*.ts\"",
         "lint": "eslint src --ext ts",
-        "test": "echo \"there are no tests. (node ./out/test/runTest.js)\"",
         "prepare": "husky install",
-        "commitlint": "commitlint --edit"
+        "commitlint": "commitlint --edit",
+        "depcruise": "depcruise src --output-type dot | dot -T svg > dependency-graph.svg"
     },
     "devDependencies": {
         "@commitlint/cli": "^17.7.2",

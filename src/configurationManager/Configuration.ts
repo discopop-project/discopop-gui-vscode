@@ -1,15 +1,14 @@
 import * as vscode from 'vscode'
 import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode'
-import { DiscoPoPResults } from '../discoPoP/classes/DiscoPoPResults'
-import { HotspotDetectionResults } from '../hotspotDetection/classes/HotspotDetectionResults'
+import { DiscoPoPResults } from '../discopop/model/DiscoPoPResults'
+import { HotspotDetectionResults } from '../discopop/model/HotspotDetectionResults'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
-import { Editable } from './Editable'
 
 export interface ConfigurationObserver {
     onConfigurationChange(configuration: Configuration): void
 }
 
-export abstract class Configuration implements ConfigurationTreeItem, Editable {
+export abstract class Configuration implements ConfigurationTreeItem {
     public constructor(
         private _name: string,
         onConfigurationChange: ConfigurationObserver | undefined

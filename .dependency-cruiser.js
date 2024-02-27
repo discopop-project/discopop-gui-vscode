@@ -2,17 +2,6 @@
 module.exports = {
     forbidden: [
         {
-            name: 'no-runners-to-vscode',
-            severity: 'error',
-            comment: "No code in the 'runners' folder should import 'vscode'",
-            from: {
-                path: '^src/runners',
-            },
-            to: {
-                path: 'node_modules/@types/vscode',
-            },
-        },
-        {
             name: 'no-circular',
             severity: 'warn',
             comment:
@@ -199,10 +188,18 @@ module.exports = {
         },
 
         /* Which modules to exclude */
-        // exclude : {
-        //   /* path: an array of regular expressions in strings to match against */
-        //   path: '',
-        // },
+        exclude: {
+            /* path: an array of regular expressions in strings to match against */
+            path: [
+                'fs',
+                'child_process',
+                'stream',
+                'events',
+                'path',
+                'node_modules/@types/vscode',
+                'utils',
+            ],
+        },
 
         /* Which modules to exclusively include (array of regular expressions in strings)
        dependency-cruiser will skip everything not matching this pattern

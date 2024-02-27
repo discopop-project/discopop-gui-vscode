@@ -1,6 +1,5 @@
 import * as vscode from 'vscode'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
-import { Editable } from './Editable'
 
 export type SupportedType = string // | number | boolean
 
@@ -10,7 +9,7 @@ export interface PropertyObserver {
 
 // TODO it would be nice to allow making a property optional
 export abstract class Property<T extends SupportedType | SupportedType[]>
-    implements ConfigurationTreeItem, Editable
+    implements ConfigurationTreeItem
 {
     public constructor(
         protected title: string,

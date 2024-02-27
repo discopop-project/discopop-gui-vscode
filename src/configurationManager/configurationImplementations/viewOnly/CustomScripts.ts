@@ -2,7 +2,7 @@ import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode'
 import {
     CommandExecution,
     ExecutionResult,
-} from '../../../runners/helpers/CommandExecution'
+} from '../../../utils/CommandExecution'
 import { ConfigurationTreeItem } from '../../ConfigurationTreeItem'
 import { Property, PropertyObserver, StringProperty } from '../../Property'
 import { ConfigurationViewOnly } from './ConfigurationViewOnly'

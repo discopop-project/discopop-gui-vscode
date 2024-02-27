@@ -1,4 +1,4 @@
-import { CommandExecution } from '../helpers/CommandExecution'
+import { CommandExecution } from '../../utils/CommandExecution'
 import { DiscoPoPConfigProvider } from '../tools/DiscoPoPConfigProvider'
 import { WrapperInfo } from './CMakeBasedInstrumentation'
 

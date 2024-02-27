@@ -1,6 +1,9 @@
 import { TreeItem } from 'vscode'
-import { DiscoPoPResults } from '../../../discoPoP/classes/DiscoPoPResults'
-import { HotspotDetectionResults } from '../../../hotspotDetection/classes/HotspotDetectionResults'
+import { DiscoPoPResults } from '../../../discopop/model/DiscoPoPResults'
+import { HotspotDetectionResults } from '../../../discopop/model/HotspotDetectionResults'
+import { DiscoPoPCMakeWorkflowUI } from '../../../runners/workflows/uiWorkflows/DiscoPoPCMakeWorkflowUI'
+import { HotspotDetectionCMakeWorkflowUI } from '../../../runners/workflows/uiWorkflows/HotspotDetectionCMakeWorkflowUI'
+import { OptimizerWorkflowUI } from '../../../runners/workflows/uiWorkflows/OptimizerWorkflowUI'
 import {
     Configuration,
     ConfigurationObserver,
@@ -16,9 +19,6 @@ import {
     SupportedType,
 } from '../../Property'
 import { AdvancedConfigurationSettings } from './AdvancedConfigurationSettings'
-import { DiscoPoPCMakeWorkflowUI } from '../../../uiWorkflows/DiscoPoPCMakeWorkflowUI'
-import { HotspotDetectionCMakeWorkflowUI } from '../../../uiWorkflows/HotspotDetectionCMakeWorkflowUI'
-import { OptimizerWorkflowUI } from '../../../uiWorkflows/OptimizerWorkflowUI'
 
 export class ConfigurationCMake
     extends Configuration
