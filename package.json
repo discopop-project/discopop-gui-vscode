@@ -481,6 +481,7 @@
         "@types/vscode": "^1.68.0",
         "@typescript-eslint/eslint-plugin": "^5.27.0",
         "@typescript-eslint/parser": "^5.27.0",
+        "dependency-cruiser": "^16.2.1",
         "eslint": "^8.16.0",
         "eslint-config-prettier": "^9.0.0",
         "husky": "^8.0.3",
