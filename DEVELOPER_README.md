@@ -67,6 +67,13 @@ Tip: The debugging support of vs code is quite good: Set breakpoints and then in
 ## Creating Releases
 
 -   update the version in package.json
+-   `npm install` (to update the package-lock.json as well)
 -   update the CHANGELOG.md
 -   update the README.md compatibility table
 -   create a release using the github user interface
+
+## Dependency-Graph
+
+Sometimes it is helpful to see dependencies between source files. [More info](https://github.com/sverweij/dependency-cruiser).
+
+    npx depcruise src --include-only "^src" --output-type dot | dot -T svg > dependency-graph.svg
