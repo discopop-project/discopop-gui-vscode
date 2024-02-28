@@ -1,8 +1,9 @@
-import { SimpleTree } from '../../../utils/SimpleTree'
-import { DiscoPoPAppliedSuggestionsWatcher } from '../../model/DiscoPoPAppliedSuggestionsWatcher'
-import { DiscoPoPResults } from '../../model/DiscoPoPResults'
-import { DiscoPoPSuggestionGroup } from './DiscoPoPSuggestionGroup'
-import { DiscoPoPSuggestionNode } from './DiscoPoPSuggestionNode'
+import * as vscode from 'vscode'
+import { Commands } from '../../utils/Commands'
+import { SimpleTree, SimpleTreeNode } from '../../utils/SimpleTree'
+import { DiscoPoPAppliedSuggestionsWatcher } from '../model/DiscoPoPAppliedSuggestionsWatcher'
+import { DiscoPoPResults } from '../model/DiscoPoPResults'
+import { DiscoPoPSuggestion } from '../model/DiscoPoPSuggestion'
 
 export class SuggestionTree extends SimpleTree<
     DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode
@@ -129,5 +130,82 @@ export class SuggestionTree extends SimpleTree<
                 this._callCallbackForAllNodes(child, callback)
             })
         }
+    }
+}
+
+/**
+ * A suggestion node represents a single suggestion.
+ * (a leaf node of the tree)
+ */
+
+export class DiscoPoPSuggestionNode implements SimpleTreeNode<undefined> {
+    public constructor(
+        public readonly suggestion: DiscoPoPSuggestion,
+        public file: string,
+        applied: boolean
+    ) {
+        this.view = new vscode.TreeItem(
+            `${this.suggestion.id}`,
+            vscode.TreeItemCollapsibleState.None
+        )
+        const fileName = this.file.split('/').pop()
+        this.view.resourceUri = vscode.Uri.file(this.file) // TODO is this good?
+        this.view.description = `${fileName}:${this.suggestion.startLine}`
+        this.view.tooltip = this.file + ':' + this.suggestion.startLine
+        this.view.command = {
+            command: Commands.showSuggestionDetails,
+            title: 'Show Suggestion Details',
+            arguments: [this.suggestion.id],
+        }
+        this.setApplied(applied)
+    }
+
+    public view: vscode.TreeItem
+
+    public getView(): vscode.TreeItem {
+        return this.view
+    }
+
+    public setApplied(applied: boolean): void {
+        if (applied) {
+            this.view.iconPath = new vscode.ThemeIcon('verified-filled')
+            this.view.contextValue = 'suggestion_applied'
+        } else {
+            this.view.iconPath = new vscode.ThemeIcon('lightbulb')
+            this.view.contextValue = 'suggestion'
+        }
+    }
+
+    public getChildren(): undefined {
+        return undefined
+    }
+}
+/**
+ * A suggestion group is a group of suggestions of the same type.
+ * (an inner node of the tree)
+ * In the future we might also want to group suggestions by file.
+ */
+
+export class DiscoPoPSuggestionGroup
+    implements SimpleTreeNode<DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode>
+{
+    public constructor(
+        public label: string,
+        public children: (DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode)[]
+    ) {
+        this.label = label
+    }
+
+    public getView(): vscode.TreeItem {
+        const view = new vscode.TreeItem(
+            this.label + ' (' + this.children.length + ')',
+            vscode.TreeItemCollapsibleState.Collapsed
+        )
+        view.contextValue = 'suggestion_group'
+        return view
+    }
+
+    public getChildren(): (DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode)[] {
+        return this.children
     }
 }

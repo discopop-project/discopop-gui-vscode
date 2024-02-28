@@ -15,16 +15,24 @@ import { Hotspot } from './discopop/model/Hotspot'
 import { HotspotDetectionResults } from './discopop/model/HotspotDetectionResults'
 import { DiscoPoPCodeLensProvider } from './discopop/providers/DiscoPoPCodeLensProvider'
 import { DiscoPoPDetailViewProvider } from './discopop/providers/DiscoPoPDetailViewProvider'
+import {
+    DiscoPoPSuggestionGroup,
+    DiscoPoPSuggestionNode,
+    SuggestionTree,
+} from './discopop/providers/DiscoPoPSuggestionTree'
 import { HotspotDetailViewProvider } from './discopop/providers/HotspotDetailViewProvider'
 import { HotspotTree } from './discopop/providers/HotspotTree'
-import { DiscoPoPSuggestionGroup } from './discopop/providers/discoPoPSuggestionTree/DiscoPoPSuggestionGroup'
-import { DiscoPoPSuggestionNode } from './discopop/providers/discoPoPSuggestionTree/DiscoPoPSuggestionNode'
-import { SuggestionTree } from './discopop/providers/discoPoPSuggestionTree/DiscoPoPSuggestionTree'
 import { ToolSuite } from './discopop/runners/ToolSuite'
 import { DiscoPoPConfigProvider } from './discopop/runners/tools/DiscoPoPConfigProvider'
-import { DiscoPoPCMakeWorkflowUI } from './discopop/runners/workflows/DiscoPoPCMakeWorkflowUI'
-import { HotspotDetectionCMakeWorkflowUI } from './discopop/runners/workflows/HotspotDetectionCMakeWorkflowUI'
-import { OptimizerWorkflowUI } from './discopop/runners/workflows/OptimizerWorkflowUI'
+import { DiscoPoPCMakeWorkflow } from './discopop/runners/workflows/DiscoPoPCMakeWorkflow'
+import { HotspotDetectionCMakeWorkflow } from './discopop/runners/workflows/HotspotDetectionCMakeWorkflow'
+import { OptimizerWorkflow } from './discopop/runners/workflows/OptimizerWorkflow'
+import {
+    getCancelTokenWrapper,
+    getReportMessageWrapper,
+    getReportProgressWrapper,
+    getRequestConfirmationWrapper,
+} from './discopop/runners/workflows/UIWrappers'
 import { CommandExecution } from './utils/CommandExecution'
 import { Commands } from './utils/Commands'
 import { Config, SuggestionPreviewMode } from './utils/Config'
@@ -71,7 +79,7 @@ export class DiscoPoPExtension {
     private set dpResults(dpResults: DiscoPoPResults | undefined) {
         this._dpResults?.dispose()
         this._dpResults = dpResults
-        this.showDiscoPoPResults()
+        this._showDiscoPoPResults()
     }
     private get dpResults() {
         return this._dpResults
@@ -137,7 +145,7 @@ export class DiscoPoPExtension {
     }
 
     /** shows the suggestions in the sidebar */
-    public async showDiscoPoPResults() {
+    private async _showDiscoPoPResults() {
         // update treeDataProvider
         if (!this.suggestionTree) {
             this.suggestionTree = new SuggestionTree(this.dpResults)
@@ -288,14 +296,30 @@ export class DiscoPoPExtension {
                 Commands.runOptimizer,
                 async (configuration: ConfigurationCMake) => {
                     try {
-                        const optimizerRunner = new OptimizerWorkflowUI(
-                            configuration.dotDiscoPoP
-                        )
-                        await optimizerRunner.run(
-                            configuration.overrideOptimizerArguments
-                        )
-                        this.dpResults = await DiscoPoPResults.parse(
-                            configuration.dotDiscoPoP
+                        configuration.running = true
+                        await vscode.window.withProgress(
+                            {
+                                location: vscode.ProgressLocation.Notification,
+                                title: 'Optimizer',
+                                cancellable: true,
+                            },
+                            async (progress, token) => {
+                                const optimizerRunner = new OptimizerWorkflow(
+                                    configuration.dotDiscoPoP
+                                )
+                                await optimizerRunner.run(
+                                    getReportMessageWrapper(
+                                        'Optimizer: ',
+                                        progress
+                                    ),
+                                    getReportProgressWrapper(progress),
+                                    getCancelTokenWrapper(token),
+                                    configuration.overrideOptimizerArguments
+                                )
+                                this.dpResults = await DiscoPoPResults.parse(
+                                    configuration.dotDiscoPoP
+                                )
+                            }
                         )
                     } catch (error: any) {
                         if (error instanceof CancellationError) {
@@ -308,6 +332,8 @@ export class DiscoPoPExtension {
                                 'Optimizer failed: '
                             )
                         }
+                    } finally {
+                        configuration.running = false
                     }
                 }
             )
@@ -1109,18 +1135,32 @@ export class DiscoPoPExtension {
     private async _runHotspotDetection(configuration: ConfigurationCMake) {
         try {
             configuration.running = true
-            const hsRunner = new HotspotDetectionCMakeWorkflowUI(
-                configuration.projectPath,
-                configuration.executableName,
-                configuration.executableArgumentsForHotspotDetection,
-                configuration.dotDiscoPoP,
-                configuration.buildPathForHotspotDetection,
-                configuration.buildArguments,
-                configuration.overrideHotspotDetectionArguments
-            )
-            await hsRunner.run()
-            this.hsResults = await HotspotDetectionResults.parse(
-                configuration.dotDiscoPoP
+            await vscode.window.withProgress(
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: 'Running HotspotDetection',
+                    cancellable: true,
+                },
+                async (progress, token) => {
+                    const hsRunner = new HotspotDetectionCMakeWorkflow(
+                        configuration.projectPath,
+                        configuration.executableName,
+                        configuration.executableArgumentsForHotspotDetection,
+                        configuration.dotDiscoPoP,
+                        configuration.buildPathForHotspotDetection,
+                        configuration.buildArguments,
+                        configuration.overrideHotspotDetectionArguments
+                    )
+                    await hsRunner.run(
+                        getReportMessageWrapper('HotspotDetection: ', progress),
+                        getReportProgressWrapper(progress),
+                        getRequestConfirmationWrapper(),
+                        getCancelTokenWrapper(token)
+                    )
+                    this.hsResults = await HotspotDetectionResults.parse(
+                        configuration.dotDiscoPoP
+                    )
+                }
             )
         } catch (error: any) {
             if (error instanceof CancellationError) {
@@ -1141,19 +1181,32 @@ export class DiscoPoPExtension {
     private async _runDiscoPoP(configuration: ConfigurationCMake) {
         try {
             configuration.running = true
-            const dpRunner = new DiscoPoPCMakeWorkflowUI(
-                configuration.projectPath,
-                configuration.executableName,
-                configuration.executableArgumentsForDiscoPoP,
-                configuration.buildPathForDiscoPoP,
-                configuration.dotDiscoPoP,
-                configuration.buildArguments,
-                configuration.overrideExplorerArguments,
-                configuration.overrideOptimizerArguments
-            )
-            await dpRunner.run()
-            this.dpResults = await DiscoPoPResults.parse(
-                configuration.dotDiscoPoP
+            await vscode.window.withProgress(
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: 'Running DiscoPoP',
+                    cancellable: true,
+                },
+                async (progress, token) => {
+                    const dpRunner = new DiscoPoPCMakeWorkflow(
+                        configuration.projectPath,
+                        configuration.executableName,
+                        configuration.executableArgumentsForDiscoPoP,
+                        configuration.dotDiscoPoP,
+                        configuration.buildPathForDiscoPoP,
+                        configuration.buildArguments,
+                        configuration.overrideExplorerArguments
+                    )
+                    await dpRunner.run(
+                        getReportMessageWrapper('DiscoPoP: ', progress),
+                        getReportProgressWrapper(progress),
+                        getRequestConfirmationWrapper(),
+                        getCancelTokenWrapper(token)
+                    )
+                    this.dpResults = await DiscoPoPResults.parse(
+                        configuration.dotDiscoPoP
+                    )
+                }
             )
         } catch (error: any) {
             if (error instanceof CancellationError) {
