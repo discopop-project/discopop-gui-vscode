@@ -366,16 +366,26 @@ module.exports = {
            for details and some examples. If you don't specify a theme
            don't worry - dependency-cruiser will fall back to the default one.
         */
-                // theme: {
-                //   graph: {
-                //     /* splines: "ortho" will give you straight lines at the expense of
-                //                 being slow to render on big graphs
-                //        splines: "true" will give you bezier curves which are faster
-                //                 but might not look as nice
-                //    */
-                //     splines: "true"
-                //   },
-                // }
+                theme: {
+                    graph: {
+                        /* splines: "ortho" will give you straight lines at the expense of
+                                being slow to render on big graphs
+                       splines: "true" will give you bezier curves which are faster
+                                but might not look as nice
+                   */
+                        splines: 'true',
+                        // ratio: 9/16
+                        // rankdir: "TD"
+                    },
+                    node: {
+                        width: 3,
+                        height: 0.4,
+                    },
+                    edge: {
+                        arrowhead: 'normal', // https://graphviz.org/docs/attr-types/arrowType/
+                        // arrowsize: 1
+                    },
+                },
             },
             archi: {
                 /* pattern of modules that can be consolidated in the high level
