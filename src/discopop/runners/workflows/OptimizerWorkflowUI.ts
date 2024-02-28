@@ -1,8 +1,8 @@
 import * as vscode from 'vscode'
-import { DiscoPoPResults } from '../../../discopop/model/DiscoPoPResults'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
 import { UICancelTokenWrapper } from '../../../utils/cancellation/UICancelTokenWrapper'
-import { OptimizerWorkflow } from '../pureWorkflows/OptimizerWorkflow'
+import { DiscoPoPResults } from '../../model/DiscoPoPResults'
+import { OptimizerWorkflow } from './OptimizerWorkflow'
 
 export class OptimizerWorkflowUI {
     public constructor(public readonly dotDiscoPoP: string) {}

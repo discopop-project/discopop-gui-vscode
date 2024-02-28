@@ -1,5 +1,5 @@
 import { SimpleTree } from '../../../utils/SimpleTree'
-import { DiscoPoPAppliedSuggestionsWatcher } from '../../DiscoPoPAppliedSuggestionsWatcher'
+import { DiscoPoPAppliedSuggestionsWatcher } from '../../model/DiscoPoPAppliedSuggestionsWatcher'
 import { DiscoPoPResults } from '../../model/DiscoPoPResults'
 import { DiscoPoPSuggestionGroup } from './DiscoPoPSuggestionGroup'
 import { DiscoPoPSuggestionNode } from './DiscoPoPSuggestionNode'

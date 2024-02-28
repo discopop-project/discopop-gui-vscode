@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import { Commands } from '../../utils/Commands'
 import { Config } from '../../utils/Config'
-import { DiscoPoPAppliedSuggestionsWatcher } from '../DiscoPoPAppliedSuggestionsWatcher'
+import { DiscoPoPAppliedSuggestionsWatcher } from '../model/DiscoPoPAppliedSuggestionsWatcher'
 import { DiscoPoPSuggestion } from '../model/DiscoPoPSuggestion'
 import { FileMapping } from '../model/FileMapping'
 import { LineMapping } from '../model/LineMapping'

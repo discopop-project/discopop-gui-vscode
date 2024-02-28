@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
-import { DiscoPoPResults } from '../../../discopop/model/DiscoPoPResults'
 import { UIPrompts } from '../../../utils/UIPrompts'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
 import { UICancelTokenWrapper as UICancelToken } from '../../../utils/cancellation/UICancelTokenWrapper'
-import { DiscoPoPCMakeWorkflow } from '../pureWorkflows/DiscoPoPCMakeWorkflow'
+import { DiscoPoPResults } from '../../model/DiscoPoPResults'
+import { DiscoPoPCMakeWorkflow } from './DiscoPoPCMakeWorkflow'
 
 export class DiscoPoPCMakeWorkflowUI {
     public constructor(

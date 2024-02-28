@@ -1,11 +1,11 @@
 import * as fs from 'fs'
-import { DiscoPoPResults } from '../../../discopop/model/DiscoPoPResults'
 import { Config } from '../../../utils/Config'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
 import { CancellationError } from '../../../utils/cancellation/CancellationError'
-import { ToolSuite } from '../../ToolSuite'
-import { CMakeBasedInstrumentation } from '../../instrumentation/CMakeBasedInstrumentation'
-import { DiscoPoPProfilingWrapperInfo } from '../../instrumentation/DiscoPoPProfilingWrapperInfo'
+import { DiscoPoPResults } from '../../model/DiscoPoPResults'
+import { ToolSuite } from '../ToolSuite'
+import { CMakeBasedInstrumentation } from './instrumentation/CMakeBasedInstrumentation'
+import { DiscoPoPProfilingWrapperInfo } from './instrumentation/DiscoPoPProfilingWrapperInfo'
 
 export class DiscoPoPCMakeWorkflow {
     /**

@@ -1,5 +1,5 @@
-import { CommandExecution } from '../../utils/CommandExecution'
-import { CancelToken } from '../../utils/cancellation/CancelToken'
+import { CommandExecution } from '../../../utils/CommandExecution'
+import { CancelToken } from '../../../utils/cancellation/CancelToken'
 
 export class HotspotDetection {
     public constructor(public readonly dotDiscoPoP: string) {}
