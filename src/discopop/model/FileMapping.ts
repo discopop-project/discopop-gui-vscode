@@ -19,20 +19,6 @@ export class FileMapping {
         return this.inverseFileMapping.get(filePath)
     }
 
-    public getAllFilePaths(): string[] {
-        return Array.from(this.fileMapping.values())
-    }
-
-    public getAllFileIds(): number[] {
-        return Array.from(this.inverseFileMapping.values())
-    }
-
-    public toString(): string {
-        return Array.from(this.fileMapping.entries())
-            .map((entry) => `${entry[0]}\t${entry[1]}`)
-            .join('\n')
-    }
-
     /**
      * parses a FileMapping.txt file and returns a FileMapping object
      * @param filePath path to the FileMapping.txt file
