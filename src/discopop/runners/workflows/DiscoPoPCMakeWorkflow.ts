@@ -2,9 +2,9 @@ import * as fs from 'fs'
 import { Config } from '../../../utils/Config'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
 import { CancellationError } from '../../../utils/cancellation/CancellationError'
-import { ToolSuite } from '../ToolSuite'
 import { CMakeBasedInstrumentation } from '../instrumentation/CMakeBasedInstrumentation'
 import { DiscoPoPProfilingWrapperInfo } from '../instrumentation/DiscoPoPProfilingWrapperInfo'
+import { ToolSuite } from '../tools/ToolSuite'
 
 export class DiscoPoPCMakeWorkflow {
     /**

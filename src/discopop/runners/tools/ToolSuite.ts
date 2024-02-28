@@ -1,9 +1,9 @@
-import { DiscoPoPConfigProvider } from './tools/DiscoPoPConfigProvider'
-import { DiscoPoPExplorer } from './tools/DiscoPoPExplorer'
-import { DiscoPoPOptimizer } from './tools/DiscoPoPOptimizer'
-import { DiscoPoPPatchApplicator } from './tools/DiscoPoPPatchApplicator'
-import { DiscoPoPPatchGenerator } from './tools/DiscoPoPPatchGenerator'
-import { HotspotDetection } from './tools/HotspotDetection'
+import { DiscoPoPConfigProvider } from './DiscoPoPConfigProvider'
+import { DiscoPoPExplorer } from './DiscoPoPExplorer'
+import { DiscoPoPOptimizer } from './DiscoPoPOptimizer'
+import { DiscoPoPPatchApplicator } from './DiscoPoPPatchApplicator'
+import { DiscoPoPPatchGenerator } from './DiscoPoPPatchGenerator'
+import { HotspotDetection } from './HotspotDetection'
 
 /**
  * provides access to the DiscoPoP tools
@@ -11,11 +11,11 @@ import { HotspotDetection } from './tools/HotspotDetection'
 export class ToolSuite {
     public constructor(public readonly dotDiscoPoP: string) {}
 
-    private _discopopConfigProvider: DiscoPoPConfigProvider = undefined
-    public get discopopConfigProvider(): DiscoPoPConfigProvider {
+    private static _discopopConfigProvider: DiscoPoPConfigProvider = undefined
+    public static get discopopConfigProvider(): DiscoPoPConfigProvider {
         return (
-            this._discopopConfigProvider ??
-            (this._discopopConfigProvider = new DiscoPoPConfigProvider())
+            ToolSuite._discopopConfigProvider ??
+            (ToolSuite._discopopConfigProvider = new DiscoPoPConfigProvider())
         )
     }
 

@@ -1,10 +1,10 @@
 import * as vscode from 'vscode'
-import { Commands } from '../../utils/Commands'
-import { SimpleTree, SimpleTreeNode } from '../../utils/SimpleTree'
-import { FileMapping } from '../model/FileMapping'
-import { Hotspot } from '../model/Hotspot'
-import { HotspotDetectionResults } from '../model/HotspotDetectionResults'
-import { LineMapping } from '../model/LineMapping'
+import { FileMapping } from '../discopop/model/FileMapping'
+import { Hotspot } from '../discopop/model/Hotspot'
+import { HotspotDetectionResults } from '../discopop/model/HotspotDetectionResults'
+import { LineMapping } from '../discopop/model/LineMapping'
+import { Commands } from '../utils/Commands'
+import { SimpleTree, SimpleTreeNode } from '../utils/SimpleTree'
 
 // inner nodes
 export class HotspotGroup
