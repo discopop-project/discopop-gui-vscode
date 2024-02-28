@@ -1,10 +1,10 @@
 import * as vscode from 'vscode'
-import { Commands } from '../../utils/Commands'
-import { Config } from '../../utils/Config'
-import { DiscoPoPAppliedSuggestionsWatcher } from '../model/DiscoPoPAppliedSuggestionsWatcher'
-import { DiscoPoPSuggestion } from '../model/DiscoPoPSuggestion'
-import { FileMapping } from '../model/FileMapping'
-import { LineMapping } from '../model/LineMapping'
+import { DiscoPoPAppliedSuggestionsWatcher } from '../discopop/model/DiscoPoPAppliedSuggestionsWatcher'
+import { DiscoPoPSuggestion } from '../discopop/model/DiscoPoPSuggestion'
+import { FileMapping } from '../discopop/model/FileMapping'
+import { LineMapping } from '../discopop/model/LineMapping'
+import { Commands } from '../utils/Commands'
+import { Config } from '../utils/Config'
 
 export class DiscoPoPCodeLens extends vscode.CodeLens {
     public constructor(

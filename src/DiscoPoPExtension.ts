@@ -13,17 +13,7 @@ import { DiscoPoPSuggestion } from './discopop/model/DiscoPoPSuggestion'
 import { FileMapping } from './discopop/model/FileMapping'
 import { Hotspot } from './discopop/model/Hotspot'
 import { HotspotDetectionResults } from './discopop/model/HotspotDetectionResults'
-import { DiscoPoPCodeLensProvider } from './discopop/providers/DiscoPoPCodeLensProvider'
-import { DiscoPoPDetailViewProvider } from './discopop/providers/DiscoPoPDetailViewProvider'
-import {
-    DiscoPoPSuggestionGroup,
-    DiscoPoPSuggestionNode,
-    SuggestionTree,
-} from './discopop/providers/DiscoPoPSuggestionTree'
-import { HotspotDetailViewProvider } from './discopop/providers/HotspotDetailViewProvider'
-import { HotspotTree } from './discopop/providers/HotspotTree'
-import { ToolSuite } from './discopop/runners/ToolSuite'
-import { DiscoPoPConfigProvider } from './discopop/runners/tools/DiscoPoPConfigProvider'
+import { ToolSuite } from './discopop/runners/tools/ToolSuite'
 import { DiscoPoPCMakeWorkflow } from './discopop/runners/workflows/DiscoPoPCMakeWorkflow'
 import { HotspotDetectionCMakeWorkflow } from './discopop/runners/workflows/HotspotDetectionCMakeWorkflow'
 import { OptimizerWorkflow } from './discopop/runners/workflows/OptimizerWorkflow'
@@ -33,6 +23,15 @@ import {
     getReportProgressWrapper,
     getRequestConfirmationWrapper,
 } from './discopop/runners/workflows/UIWrappers'
+import { DiscoPoPCodeLensProvider } from './uiProviders/DiscoPoPCodeLensProvider'
+import { DiscoPoPDetailViewProvider } from './uiProviders/DiscoPoPDetailViewProvider'
+import {
+    DiscoPoPSuggestionGroup,
+    DiscoPoPSuggestionNode,
+    SuggestionTree,
+} from './uiProviders/DiscoPoPSuggestionTree'
+import { HotspotDetailViewProvider } from './uiProviders/HotspotDetailViewProvider'
+import { HotspotTree } from './uiProviders/HotspotTree'
 import { CommandExecution } from './utils/CommandExecution'
 import { Commands } from './utils/Commands'
 import { Config, SuggestionPreviewMode } from './utils/Config'
@@ -217,7 +216,7 @@ export class DiscoPoPExtension {
         )
 
         // issue a warning if DiscoPoP is not installed or the the installed version of DiscoPoP may be incompatible
-        const contextProvider = new DiscoPoPConfigProvider()
+        const contextProvider = ToolSuite.discopopConfigProvider
         if (
             !(await CommandExecution.commandExists(
                 'discopop_config_provider',

@@ -1,5 +1,5 @@
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
-import { ToolSuite } from '../ToolSuite'
+import { ToolSuite } from '../tools/ToolSuite'
 
 export class OptimizerWorkflow {
     public constructor(public readonly dotDiscoPoP: string) {}

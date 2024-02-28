@@ -1,5 +1,5 @@
-import { JSONWebViewProvider } from '../../utils/JSONWebViewProvider'
-import { DiscoPoPSuggestion } from '../model/DiscoPoPSuggestion'
+import { DiscoPoPSuggestion } from '../discopop/model/DiscoPoPSuggestion'
+import { JSONWebViewProvider } from '../utils/JSONWebViewProvider'
 
 export class DiscoPoPDetailViewProvider extends JSONWebViewProvider<any> {
     public constructor(

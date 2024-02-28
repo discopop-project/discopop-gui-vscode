@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
-import { Commands } from '../../utils/Commands'
-import { SimpleTree, SimpleTreeNode } from '../../utils/SimpleTree'
-import { DiscoPoPAppliedSuggestionsWatcher } from '../model/DiscoPoPAppliedSuggestionsWatcher'
-import { DiscoPoPResults } from '../model/DiscoPoPResults'
-import { DiscoPoPSuggestion } from '../model/DiscoPoPSuggestion'
+import { DiscoPoPAppliedSuggestionsWatcher } from '../discopop/model/DiscoPoPAppliedSuggestionsWatcher'
+import { DiscoPoPResults } from '../discopop/model/DiscoPoPResults'
+import { DiscoPoPSuggestion } from '../discopop/model/DiscoPoPSuggestion'
+import { Commands } from '../utils/Commands'
+import { SimpleTree, SimpleTreeNode } from '../utils/SimpleTree'
 
 export class SuggestionTree extends SimpleTree<
     DiscoPoPSuggestionGroup | DiscoPoPSuggestionNode
