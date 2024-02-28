@@ -1,7 +1,5 @@
 import * as vscode from 'vscode'
 import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode'
-import { DiscoPoPResults } from '../discopop/model/DiscoPoPResults'
-import { HotspotDetectionResults } from '../discopop/model/HotspotDetectionResults'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
 
 export interface ConfigurationObserver {
@@ -85,27 +83,6 @@ export abstract class Configuration implements ConfigurationTreeItem {
      * @returns the path to the .discopop directory that contains the results of the DiscoPoP and HotspotDetection analyses
      */
     abstract get dotDiscoPoP(): string
-}
-
-export interface RunCapableConfiguration extends Configuration {
-    /**
-     * Runs DiscoPoP using the configuration's settings. Returns the parsed results
-     * @throws if errors occured or the user cancelled the operation
-     */
-    runDiscoPoP(): Promise<DiscoPoPResults>
-
-    /**
-     * Runs the HotspotDetection using the configuration's settings. Returns the parsed results
-     * @throws if errors occured
-     */
-    runHotspotDetection(): Promise<HotspotDetectionResults>
-
-    /**
-     * !!! Assumes that DiscoPoP was run before !!!
-     * Runs the optimizer using the configuration's settings. Returns the parsed results
-     * @throws if errors occured
-     */
-    runOptimizer(): Promise<DiscoPoPResults>
 }
 
 export enum ConfigurationType {
