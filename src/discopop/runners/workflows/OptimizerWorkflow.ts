@@ -1,5 +1,4 @@
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
-import { DiscoPoPResults } from '../../model/DiscoPoPResults'
 import { ToolSuite } from '../ToolSuite'
 
 export class OptimizerWorkflow {
@@ -10,7 +9,7 @@ export class OptimizerWorkflow {
         reportProgress: (progress: number) => void,
         cancelToken: CancelToken,
         overrideOptionsString?: string
-    ): Promise<DiscoPoPResults> {
+    ): Promise<void> {
         const toolSuite = new ToolSuite(this.dotDiscoPoP)
 
         reportMessage('Running Optimizer...', 0)
@@ -24,12 +23,6 @@ export class OptimizerWorkflow {
         await toolSuite.discopopPatchGenerator.createOptimizedPatches(
             cancelToken
         )
-        reportProgress(10)
-
-        reportMessage('Parsing Optimized Results...', 0)
-        const results = await DiscoPoPResults.parse(this.dotDiscoPoP)
-        reportProgress(10)
-
-        return results
+        reportProgress(20)
     }
 }
