@@ -4,6 +4,8 @@ import { DiscoPoPOptimizer } from './DiscoPoPOptimizer'
 import { DiscoPoPPatchApplicator } from './DiscoPoPPatchApplicator'
 import { DiscoPoPPatchGenerator } from './DiscoPoPPatchGenerator'
 import { HotspotDetection } from './HotspotDetection'
+import { DiscoPoPCMakeBasedInstrumentation } from './instrumentation/DiscoPoPCMakeBasedInstrumentation'
+import { HotspotDetectionCMakeBasedInstrumentation } from './instrumentation/HotspotDetectionCMakeBasedInstrumentation'
 
 /**
  * provides access to the DiscoPoP tools
@@ -16,6 +18,26 @@ export class ToolSuite {
         return (
             ToolSuite._discopopConfigProvider ??
             (ToolSuite._discopopConfigProvider = new DiscoPoPConfigProvider())
+        )
+    }
+
+    private _discopopCMakeInstrumentation: DiscoPoPCMakeBasedInstrumentation =
+        undefined
+    public get discopopCMakeInstrumentation(): DiscoPoPCMakeBasedInstrumentation {
+        return (
+            this._discopopCMakeInstrumentation ??
+            (this._discopopCMakeInstrumentation =
+                new DiscoPoPCMakeBasedInstrumentation(this.dotDiscoPoP))
+        )
+    }
+
+    private _hotspotDetectionCMakeInstrumentation: HotspotDetectionCMakeBasedInstrumentation =
+        undefined
+    public get hotspotDetectionCMakeInstrumentation(): HotspotDetectionCMakeBasedInstrumentation {
+        return (
+            this._hotspotDetectionCMakeInstrumentation ??
+            (this._hotspotDetectionCMakeInstrumentation =
+                new HotspotDetectionCMakeBasedInstrumentation(this.dotDiscoPoP))
         )
     }
 

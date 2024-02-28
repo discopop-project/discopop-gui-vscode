@@ -3,8 +3,6 @@ import { CommandExecution } from '../../../utils/CommandExecution'
 export class DiscoPoPConfigProvider {
     public constructor() {}
 
-    // TODO allow to get the version of DiscoPoP
-
     public get version(): Promise<string> {
         return CommandExecution.commandExists(
             'discopop_config_provider',
