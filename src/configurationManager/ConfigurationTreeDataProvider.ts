@@ -108,7 +108,7 @@ export class ConfigurationTreeDataProvider
                 )
                 break
             case ConfigurationType.ViewOnly:
-                let dotDiscoPoP = await vscode.window.showInputBox({
+                const dotDiscoPoP = await vscode.window.showInputBox({
                     prompt: 'Enter the path to the .discopop directory.',
                     ignoreFocusOut: true,
                     value: workspaceFolder + '/.discopop',

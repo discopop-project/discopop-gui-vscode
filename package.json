@@ -467,8 +467,10 @@
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "prettier": "prettier --write \"src/**/*.ts\"",
+        "prettier": "prettier --check \"src/**/*\"",
+        "prettier:fix": "prettier --write \"src/**/*\"",
         "lint": "eslint src --ext ts",
+        "lint:fix": "eslint src --ext ts --fix",
         "prepare": "husky install",
         "commitlint": "commitlint --edit",
         "depcruise": "depcruise src --output-type dot | dot -T svg > dependency-graph.svg"
@@ -492,7 +494,7 @@
         "@vscode/codicons": "^0.0.33"
     },
     "lint-staged": {
-        "*.ts": "eslint --cache --fix",
+        "*.ts": "eslint",
         "*.{ts,js,css,md}": "prettier --write"
     }
 }

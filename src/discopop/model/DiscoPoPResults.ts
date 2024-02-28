@@ -15,7 +15,7 @@ export class DiscoPoPResults {
 
     public static async parse(dotDiscoPoP: string): Promise<DiscoPoPResults> {
         // parse FileMapping.txt
-        let fileMapping = FileMapping.parseFile(
+        const fileMapping = FileMapping.parseFile(
             `${dotDiscoPoP}/FileMapping.txt`
         )
 
