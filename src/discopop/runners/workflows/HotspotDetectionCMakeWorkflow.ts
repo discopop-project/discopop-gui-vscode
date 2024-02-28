@@ -3,8 +3,8 @@ import { Config } from '../../../utils/Config'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
 import { CancellationError } from '../../../utils/cancellation/CancellationError'
 import { ToolSuite } from '../ToolSuite'
-import { CMakeBasedInstrumentation } from './instrumentation/CMakeBasedInstrumentation'
-import { HotspotDetectionProfilingWrapperInfo } from './instrumentation/HotspotDetectionProfilingWrapperInfo'
+import { CMakeBasedInstrumentation } from '../instrumentation/CMakeBasedInstrumentation'
+import { HotspotDetectionProfilingWrapperInfo } from '../instrumentation/HotspotDetectionProfilingWrapperInfo'
 
 export class HotspotDetectionCMakeWorkflow {
     /**

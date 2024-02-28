@@ -1,6 +1,29 @@
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
     forbidden: [
+        // {
+        //     name: "utils-to-non-utils",
+        //     severity: "warn",
+        //     comment: "Utils should not depend on non-utils",
+        //     from: {
+        //         path: "^src/utils",
+        //     },
+        //     to: {
+        //         pathNot: "^src/utils",
+        //     }
+        // },
+        // {
+        //     name: "dont-depend-on-vscode-too-much",
+        //     severity: "warn",
+        //     comment: "Dependencies to vscode should be limited to certain directories",
+        //     from: {
+        //         path: ["^src/discopop/runners"],
+        //     },
+        //     to: {
+        //         path: "^node_modules/@types/vscode",
+        //     },
+
+        // },
         {
             name: 'no-circular',
             severity: 'warn',
@@ -197,7 +220,7 @@ module.exports = {
                 'events',
                 'path',
                 'node_modules/@types/vscode',
-                'utils',
+                // 'utils',
             ],
         },
 

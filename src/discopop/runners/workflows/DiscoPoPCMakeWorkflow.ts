@@ -3,8 +3,8 @@ import { Config } from '../../../utils/Config'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
 import { CancellationError } from '../../../utils/cancellation/CancellationError'
 import { ToolSuite } from '../ToolSuite'
-import { CMakeBasedInstrumentation } from './instrumentation/CMakeBasedInstrumentation'
-import { DiscoPoPProfilingWrapperInfo } from './instrumentation/DiscoPoPProfilingWrapperInfo'
+import { CMakeBasedInstrumentation } from '../instrumentation/CMakeBasedInstrumentation'
+import { DiscoPoPProfilingWrapperInfo } from '../instrumentation/DiscoPoPProfilingWrapperInfo'
 
 export class DiscoPoPCMakeWorkflow {
     /**
@@ -23,8 +23,7 @@ export class DiscoPoPCMakeWorkflow {
         public readonly buildDirectory: string = srcDirectory +
             '/build/DiscoPoP',
         public readonly buildArguments: string = '',
-        public readonly overrideExplorerArguments?: string,
-        public readonly overrideOptimizerArguments?: string
+        public readonly overrideExplorerArguments?: string
     ) {}
 
     /**

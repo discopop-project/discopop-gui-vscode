@@ -1,5 +1,5 @@
-import { CommandExecution } from '../../../../utils/CommandExecution'
-import { DiscoPoPConfigProvider } from '../../tools/DiscoPoPConfigProvider'
+import { CommandExecution } from '../../../utils/CommandExecution'
+import { DiscoPoPConfigProvider } from '../tools/DiscoPoPConfigProvider'
 import { WrapperInfo } from './CMakeBasedInstrumentation'
 
 export class DiscoPoPProfilingWrapperInfo implements WrapperInfo {
