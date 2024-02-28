@@ -1,11 +1,9 @@
 import * as fs from 'fs'
 import * as vscode from 'vscode'
-import {
-    Configuration,
-    RunCapableConfiguration,
-} from './configurationManager/Configuration'
+import { Configuration } from './configurationManager/Configuration'
 import { ConfigurationTreeDataProvider } from './configurationManager/ConfigurationTreeDataProvider'
 import configurationFromJSON from './configurationManager/configurationImplementations/ConfigurationDeserializer'
+import { ConfigurationCMake } from './configurationManager/configurationImplementations/cmake/ConfigurationCMake'
 import {
     CustomScripts,
     Script,
@@ -24,6 +22,9 @@ import { DiscoPoPSuggestionNode } from './discopop/providers/discoPoPSuggestionT
 import { SuggestionTree } from './discopop/providers/discoPoPSuggestionTree/DiscoPoPSuggestionTree'
 import { ToolSuite } from './runners/ToolSuite'
 import { DiscoPoPConfigProvider } from './runners/tools/DiscoPoPConfigProvider'
+import { DiscoPoPCMakeWorkflowUI } from './runners/workflows/uiWorkflows/DiscoPoPCMakeWorkflowUI'
+import { HotspotDetectionCMakeWorkflowUI } from './runners/workflows/uiWorkflows/HotspotDetectionCMakeWorkflowUI'
+import { OptimizerWorkflowUI } from './runners/workflows/uiWorkflows/OptimizerWorkflowUI'
 import { CommandExecution } from './utils/CommandExecution'
 import { Commands } from './utils/Commands'
 import { Config, SuggestionPreviewMode } from './utils/Config'
@@ -257,21 +258,8 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.runDiscoPoP,
-                async (configuration: RunCapableConfiguration) => {
-                    try {
-                        this.dpResults = await configuration.runDiscoPoP()
-                    } catch (error: any) {
-                        if (error instanceof CancellationError) {
-                            UIPrompts.showMessageForSeconds(
-                                'DiscoPoP was cancelled'
-                            )
-                        } else {
-                            logAndShowErrorMessageHandler(
-                                error,
-                                'DiscoPoP failed: '
-                            )
-                        }
-                    }
+                async (configuration: ConfigurationCMake) => {
+                    await this._runDiscoPoP(configuration)
                 }
             )
         )
@@ -279,22 +267,8 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.runHotspotDetection,
-                async (configuration: RunCapableConfiguration) => {
-                    try {
-                        this.hsResults =
-                            await configuration.runHotspotDetection()
-                    } catch (error: any) {
-                        if (error instanceof CancellationError) {
-                            UIPrompts.showMessageForSeconds(
-                                'HotspotDetection was cancelled'
-                            )
-                        } else {
-                            logAndShowErrorMessageHandler(
-                                error,
-                                'HotspotDetection failed: '
-                            )
-                        }
-                    }
+                async (configuration: ConfigurationCMake) => {
+                    await this._runHotspotDetection(configuration)
                 }
             )
         )
@@ -302,39 +276,9 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.runDiscoPoPAndHotspotDetection,
-                async (configuration: RunCapableConfiguration) => {
-                    // DiscoPoP
-                    try {
-                        this.dpResults = await configuration.runDiscoPoP()
-                    } catch (error: any) {
-                        if (error instanceof CancellationError) {
-                            UIPrompts.showMessageForSeconds(
-                                'DiscoPoP was cancelled'
-                            )
-                        } else {
-                            logAndShowErrorMessageHandler(
-                                error,
-                                'DiscoPoP failed: '
-                            )
-                        }
-                    }
-
-                    // HotspotDetection
-                    try {
-                        this.hsResults =
-                            await configuration.runHotspotDetection()
-                    } catch (error: any) {
-                        if (error instanceof CancellationError) {
-                            UIPrompts.showMessageForSeconds(
-                                'HotspotDetection was cancelled'
-                            )
-                        } else {
-                            logAndShowErrorMessageHandler(
-                                error,
-                                'HotspotDetection failed: '
-                            )
-                        }
-                    }
+                async (configuration: ConfigurationCMake) => {
+                    await this._runDiscoPoP(configuration)
+                    await this._runHotspotDetection(configuration)
                 }
             )
         )
@@ -342,9 +286,14 @@ export class DiscoPoPExtension {
         this.context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.runOptimizer,
-                async (configuration: RunCapableConfiguration) => {
+                async (configuration: ConfigurationCMake) => {
                     try {
-                        this.dpResults = await configuration.runOptimizer()
+                        const optimizerRunner = new OptimizerWorkflowUI(
+                            configuration.dotDiscoPoP
+                        )
+                        this.dpResults = await optimizerRunner.run(
+                            configuration.overrideOptimizerArguments
+                        )
                     } catch (error: any) {
                         if (error instanceof CancellationError) {
                             UIPrompts.showMessageForSeconds(
@@ -1151,6 +1100,60 @@ export class DiscoPoPExtension {
         } else if (this.suggestionTreeView) {
             this.suggestionTreeView.title = `Suggestions`
             this.suggestionTreeView.message = undefined
+        }
+    }
+
+    private async _runHotspotDetection(configuration: ConfigurationCMake) {
+        try {
+            configuration.running = true
+            const hsRunner = new HotspotDetectionCMakeWorkflowUI(
+                configuration.projectPath,
+                configuration.executableName,
+                configuration.executableArgumentsForHotspotDetection,
+                configuration.dotDiscoPoP,
+                configuration.buildPathForHotspotDetection,
+                configuration.buildArguments,
+                configuration.overrideHotspotDetectionArguments
+            )
+            this.hsResults = await hsRunner.run() // await because we want to catch errors here
+        } catch (error: any) {
+            if (error instanceof CancellationError) {
+                UIPrompts.showMessageForSeconds(
+                    'HotspotDetection was cancelled'
+                )
+            } else {
+                logAndShowErrorMessageHandler(
+                    error,
+                    'HotspotDetection failed: '
+                )
+            }
+        } finally {
+            configuration.running = false
+        }
+    }
+
+    private async _runDiscoPoP(configuration: ConfigurationCMake) {
+        try {
+            configuration.running = true
+            const dpRunner = new DiscoPoPCMakeWorkflowUI(
+                configuration.projectPath,
+                configuration.executableName,
+                configuration.executableArgumentsForDiscoPoP,
+                configuration.buildPathForDiscoPoP,
+                configuration.dotDiscoPoP,
+                configuration.buildArguments,
+                configuration.overrideExplorerArguments,
+                configuration.overrideOptimizerArguments
+            )
+            this.dpResults = await dpRunner.run()
+        } catch (error: any) {
+            if (error instanceof CancellationError) {
+                UIPrompts.showMessageForSeconds('DiscoPoP was cancelled')
+            } else {
+                logAndShowErrorMessageHandler(error, 'DiscoPoP failed: ')
+            }
+        } finally {
+            configuration.running = false
         }
     }
 

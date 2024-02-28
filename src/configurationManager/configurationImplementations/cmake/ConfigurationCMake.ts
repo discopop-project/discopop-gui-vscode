@@ -1,14 +1,8 @@
 import { TreeItem } from 'vscode'
-import { DiscoPoPResults } from '../../../discopop/model/DiscoPoPResults'
-import { HotspotDetectionResults } from '../../../discopop/model/HotspotDetectionResults'
-import { DiscoPoPCMakeWorkflowUI } from '../../../runners/workflows/uiWorkflows/DiscoPoPCMakeWorkflowUI'
-import { HotspotDetectionCMakeWorkflowUI } from '../../../runners/workflows/uiWorkflows/HotspotDetectionCMakeWorkflowUI'
-import { OptimizerWorkflowUI } from '../../../runners/workflows/uiWorkflows/OptimizerWorkflowUI'
 import {
     Configuration,
     ConfigurationObserver,
     ConfigurationType,
-    RunCapableConfiguration,
 } from '../../Configuration'
 import { ConfigurationTreeItem } from '../../ConfigurationTreeItem'
 import {
@@ -22,7 +16,7 @@ import { AdvancedConfigurationSettings } from './AdvancedConfigurationSettings'
 
 export class ConfigurationCMake
     extends Configuration
-    implements RunCapableConfiguration, PropertyObserver
+    implements PropertyObserver
 {
     public constructor(
         onConfigurationChange: ConfigurationObserver | undefined,
@@ -224,53 +218,5 @@ export class ConfigurationCMake
             this._executableArgumentsForHotspotDetection,
             this._advancedConfigurationSettings,
         ]
-    }
-
-    public async runDiscoPoP(): Promise<DiscoPoPResults> {
-        this.running = true
-        try {
-            const dpRunner = new DiscoPoPCMakeWorkflowUI(
-                this.projectPath,
-                this.executableName,
-                this.executableArgumentsForDiscoPoP,
-                this.buildPathForDiscoPoP,
-                this.dotDiscoPoP,
-                this.buildArguments,
-                this.overrideExplorerArguments,
-                this.overrideOptimizerArguments
-            )
-            return await dpRunner.run() // await because we want to catch errors here
-        } catch (error) {
-            throw error
-        } finally {
-            this.running = false
-        }
-    }
-
-    public async runHotspotDetection(): Promise<HotspotDetectionResults> {
-        this.running = true
-        try {
-            const hsRunner = new HotspotDetectionCMakeWorkflowUI(
-                this.projectPath,
-                this.executableName,
-                this.executableArgumentsForHotspotDetection,
-                this.dotDiscoPoP,
-                this.buildPathForHotspotDetection,
-                this.buildArguments,
-                this.overrideHotspotDetectionArguments
-                    ? this.overrideHotspotDetectionArguments
-                    : undefined
-            )
-            return await hsRunner.run() // await because we want to catch errors here
-        } catch (error) {
-            throw error
-        } finally {
-            this.running = false
-        }
-    }
-
-    public async runOptimizer(): Promise<DiscoPoPResults> {
-        const optimizerRunner = new OptimizerWorkflowUI(this.dotDiscoPoP)
-        return optimizerRunner.run(this.overrideOptimizerArguments)
     }
 }
