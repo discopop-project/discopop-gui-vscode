@@ -3,15 +3,14 @@ import { DiscoPoPAppliedSuggestionsWatcher } from './DiscoPoPAppliedSuggestionsW
 import { LineMapping } from './LineMapping'
 
 export class DiscoPoPSuggestion {
-    public readonly applicable_pattern: boolean
     constructor(
-        public id: number,
-        public type: string,
-        public fileId: number,
-        public startLine: number,
-        public endLine: number,
-        applicable_pattern: boolean | undefined, // assumed true if undefined
-        public pureJSONData: any
+        public readonly id: number,
+        public readonly type: string,
+        public readonly fileId: number,
+        public readonly startLine: number,
+        public readonly endLine: number,
+        public readonly applicable_pattern: boolean | undefined, // assumed true if undefined
+        public readonly pureJSONData: any
     ) {
         if (applicable_pattern === undefined) {
             this.applicable_pattern = true
@@ -47,17 +46,17 @@ export class DiscoPoPSuggestion {
             throw new Error('patterns.json file not found.')
         }
         const suggestionsString = fs.readFileSync(path, 'utf-8')
-        return DiscoPoPSuggestion.parseString(suggestionsString)
+        return DiscoPoPSuggestion._parseString(suggestionsString)
     }
 
-    private static parseString(
+    private static _parseString(
         text: string
     ): Map<string, DiscoPoPSuggestion[]> {
         const suggestionsJSON = JSON.parse(text)
-        return DiscoPoPSuggestion.parseJSON(suggestionsJSON)
+        return DiscoPoPSuggestion._parseJSON(suggestionsJSON)
     }
 
-    private static parseJSON(json: any): Map<string, DiscoPoPSuggestion[]> {
+    private static _parseJSON(json: any): Map<string, DiscoPoPSuggestion[]> {
         // const expectedVersion = '3.1.1'
         // if (!json.version || json.version !== expectedVersion) {
         //     console.error(
