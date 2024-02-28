@@ -1,6 +1,10 @@
+import * as fs from 'fs'
+import * as path from 'path'
 import * as vscode from 'vscode'
 import { ExtensionContext } from 'vscode'
+import { Commands } from '../utils/Commands'
 import { SimpleTree } from '../utils/SimpleTree'
+import { UIPrompts } from '../utils/UIPrompts'
 import {
     Configuration,
     ConfigurationObserver,
@@ -10,14 +14,260 @@ import configurationFromJSON from './ConfigurationDeserializer'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
 import { ConfigurationCMake } from './cmake/ConfigurationCMake'
 import { ConfigurationViewOnly } from './viewOnly/ConfigurationViewOnly'
+import { CustomScripts, Script } from './viewOnly/CustomScripts'
+
+function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
+    if (optionalMessage) {
+        console.error(optionalMessage)
+    }
+    console.error(error)
+    vscode.window.showErrorMessage(
+        optionalMessage
+            ? optionalMessage + (error.message || error)
+            : error.message || error
+    )
+}
+
+export interface ConfigurationManagerCallbacks {
+    loadResults(dotDiscopop: string): void
+    runDiscoPoP(dotDiscopop: string): Promise<void>
+    runHotspotDetection(
+        projectPath: string,
+        executableName: string,
+        executableArgumentsForHotspotDetection: string[],
+        dotDiscoPoP: string,
+        buildPathForHotspotDetection: string,
+        buildArguments: string,
+        overrideHotspotArguments?: string
+    ): Promise<void>
+}
 
 export class ConfigurationTreeDataProvider
     extends SimpleTree<ConfigurationTreeItem>
     implements ConfigurationObserver
 {
-    public constructor(private _context: ExtensionContext) {
+    public constructor(
+        private readonly _context: ExtensionContext,
+        callbacks: ConfigurationManagerCallbacks
+    ) {
         super([])
+
         this._loadConfigurationsFromStableStorage()
+
+        // ### LOADING RESULTS AND RUNNING DISCOPOP / HOTSPOT_DETECTION ###
+
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.loadResults,
+                async (configuration: Configuration) => {
+                    callbacks.loadResults(configuration.dotDiscoPoP)
+                }
+            )
+        )
+
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.runDiscoPoP,
+                async (configuration: Configuration) => {
+                    callbacks.runDiscoPoP(configuration.dotDiscoPoP)
+                }
+            )
+        )
+
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.runHotspotDetection,
+                async (configuration: ConfigurationCMake) => {
+                    configuration.running = true
+                    try {
+                        await callbacks.runHotspotDetection(
+                            configuration.projectPath,
+                            configuration.executableName,
+                            configuration.executableArgumentsForHotspotDetection,
+                            configuration.dotDiscoPoP,
+                            configuration.buildPathForHotspotDetection,
+                            configuration.buildArguments,
+                            configuration.overrideHotspotDetectionArguments
+                        )
+                    } catch (error: any) {
+                        if (error instanceof vscode.CancellationError) {
+                            UIPrompts.showMessageForSeconds(
+                                'HotspotDetection was cancelled'
+                            )
+                        } else {
+                            logAndShowErrorMessageHandler(
+                                error,
+                                'HotspotDetection failed: '
+                            )
+                        }
+                    } finally {
+                        configuration.running = false
+                    }
+                }
+            )
+        )
+
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.runDiscoPoPAndHotspotDetection,
+                async (configuration: ConfigurationCMake) => {
+                    // TODO try catch finally (running = true/false)
+                    callbacks.runDiscoPoP(configuration.dotDiscoPoP)
+                    await callbacks.runHotspotDetection(
+                        configuration.projectPath,
+                        configuration.executableName,
+                        configuration.executableArgumentsForHotspotDetection,
+                        configuration.dotDiscoPoP,
+                        configuration.buildPathForHotspotDetection,
+                        configuration.buildArguments,
+                        configuration.overrideHotspotDetectionArguments
+                    )
+                }
+            )
+        )
+
+        // ### CONFIGURATION MANAGMENT ###
+
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.addConfiguration,
+                async () => {
+                    await this.createAndAddConfiguration()
+                }
+            )
+        )
+
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.removeConfiguration,
+                async (configuration: Configuration) => {
+                    this.removeConfiguration(configuration)
+                }
+            )
+        )
+
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.copyConfiguration,
+                async (configuration: Configuration) => {
+                    const configurationJson = configuration.toJSON()
+                    const newConfiguration = configurationFromJSON(
+                        configurationJson,
+                        this
+                    )
+                    newConfiguration.name = `${newConfiguration.name} (copy)`
+                    this.addConfiguration(newConfiguration)
+                }
+            )
+        )
+
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.editConfigurationOrProperty,
+                async (editable) => {
+                    editable.edit()
+                }
+            )
+        )
+
+        // ### SCRIPTS ###
+
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.addScript,
+                async (customScripts: CustomScripts) => {
+                    // let the user input the path to the script
+                    const config = customScripts.configuration
+                    let defaultScriptPath = config.dotDiscoPoP
+                    defaultScriptPath = defaultScriptPath.slice(
+                        0,
+                        defaultScriptPath.lastIndexOf(path.sep)
+                    )
+                    defaultScriptPath = defaultScriptPath + '/run.sh'
+                    const scriptPath = await vscode.window.showInputBox({
+                        placeHolder: 'Enter the path to the script',
+                        title: 'Add a new script',
+                        value: defaultScriptPath,
+                    })
+                    if (!scriptPath) {
+                        return
+                    }
+                    config.addScript(scriptPath)
+                }
+            )
+        )
+
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.runScript,
+                async (script: Script) => {
+                    // indicate if the script does not exist
+                    if (!fs.existsSync(script.value)) {
+                        vscode.window.showErrorMessage(
+                            `The script "${script.value}" does not exist.`
+                        )
+                        return
+                    }
+
+                    // indicate if the script is not a file
+                    if (!fs.statSync(script.value).isFile()) {
+                        vscode.window.showErrorMessage(
+                            `The script "${script.value}" is not a file.`
+                        )
+                        return
+                    }
+
+                    // indicate if the script is not executable
+                    if (!(fs.statSync(script.value).mode & 0o111)) {
+                        vscode.window.showErrorMessage(
+                            `The script "${script.value}" is not executable.`
+                        )
+                        return
+                    }
+
+                    try {
+                        // execute the script
+                        // TODO make cancellation possible
+                        const execResult = await script.run()
+                        // show the output
+                        // TODO surely there is a better way to show the output
+                        if (execResult.stdout) {
+                            vscode.window.showInformationMessage(
+                                execResult.stdout
+                            )
+                        }
+                        if (execResult.stderr) {
+                            vscode.window.showErrorMessage(execResult.stderr)
+                        }
+                        if (execResult.exitCode !== 0) {
+                            vscode.window.showErrorMessage(
+                                `The script "${script.value}" exited with code ${execResult.exitCode}.`
+                            )
+                        }
+                    } catch (error: any) {
+                        logAndShowErrorMessageHandler(
+                            error,
+                            'Failed to run script: '
+                        )
+                    }
+                }
+            )
+        )
+
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.removeScript,
+                async (script: Script) => {
+                    if (
+                        await UIPrompts.actionConfirmed(
+                            `Are you sure you want to remove the script "${script.value}"?`
+                        )
+                    ) {
+                        script.parent.removeScript(script)
+                    }
+                }
+            )
+        )
     }
 
     public async createAndAddConfiguration(): Promise<void> {

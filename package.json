@@ -19,7 +19,7 @@
     "activationEvents": [
         "onView:discopop-sidebar-view"
     ],
-    "main": "./out/DiscoPoPExtension.js",
+    "main": "./out/extension.js",
     "contributes": {
         "viewsContainers": {
             "activitybar": [
