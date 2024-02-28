@@ -10,8 +10,8 @@ export class DiscoPoPCMakeWorkflow {
      * @param srcDirectory
      * @param executableName
      * @param executableArguments defaults to ""
-     * @param buildDirectory defaults to <projectDirectory>/build/DiscoPoP
-     * @param dotDiscoPoP defaults to <projectDirectory>/build/.discopop
+     * @param dotDiscoPoP defaults to <srcDirectory>/build/.discopop
+     * @param buildDirectory defaults to <srcDirectory>/build/DiscoPoP
      */
     public constructor(
         public readonly srcDirectory: string,

@@ -1,6 +1,6 @@
-Copyright © 2015-2020  Technische Universitaet Darmstadt, Darmstadt, Germany
-Copyright © 2018-2020  Iowa State University, Ames, USA
-Copyright © 2012-2015  German Research School for Simulation Sciences GmbH, Juelich/Aachen, Germany
+Copyright © 2015-2020 Technische Universitaet Darmstadt, Darmstadt, Germany
+Copyright © 2018-2020 Iowa State University, Ames, USA
+Copyright © 2012-2015 German Research School for Simulation Sciences GmbH, Juelich/Aachen, Germany
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -27,4 +27,3 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
