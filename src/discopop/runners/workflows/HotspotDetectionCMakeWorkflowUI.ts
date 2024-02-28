@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
-import { HotspotDetectionResults } from '../../../discopop/model/HotspotDetectionResults'
 import { UIPrompts } from '../../../utils/UIPrompts'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
 import { UICancelTokenWrapper as UICancelToken } from '../../../utils/cancellation/UICancelTokenWrapper'
-import { HotspotDetectionCMakeWorkflow } from '../pureWorkflows/HotspotDetectionCMakeWorkflow'
+import { HotspotDetectionResults } from '../../model/HotspotDetectionResults'
+import { HotspotDetectionCMakeWorkflow } from './HotspotDetectionCMakeWorkflow'
 
 export class HotspotDetectionCMakeWorkflowUI {
     public constructor(

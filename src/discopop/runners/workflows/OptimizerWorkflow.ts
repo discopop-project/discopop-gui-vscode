@@ -1,6 +1,6 @@
-import { DiscoPoPResults } from '../../../discopop/model/DiscoPoPResults'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
-import { ToolSuite } from '../../ToolSuite'
+import { DiscoPoPResults } from '../../model/DiscoPoPResults'
+import { ToolSuite } from '../ToolSuite'
 
 export class OptimizerWorkflow {
     public constructor(public readonly dotDiscoPoP: string) {}

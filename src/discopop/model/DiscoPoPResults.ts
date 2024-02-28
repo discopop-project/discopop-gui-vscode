@@ -1,6 +1,5 @@
 import * as fs from 'fs'
-import { DiscoPoPAppliedSuggestionsWatcher } from '../DiscoPoPAppliedSuggestionsWatcher'
-import { DiscoPoPPatternParser } from './DiscoPoPPatternParser'
+import { DiscoPoPAppliedSuggestionsWatcher } from './DiscoPoPAppliedSuggestionsWatcher'
 import { DiscoPoPSuggestion } from './DiscoPoPSuggestion'
 import { FileMapping } from './FileMapping'
 import { LineMapping } from './LineMapping'
@@ -28,7 +27,7 @@ export class DiscoPoPResults {
             patternsJson = `${dotDiscoPoP}/optimizer/patterns.json`
         }
         const suggestionsByType: Map<string, DiscoPoPSuggestion[]> =
-            DiscoPoPPatternParser.parseFile(patternsJson)
+            DiscoPoPSuggestion.parseFile(patternsJson)
 
         // create LineMappingWatcher
         const lineMappingFile = `${dotDiscoPoP}/line_mapping.json`

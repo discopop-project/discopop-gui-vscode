@@ -1,4 +1,4 @@
-import { CommandExecution } from '../../utils/CommandExecution'
+import { CommandExecution } from '../../../utils/CommandExecution'
 
 export class DiscoPoPConfigProvider {
     public constructor() {}
