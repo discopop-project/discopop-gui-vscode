@@ -1,11 +1,9 @@
 import { ThemeIcon, TreeItem, TreeItemCollapsibleState } from 'vscode'
-import {
-    CommandExecution,
-    ExecutionResult,
-} from '../../../utils/CommandExecution'
-import { ConfigurationTreeItem } from '../../ConfigurationTreeItem'
-import { Property, PropertyObserver, StringProperty } from '../../Property'
+
 import { ConfigurationViewOnly } from './ConfigurationViewOnly'
+import { ExecutionResult, CommandExecution } from '../../utils/CommandExecution'
+import { ConfigurationTreeItem } from '../ConfigurationTreeItem'
+import { StringProperty, PropertyObserver, Property } from '../Property'
 
 export class Script extends StringProperty {
     // TODO add a way to actually run the script
