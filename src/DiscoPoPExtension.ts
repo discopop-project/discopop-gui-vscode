@@ -1,13 +1,13 @@
 import * as fs from 'fs'
 import * as vscode from 'vscode'
 import { Configuration } from './configurationManager/Configuration'
+import configurationFromJSON from './configurationManager/ConfigurationDeserializer'
 import { ConfigurationTreeDataProvider } from './configurationManager/ConfigurationTreeDataProvider'
-import configurationFromJSON from './configurationManager/configurationImplementations/ConfigurationDeserializer'
-import { ConfigurationCMake } from './configurationManager/configurationImplementations/cmake/ConfigurationCMake'
+import { ConfigurationCMake } from './configurationManager/cmake/ConfigurationCMake'
 import {
     CustomScripts,
     Script,
-} from './configurationManager/configurationImplementations/viewOnly/CustomScripts'
+} from './configurationManager/viewOnly/CustomScripts'
 import { DiscoPoPResults } from './discopop/model/DiscoPoPResults'
 import { DiscoPoPSuggestion } from './discopop/model/DiscoPoPSuggestion'
 import { FileMapping } from './discopop/model/FileMapping'

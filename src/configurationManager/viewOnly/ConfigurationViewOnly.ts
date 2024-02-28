@@ -1,17 +1,18 @@
 import { TreeItem } from 'vscode'
+
+import { CustomScripts } from './CustomScripts'
 import {
     Configuration,
-    ConfigurationObserver,
     ConfigurationType,
-} from '../../Configuration'
-import { ConfigurationTreeItem } from '../../ConfigurationTreeItem'
+    ConfigurationObserver,
+} from '../Configuration'
+import { ConfigurationTreeItem } from '../ConfigurationTreeItem'
 import {
-    Property,
     PropertyObserver,
     StringProperty,
+    Property,
     SupportedType,
-} from '../../Property'
-import { CustomScripts } from './CustomScripts'
+} from '../Property'
 
 export class ConfigurationViewOnly
     extends Configuration

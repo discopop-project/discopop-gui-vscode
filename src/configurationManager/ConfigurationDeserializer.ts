@@ -2,7 +2,7 @@ import {
     Configuration,
     ConfigurationObserver,
     ConfigurationType,
-} from '../Configuration'
+} from './Configuration'
 import { ConfigurationCMake } from './cmake/ConfigurationCMake'
 import { ConfigurationViewOnly } from './viewOnly/ConfigurationViewOnly'
 

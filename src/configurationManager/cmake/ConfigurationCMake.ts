@@ -1,18 +1,19 @@
 import { TreeItem } from 'vscode'
+
+import { AdvancedConfigurationSettings } from './AdvancedConfigurationSettings'
 import {
     Configuration,
     ConfigurationObserver,
     ConfigurationType,
-} from '../../Configuration'
-import { ConfigurationTreeItem } from '../../ConfigurationTreeItem'
+} from '../Configuration'
+import { ConfigurationTreeItem } from '../ConfigurationTreeItem'
 import {
-    Property,
     PropertyObserver,
-    StringArrayProperty,
     StringProperty,
+    StringArrayProperty,
+    Property,
     SupportedType,
-} from '../../Property'
-import { AdvancedConfigurationSettings } from './AdvancedConfigurationSettings'
+} from '../Property'
 
 export class ConfigurationCMake
     extends Configuration
