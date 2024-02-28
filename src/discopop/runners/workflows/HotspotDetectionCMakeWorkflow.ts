@@ -2,8 +2,6 @@ import * as fs from 'fs'
 import { Config } from '../../../utils/Config'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
 import { CancellationError } from '../../../utils/cancellation/CancellationError'
-import { CMakeBasedInstrumentation } from '../instrumentation/CMakeBasedInstrumentation'
-import { HotspotDetectionProfilingWrapperInfo } from '../instrumentation/HotspotDetectionProfilingWrapperInfo'
 import { ToolSuite } from '../tools/ToolSuite'
 
 export class HotspotDetectionCMakeWorkflow {
@@ -41,17 +39,7 @@ export class HotspotDetectionCMakeWorkflow {
         cancelToken: CancelToken
     ): Promise<void> {
         const dpRunner = new ToolSuite(this.dotDiscoPoP)
-        const instrumentation = new CMakeBasedInstrumentation(
-            this.dotDiscoPoP,
-            new HotspotDetectionProfilingWrapperInfo(),
-            {
-                srcDirectory: this.srcDirectory,
-                executableName: this.executableName,
-                executableArguments: this.executableArguments,
-                buildDirectory: this.buildDirectory,
-                buildArguments: this.buildArguments,
-            }
-        )
+        const instrumentation = dpRunner.hotspotDetectionCMakeInstrumentation
 
         // make sure we have a clean build directory
         reportMessage('Preparing...', 0)
@@ -68,22 +56,32 @@ export class HotspotDetectionCMakeWorkflow {
                 'The execution was cancelled and the build directory was not overwritten'
             )
         }
-        instrumentation.prepareBuildDirectory()
+        instrumentation.prepareBuildDirectory(this.buildDirectory)
         reportProgress(10)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running CMake...', 0)
-        await instrumentation.runCmake(cancelToken)
+        await instrumentation.runCmake(
+            this.buildArguments,
+            this.srcDirectory,
+            this.buildDirectory,
+            cancelToken
+        )
         reportProgress(10)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running Make...', 0)
-        await instrumentation.runMake(cancelToken)
+        await instrumentation.runMake(this.buildDirectory, cancelToken)
         reportProgress(10)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running Instrumented Executable...', 0)
-        await instrumentation.runInstrumentation(cancelToken)
+        await instrumentation.runInstrumentation(
+            this.executableName,
+            this.executableArguments,
+            this.buildDirectory,
+            cancelToken
+        )
         reportProgress(30)
         this.throwUponCancellation(cancelToken)
 
