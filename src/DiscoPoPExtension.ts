@@ -291,8 +291,11 @@ export class DiscoPoPExtension {
                         const optimizerRunner = new OptimizerWorkflowUI(
                             configuration.dotDiscoPoP
                         )
-                        this.dpResults = await optimizerRunner.run(
+                        await optimizerRunner.run(
                             configuration.overrideOptimizerArguments
+                        )
+                        this.dpResults = await DiscoPoPResults.parse(
+                            configuration.dotDiscoPoP
                         )
                     } catch (error: any) {
                         if (error instanceof CancellationError) {
@@ -1115,7 +1118,10 @@ export class DiscoPoPExtension {
                 configuration.buildArguments,
                 configuration.overrideHotspotDetectionArguments
             )
-            this.hsResults = await hsRunner.run() // await because we want to catch errors here
+            await hsRunner.run()
+            this.hsResults = await HotspotDetectionResults.parse(
+                configuration.dotDiscoPoP
+            )
         } catch (error: any) {
             if (error instanceof CancellationError) {
                 UIPrompts.showMessageForSeconds(
@@ -1145,7 +1151,10 @@ export class DiscoPoPExtension {
                 configuration.overrideExplorerArguments,
                 configuration.overrideOptimizerArguments
             )
-            this.dpResults = await dpRunner.run()
+            await dpRunner.run()
+            this.dpResults = await DiscoPoPResults.parse(
+                configuration.dotDiscoPoP
+            )
         } catch (error: any) {
             if (error instanceof CancellationError) {
                 UIPrompts.showMessageForSeconds('DiscoPoP was cancelled')

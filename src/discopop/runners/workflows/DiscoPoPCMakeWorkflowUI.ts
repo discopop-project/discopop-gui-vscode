@@ -2,7 +2,6 @@ import * as vscode from 'vscode'
 import { UIPrompts } from '../../../utils/UIPrompts'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
 import { UICancelTokenWrapper as UICancelToken } from '../../../utils/cancellation/UICancelTokenWrapper'
-import { DiscoPoPResults } from '../../model/DiscoPoPResults'
 import { DiscoPoPCMakeWorkflow } from './DiscoPoPCMakeWorkflow'
 
 export class DiscoPoPCMakeWorkflowUI {
@@ -25,7 +24,7 @@ export class DiscoPoPCMakeWorkflowUI {
         }
     }
 
-    public async run(): Promise<DiscoPoPResults> {
+    public async run(): Promise<void> {
         return vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,

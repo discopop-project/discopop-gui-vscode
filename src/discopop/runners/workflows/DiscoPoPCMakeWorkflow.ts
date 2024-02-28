@@ -2,7 +2,6 @@ import * as fs from 'fs'
 import { Config } from '../../../utils/Config'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
 import { CancellationError } from '../../../utils/cancellation/CancellationError'
-import { DiscoPoPResults } from '../../model/DiscoPoPResults'
 import { ToolSuite } from '../ToolSuite'
 import { CMakeBasedInstrumentation } from './instrumentation/CMakeBasedInstrumentation'
 import { DiscoPoPProfilingWrapperInfo } from './instrumentation/DiscoPoPProfilingWrapperInfo'
@@ -41,7 +40,7 @@ export class DiscoPoPCMakeWorkflow {
         reportProgress: (progress: number) => void,
         requestConfirmation: (message: string) => Promise<boolean>,
         cancelToken: CancelToken
-    ): Promise<DiscoPoPResults> {
+    ): Promise<void> {
         const toolSuite = new ToolSuite(this.dotDiscoPoP)
         const instrumentation = new CMakeBasedInstrumentation(
             this.dotDiscoPoP,
@@ -71,7 +70,7 @@ export class DiscoPoPCMakeWorkflow {
             )
         }
         instrumentation.prepareBuildDirectory()
-        reportProgress(5)
+        reportProgress(10)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running CMake...', 0)
@@ -100,13 +99,6 @@ export class DiscoPoPCMakeWorkflow {
         reportMessage('Generating Patches...', 0)
         await toolSuite.discopopPatchGenerator.createDefaultPatches(cancelToken)
         reportProgress(10)
-        this.throwUponCancellation(cancelToken)
-
-        reportMessage('Parsing Results...', 0)
-        const results = await DiscoPoPResults.parse(this.dotDiscoPoP) // does not support cancellation
-        reportProgress(5)
-
-        return results
     }
 
     private throwUponCancellation(cancelToken: CancelToken): void {

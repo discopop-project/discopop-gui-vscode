@@ -1,13 +1,12 @@
 import * as vscode from 'vscode'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
 import { UICancelTokenWrapper } from '../../../utils/cancellation/UICancelTokenWrapper'
-import { DiscoPoPResults } from '../../model/DiscoPoPResults'
 import { OptimizerWorkflow } from './OptimizerWorkflow'
 
 export class OptimizerWorkflowUI {
     public constructor(public readonly dotDiscoPoP: string) {}
 
-    public async run(overrideOptionsString?: string): Promise<DiscoPoPResults> {
+    public async run(overrideOptionsString?: string): Promise<void> {
         return vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,

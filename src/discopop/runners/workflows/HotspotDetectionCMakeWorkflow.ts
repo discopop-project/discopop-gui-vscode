@@ -2,7 +2,6 @@ import * as fs from 'fs'
 import { Config } from '../../../utils/Config'
 import { CancelToken } from '../../../utils/cancellation/CancelToken'
 import { CancellationError } from '../../../utils/cancellation/CancellationError'
-import { HotspotDetectionResults } from '../../model/HotspotDetectionResults'
 import { ToolSuite } from '../ToolSuite'
 import { CMakeBasedInstrumentation } from './instrumentation/CMakeBasedInstrumentation'
 import { HotspotDetectionProfilingWrapperInfo } from './instrumentation/HotspotDetectionProfilingWrapperInfo'
@@ -40,7 +39,7 @@ export class HotspotDetectionCMakeWorkflow {
         reportProgress: (progress: number) => void,
         requestConfirmation: (message: string) => Promise<boolean>,
         cancelToken: CancelToken
-    ): Promise<HotspotDetectionResults> {
+    ): Promise<void> {
         const dpRunner = new ToolSuite(this.dotDiscoPoP)
         const instrumentation = new CMakeBasedInstrumentation(
             this.dotDiscoPoP,
@@ -70,7 +69,7 @@ export class HotspotDetectionCMakeWorkflow {
             )
         }
         instrumentation.prepareBuildDirectory()
-        reportProgress(5)
+        reportProgress(10)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running CMake...', 0)
@@ -94,13 +93,6 @@ export class HotspotDetectionCMakeWorkflow {
             this.overrideExplorerArguments
         ) // TODO allow additional arguments?
         reportProgress(30)
-        this.throwUponCancellation(cancelToken)
-
-        reportMessage('Parsing Results...', 0)
-        const results = await HotspotDetectionResults.parse(this.dotDiscoPoP) // does not support cancellation
-        reportProgress(5)
-
-        return results
     }
 
     private throwUponCancellation(cancelToken: CancelToken): void {
