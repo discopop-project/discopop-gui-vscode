@@ -5,7 +5,6 @@ import {
 } from '../configurationManager/ConfigurationTreeDataProvider'
 import { CombinedHotspot } from '../dpResults/resultManager/CombinedHotspot'
 import { CombinedSuggestion } from '../dpResults/resultManager/CombinedSuggestion'
-import { SuggestionTreeView } from '../suggestionTreeView/SuggestionTreeView'
 import { UIPrompts } from '../utils/UIPrompts'
 import {
     getCancelTokenWrapper,
@@ -13,6 +12,14 @@ import {
     getReportProgressWrapper,
     getRequestConfirmationWrapper,
 } from '../utils/UIWrappers'
+import {
+    HotspotTreeView,
+    HotspotTreeViewCallbacks,
+} from '../views/hotspotTreeView/HotspotTreeView'
+import {
+    SuggestionTreeView,
+    SuggestionTreeViewCallbacks,
+} from '../views/suggestionTreeView/SuggestionTreeView'
 import {
     DiscopopExtension,
     DiscopopExtensionUICallbacks,
@@ -26,7 +33,9 @@ export class UIExtension
     implements
         DiscopopExtensionUICallbacks,
         Settings,
-        ConfigurationManagerCallbacks
+        ConfigurationManagerCallbacks,
+        SuggestionTreeViewCallbacks,
+        HotspotTreeViewCallbacks
 {
     // extension
     private readonly discopopExtension: DiscopopExtension
@@ -37,7 +46,7 @@ export class UIExtension
 
     // views
     private readonly suggestionTreeView: SuggestionTreeView
-    // private readonly hotspotTreeView: HotspotTreeView
+    private readonly hotspotTreeView: HotspotTreeView
     private readonly suggestionDetailViewer: SuggestionDetailViewer
     private readonly hotspotDetailViewer: HotspotDetailViewer
 
@@ -61,17 +70,8 @@ export class UIExtension
             undefined,
             this.context
         )
-        this.suggestionTreeView = new SuggestionTreeView(this.context)
-        // TODO this.hotspotTreeView = new HotspotTreeView(this.context)
-    }
-
-    showSingleSuggestion(suggestion: CombinedSuggestion): void {
-        this.suggestionDetailViewer.replaceContents(suggestion.pureJSON)
-        // TODO highlight it in the editor
-    }
-    showSingleHotspot(hotspot: CombinedHotspot): void {
-        this.hotspotDetailViewer.replaceContents(hotspot.pureJSON)
-        // TODO highlight it in the editor
+        this.suggestionTreeView = new SuggestionTreeView(this.context, this)
+        this.hotspotTreeView = new HotspotTreeView(this.context, this)
     }
 
     // ConfigurationManagerCallbacks
@@ -158,12 +158,19 @@ export class UIExtension
     }
 
     // UI Callbacks
+    uiShowSingleSuggestion(suggestion: CombinedSuggestion): void {
+        this.suggestionDetailViewer.replaceContents(suggestion.pureJSON)
+        // TODO highlight it in the editor
+    }
+    uiShowSingleHotspot(hotspot: CombinedHotspot): void {
+        this.hotspotDetailViewer.replaceContents(hotspot.pureJSON)
+        // TODO highlight it in the editor
+    }
     uiShowAllSuggestions(suggestions: Map<string, CombinedSuggestion[]>): void {
         this.suggestionTreeView.combinedSuggestions = suggestions
     }
     uiShowAllHotspots(hotspots: Map<string, CombinedHotspot[]>): void {
-        console.error('Method not implemented: uiShowAllHotspots')
-        console.log(hotspots)
+        this.hotspotTreeView.combinedHotspots = hotspots
     }
     uiShowShortNotification(message: string, durationInSeconds?: number): void {
         UIPrompts.showMessageForSeconds(message, durationInSeconds)

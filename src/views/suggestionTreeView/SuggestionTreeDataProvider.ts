@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
-import { CombinedSuggestion } from '../dpResults/resultManager/CombinedSuggestion'
+import { CombinedSuggestion } from '../../dpResults/resultManager/CombinedSuggestion'
+import { Commands } from '../../utils/Commands'
 
 export type SuggestionTreeItem = string | CombinedSuggestion
 export class SuggestionTreeDataProvider
@@ -39,11 +40,13 @@ export class SuggestionTreeDataProvider
             return treeItem
         }
 
-        const combinedSuggestion = element as CombinedSuggestion
-        const treeItem = new vscode.TreeItem(
-            String(combinedSuggestion.patternID)
-        )
+        const treeItem = new vscode.TreeItem(String(element.patternID))
         // TODO styling etc. (maybe put this in a separate class that extends TreeItem?)
+        treeItem.command = {
+            command: Commands.showSuggestionDetails,
+            title: 'Show Suggestion Details',
+            arguments: [element],
+        }
         return treeItem
     }
     public getChildren(
@@ -58,9 +61,7 @@ export class SuggestionTreeDataProvider
         if (typeof element === 'string') {
             return Array.from(this._combinedSuggestions.get(element))
         }
-        console.error(
-            'SuggestionTreeDataProvider::getChildren called with invalid element'
-        )
+        // combinedSuggestion has no children
         return undefined
     }
     public getParent?(
