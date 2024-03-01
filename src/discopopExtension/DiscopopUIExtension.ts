@@ -3,8 +3,8 @@ import {
     ConfigurationManagerCallbacks,
     ConfigurationTreeDataProvider,
 } from '../configurationManager/ConfigurationTreeDataProvider'
-import { CombinedHotspot } from '../dpResults/resultManager/CombinedHotspot'
-import { CombinedSuggestion } from '../dpResults/resultManager/CombinedSuggestion'
+import { CombinedHotspot } from '../results/combinedResults/CombinedHotspot'
+import { CombinedSuggestion } from '../results/combinedResults/CombinedSuggestion'
 import { UIPrompts } from '../utils/UIPrompts'
 import {
     getCancelTokenWrapper,
