@@ -38,7 +38,7 @@ export interface ConfigurationManagerCallbacks {
         buildPathForDiscoPoP: string,
         buildArguments: string,
         overrideExplorerArguments?: string
-    ): void
+    ): Promise<void>
     runHotspotDetection(
         projectPath: string,
         executableName: string,
@@ -47,7 +47,7 @@ export interface ConfigurationManagerCallbacks {
         buildPathForHotspotDetection: string,
         buildArguments: string,
         overrideHotspotArguments?: string
-    ): void
+    ): Promise<void>
 }
 
 export class ConfigurationTreeDataProvider

@@ -1,6 +1,6 @@
 export interface CombinedHotspot {
     type: string
     filePath: string
-    startLine: number
+    mappedStartLine: number
     pureJSON: any
 }

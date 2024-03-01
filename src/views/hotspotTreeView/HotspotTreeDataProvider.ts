@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
-import { CombinedHotspot } from '../../results/combinedResults/CombinedHotspot'
 import { Commands } from '../../utils/Commands'
+import { CombinedHotspot } from '../../results/resultStore/CombinedHotspot'
 
 // TODO a lot of similarity with SuggestionTreeDataProvider
 // TODO maybe extract common functionality into a MapBasedTreeDataProvider class
@@ -19,6 +19,13 @@ export class HotspotTreeDataProvider
         this.refresh()
     }
 
+    // TODO we can create a getter and use it instead of _combinedHotspotsForView
+    // ... that arranges the hotspots based on filter and sorting criteria
+    // note that this might impact performance
+    // private get combinedHotspotsForView(): Map<string, CombinedHotspot[]> {
+    //     return this._combinedHotspots
+    // }
+
     // trigger updates of the tree view
     private _onDidChangeTreeData: vscode.EventEmitter<
         HotspotTreeItem | undefined | null | void
@@ -35,23 +42,28 @@ export class HotspotTreeDataProvider
         element: HotspotTreeItem
     ): vscode.TreeItem | Thenable<vscode.TreeItem> {
         if (typeof element === 'string') {
+            // create a pretty view for a hotspot group
+            // TODO maybe put this in a separate class that extends TreeItem?
             const treeItem = new vscode.TreeItem(
-                element,
+                `${element} (${this._combinedHotspots.get(element).length})`,
                 vscode.TreeItemCollapsibleState.Collapsed
             )
-            // TODO styling etc. (maybe put this in a separate class that extends TreeItem?)
             return treeItem
         }
 
         const treeItem = new vscode.TreeItem(
-            `${element.filePath}:${element.startLine}`
+            `${element.filePath}:${element.mappedStartLine}`
         )
+        // create a pretty view for a hotspot
+        // TODO maybe put this in a separate class that extends TreeItem?
+        treeItem.description = `${element.filePath.split('/').pop()}:${
+            element.mappedStartLine
+        }`
         treeItem.command = {
             command: Commands.showHotspotDetails,
             title: 'Show Hotspot Details',
             arguments: [element],
         }
-        // TODO styling etc. (maybe put this in a separate class that extends TreeItem?)
         return treeItem
     }
     getChildren(

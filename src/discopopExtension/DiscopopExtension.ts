@@ -1,6 +1,6 @@
-import { CombinedHotspot } from '../results/combinedResults/CombinedHotspot'
-import { CombinedSuggestion } from '../results/combinedResults/CombinedSuggestion'
-import { ResultManager } from '../results/resultManager/ResultManager'
+import { ResultManager, ResultManagerCallbacks } from '../results/ResultManager'
+import { CombinedHotspot } from '../results/resultStore/CombinedHotspot'
+import { CombinedSuggestion } from '../results/resultStore/CombinedSuggestion'
 import { ToolSuite } from '../toolSuite/ToolSuite'
 import { CancelToken } from '../utils/cancellation/CancelToken'
 import { WorkflowSuite } from '../workflowSuite/WorkflowSuite'
@@ -23,7 +23,7 @@ export interface WorkflowWrappers {
     cancelToken: CancelToken
 }
 
-export class DiscopopExtension {
+export class DiscopopExtension implements ResultManagerCallbacks {
     // TODO move it into a ResultManager, that also keeps track of file changes and updates accordingly
     private resultManager: ResultManager | undefined = undefined
     private toolSuite: ToolSuite = new ToolSuite()
@@ -34,29 +34,50 @@ export class DiscopopExtension {
         private settings: Settings
     ) {}
 
-    public loadResults(dotDiscopop: string): void {
-        this.resultManager = new ResultManager(dotDiscopop)
+    public loadResults(
+        dotDiscopop: string,
+        discopopMissingOK: boolean = false,
+        hotspotDetectionMissingOK: boolean = false
+    ): void {
+        if (!this.resultManager) {
+            this.resultManager = new ResultManager(dotDiscopop, this)
+        }
+        this.resultManager.update(dotDiscopop)
         if (this.resultManager.validSuggestions()) {
             this.uiCallbacks.uiShowAllSuggestions(
                 this.resultManager.suggestions
             )
+            this.uiCallbacks.uiShowShortNotification(
+                'DiscoPoP results loaded successfully'
+            )
         } else {
             // TODO we should provide more details (get them from ResultManager, who can get them from the individual parsers)
-            this.uiCallbacks.uiShowShortNotification(
-                'No valid DiscoPoP suggestions found'
-            )
+            if (!discopopMissingOK) {
+                this.uiCallbacks.uiShowShortNotification(
+                    'No valid DiscoPoP suggestions found'
+                )
+            }
         }
         if (this.resultManager.validHotspots()) {
             this.uiCallbacks.uiShowAllHotspots(this.resultManager.hotspots)
+            this.uiCallbacks.uiShowShortNotification(
+                'HotspotDetection results loaded successfully'
+            )
         } else {
             // TODO we should provide more details (get them from ResultManager, who can get them from the individual parsers)
-            this.uiCallbacks.uiShowShortNotification(
-                'No valid HotspotDetection results found'
-            )
+            if (!hotspotDetectionMissingOK) {
+                this.uiCallbacks.uiShowShortNotification(
+                    'No valid HotspotDetection results found'
+                )
+            }
         }
     }
 
-    public runDiscoPoP(
+    public onResultsLoaded(): void {
+        console.log('onResultsLoaded')
+    }
+
+    public async runDiscoPoP(
         uiWrappers: WorkflowWrappers,
         projectPath: string,
         executableName: string,
@@ -65,8 +86,8 @@ export class DiscopopExtension {
         buildPathForDiscoPoP: string,
         buildArguments: string,
         overrideExplorerArguments?: string
-    ): void {
-        this.workflowSuite.discopopWorkflow.run(
+    ): Promise<void> {
+        await this.workflowSuite.discopopWorkflow.run(
             uiWrappers.reportMessage,
             uiWrappers.reportProgress,
             uiWrappers.requestConfirmation,
@@ -80,10 +101,10 @@ export class DiscopopExtension {
             overrideExplorerArguments
         )
 
-        this.loadResults(dotDiscoPoP)
+        this.loadResults(dotDiscoPoP, false, true)
     }
 
-    public runHotspotDetection(
+    public async runHotspotDetection(
         uiWrappers: WorkflowWrappers,
         projectPath: string,
         executableName: string,
@@ -92,8 +113,8 @@ export class DiscopopExtension {
         buildPathForHotspotDetection: string,
         buildArguments: string,
         overrideExplorerArguments?: string
-    ): void {
-        this.workflowSuite.hotspotDetectionWorkflow.run(
+    ): Promise<void> {
+        await this.workflowSuite.hotspotDetectionWorkflow.run(
             uiWrappers.reportMessage,
             uiWrappers.reportProgress,
             uiWrappers.requestConfirmation,
@@ -107,6 +128,6 @@ export class DiscopopExtension {
             overrideExplorerArguments
         )
 
-        this.loadResults(dotDiscopop)
+        this.loadResults(dotDiscopop, true, false)
     }
 }
