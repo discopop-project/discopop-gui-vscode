@@ -1,21 +1,38 @@
 import * as vscode from 'vscode'
-import { CombinedSuggestion } from '../dpResults/resultManager/CombinedSuggestion'
+import { CombinedSuggestion } from '../../dpResults/resultManager/CombinedSuggestion'
 import {
     SuggestionTreeDataProvider,
     SuggestionTreeItem,
 } from './SuggestionTreeDataProvider'
+import { Commands } from '../../utils/Commands'
+
+export interface SuggestionTreeViewCallbacks {
+    uiShowSingleSuggestion: (suggestion: CombinedSuggestion) => void
+}
 
 export class SuggestionTreeView {
     private _suggestionTreeDataProvider: SuggestionTreeDataProvider
     private _treeView: vscode.TreeView<SuggestionTreeItem>
 
-    public constructor(context: vscode.ExtensionContext) {
+    public constructor(
+        context: vscode.ExtensionContext,
+        private callbacks: SuggestionTreeViewCallbacks
+    ) {
         this._suggestionTreeDataProvider = new SuggestionTreeDataProvider()
         this._treeView = vscode.window.createTreeView(
             'sidebar-suggestions-view',
             { treeDataProvider: this._suggestionTreeDataProvider }
         )
         context.subscriptions.push(this._treeView)
+
+        context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.showSuggestionDetails,
+                (suggestion: CombinedSuggestion) => {
+                    this.callbacks.uiShowSingleSuggestion(suggestion)
+                }
+            )
+        )
     }
 
     public set combinedSuggestions(
