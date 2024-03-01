@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { CombinedSuggestion } from '../../dpResults/resultManager/CombinedSuggestion'
+import { CombinedSuggestion } from '../../results/combinedResults/CombinedSuggestion'
 import { Commands } from '../../utils/Commands'
 
 export type SuggestionTreeItem = string | CombinedSuggestion
@@ -32,21 +32,39 @@ export class SuggestionTreeDataProvider
         element: SuggestionTreeItem
     ): vscode.TreeItem | Thenable<vscode.TreeItem> {
         if (typeof element === 'string') {
+            // create a pretty view for a suggestion group
+            // TODO maybe put this in a separate class that extends TreeItem
             const treeItem = new vscode.TreeItem(
-                element,
+                element +
+                    ' (' +
+                    this._combinedSuggestions.get(element).length +
+                    ')',
                 vscode.TreeItemCollapsibleState.Collapsed
             )
-            // TODO styling etc. (maybe put this in a separate class that extends TreeItem?)
+            treeItem.contextValue = 'suggestion_group'
             return treeItem
         }
 
+        // create a pretty view for a suggestion
+        // TODO maybe put this in a separate class that extends TreeItem
         const treeItem = new vscode.TreeItem(String(element.patternID))
-        // TODO styling etc. (maybe put this in a separate class that extends TreeItem?)
+        const fileName = element.filePath.split('/').pop()
+        treeItem.resourceUri = vscode.Uri.file(element.filePath) // TODO is this good?
+        treeItem.description = `${fileName}:${element.mappedStartLine}`
+        treeItem.tooltip = element.filePath + ':' + element.mappedStartLine
         treeItem.command = {
             command: Commands.showSuggestionDetails,
             title: 'Show Suggestion Details',
             arguments: [element],
         }
+        if (element.applied) {
+            treeItem.iconPath = new vscode.ThemeIcon('verified-filled')
+            treeItem.contextValue = 'suggestion_applied'
+        } else {
+            treeItem.iconPath = new vscode.ThemeIcon('lightbulb')
+            treeItem.contextValue = 'suggestion'
+        }
+
         return treeItem
     }
     public getChildren(
@@ -56,10 +74,21 @@ export class SuggestionTreeDataProvider
             if (this._combinedSuggestions === undefined) {
                 return []
             }
-            return Array.from(this._combinedSuggestions.keys())
+            const keys = Array.from(this._combinedSuggestions.keys())
+            const filteredKeys = keys.filter(
+                (key) =>
+                    this._combinedSuggestions
+                        .get(key)
+                        .filter((s) => s.applicable).length > 0
+            )
+            return filteredKeys
         }
         if (typeof element === 'string') {
-            return Array.from(this._combinedSuggestions.get(element))
+            return Array.from(
+                this._combinedSuggestions
+                    .get(element)
+                    .filter((s) => s.applicable)
+            )
         }
         // combinedSuggestion has no children
         return undefined

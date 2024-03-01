@@ -31,60 +31,65 @@
 </g>
 <g id="clust5" class="cluster">
 <title>cluster_src/discopopExtension</title>
-<path fill="#ffffff" stroke="black" stroke-width="2" d="M252,-480C252,-480 700,-480 700,-480 706,-480 712,-486 712,-492 712,-492 712,-614 712,-614 712,-620 706,-626 700,-626 700,-626 252,-626 252,-626 246,-626 240,-620 240,-614 240,-614 240,-492 240,-492 240,-486 246,-480 252,-480"/>
-<text text-anchor="middle" x="476" y="-614.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">discopopExtension</text>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M252,-482C252,-482 700,-482 700,-482 706,-482 712,-488 712,-494 712,-494 712,-616 712,-616 712,-622 706,-628 700,-628 700,-628 252,-628 252,-628 246,-628 240,-622 240,-616 240,-616 240,-494 240,-494 240,-488 246,-482 252,-482"/>
+<text text-anchor="middle" x="476" y="-616.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">discopopExtension</text>
 </g>
 <g id="clust6" class="cluster">
-<title>cluster_src/dpResults</title>
+<title>cluster_src/results</title>
 <path fill="#ffffff" stroke="black" stroke-width="2" d="M732,-478C732,-478 1452,-478 1452,-478 1458,-478 1464,-484 1464,-490 1464,-490 1464,-841 1464,-841 1464,-847 1458,-853 1452,-853 1452,-853 732,-853 732,-853 726,-853 720,-847 720,-841 720,-841 720,-490 720,-490 720,-484 726,-478 732,-478"/>
-<text text-anchor="middle" x="1092" y="-841.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">dpResults</text>
+<text text-anchor="middle" x="1092" y="-841.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">results</text>
 </g>
 <g id="clust7" class="cluster">
-<title>cluster_src/dpResults/model</title>
-<path fill="#ffffff" stroke="black" stroke-width="2" d="M988,-599C988,-599 1444,-599 1444,-599 1450,-599 1456,-605 1456,-611 1456,-611 1456,-815 1456,-815 1456,-821 1450,-827 1444,-827 1444,-827 988,-827 988,-827 982,-827 976,-821 976,-815 976,-815 976,-611 976,-611 976,-605 982,-599 988,-599"/>
-<text text-anchor="middle" x="1216" y="-815.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">model</text>
+<title>cluster_src/results/combinedResults</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M988,-486C988,-486 1196,-486 1196,-486 1202,-486 1208,-492 1208,-498 1208,-498 1208,-579 1208,-579 1208,-585 1202,-591 1196,-591 1196,-591 988,-591 988,-591 982,-591 976,-585 976,-579 976,-579 976,-498 976,-498 976,-492 982,-486 988,-486"/>
+<text text-anchor="middle" x="1092" y="-579.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">combinedResults</text>
 </g>
 <g id="clust8" class="cluster">
-<title>cluster_src/dpResults/resultManager</title>
-<path fill="#ffffff" stroke="black" stroke-width="2" d="M740,-486C740,-486 1196,-486 1196,-486 1202,-486 1208,-492 1208,-498 1208,-498 1208,-579 1208,-579 1208,-585 1202,-591 1196,-591 1196,-591 740,-591 740,-591 734,-591 728,-585 728,-579 728,-579 728,-498 728,-498 728,-492 734,-486 740,-486"/>
-<text text-anchor="middle" x="968" y="-579.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">resultManager</text>
+<title>cluster_src/results/pureResults</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M988,-599C988,-599 1444,-599 1444,-599 1450,-599 1456,-605 1456,-611 1456,-611 1456,-815 1456,-815 1456,-821 1450,-827 1444,-827 1444,-827 988,-827 988,-827 982,-827 976,-821 976,-815 976,-815 976,-611 976,-611 976,-605 982,-599 988,-599"/>
+<text text-anchor="middle" x="1216" y="-815.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">pureResults</text>
 </g>
 <g id="clust9" class="cluster">
+<title>cluster_src/results/resultManager</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M740,-619C740,-619 948,-619 948,-619 954,-619 960,-625 960,-631 960,-631 960,-671 960,-671 960,-677 954,-683 948,-683 948,-683 740,-683 740,-683 734,-683 728,-677 728,-671 728,-671 728,-631 728,-631 728,-625 734,-619 740,-619"/>
+<text text-anchor="middle" x="844" y="-671.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">resultManager</text>
+</g>
+<g id="clust10" class="cluster">
 <title>cluster_src/toolSuite</title>
 <path fill="#ffffff" stroke="black" stroke-width="2" d="M1236,-861C1236,-861 1949,-861 1949,-861 1955,-861 1961,-867 1961,-873 1961,-873 1961,-1265 1961,-1265 1961,-1271 1955,-1277 1949,-1277 1949,-1277 1236,-1277 1236,-1277 1230,-1277 1224,-1271 1224,-1265 1224,-1265 1224,-873 1224,-873 1224,-867 1230,-861 1236,-861"/>
 <text text-anchor="middle" x="1592.5" y="-1265.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">toolSuite</text>
 </g>
-<g id="clust10" class="cluster">
+<g id="clust11" class="cluster">
 <title>cluster_src/toolSuite/instrumentation</title>
 <path fill="#ffffff" stroke="black" stroke-width="2" d="M1484,-869C1484,-869 1941,-869 1941,-869 1947,-869 1953,-875 1953,-881 1953,-881 1953,-962 1953,-962 1953,-968 1947,-974 1941,-974 1941,-974 1484,-974 1484,-974 1478,-974 1472,-968 1472,-962 1472,-962 1472,-881 1472,-881 1472,-875 1478,-869 1484,-869"/>
 <text text-anchor="middle" x="1712.5" y="-962.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">instrumentation</text>
 </g>
-<g id="clust11" class="cluster">
+<g id="clust12" class="cluster">
 <title>cluster_src/toolSuite/tools</title>
 <path fill="#ffffff" stroke="black" stroke-width="2" d="M1494,-982C1494,-982 1702,-982 1702,-982 1708,-982 1714,-988 1714,-994 1714,-994 1714,-1239 1714,-1239 1714,-1245 1708,-1251 1702,-1251 1702,-1251 1494,-1251 1494,-1251 1488,-1251 1482,-1245 1482,-1239 1482,-1239 1482,-994 1482,-994 1482,-988 1488,-982 1494,-982"/>
 <text text-anchor="middle" x="1598" y="-1239.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">tools</text>
 </g>
-<g id="clust12" class="cluster">
+<g id="clust13" class="cluster">
 <title>cluster_src/views</title>
 <path fill="#ffffff" stroke="black" stroke-width="2" d="M484,-300C484,-300 956,-300 956,-300 962,-300 968,-306 968,-312 968,-312 968,-458 968,-458 968,-464 962,-470 956,-470 956,-470 484,-470 484,-470 478,-470 472,-464 472,-458 472,-458 472,-312 472,-312 472,-306 478,-300 484,-300"/>
 <text text-anchor="middle" x="720" y="-458.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">views</text>
 </g>
-<g id="clust13" class="cluster">
+<g id="clust14" class="cluster">
 <title>cluster_src/views/hotspotTreeView</title>
 <path fill="#ffffff" stroke="black" stroke-width="2" d="M492,-308C492,-308 948,-308 948,-308 954,-308 960,-314 960,-320 960,-320 960,-360 960,-360 960,-366 954,-372 948,-372 948,-372 492,-372 492,-372 486,-372 480,-366 480,-360 480,-360 480,-320 480,-320 480,-314 486,-308 492,-308"/>
 <text text-anchor="middle" x="720" y="-360.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">hotspotTreeView</text>
 </g>
-<g id="clust14" class="cluster">
+<g id="clust15" class="cluster">
 <title>cluster_src/views/suggestionTreeView</title>
 <path fill="#ffffff" stroke="black" stroke-width="2" d="M492,-380C492,-380 948,-380 948,-380 954,-380 960,-386 960,-392 960,-392 960,-432 960,-432 960,-438 954,-444 948,-444 948,-444 492,-444 492,-444 486,-444 480,-438 480,-432 480,-432 480,-392 480,-392 480,-386 486,-380 492,-380"/>
 <text text-anchor="middle" x="720" y="-432.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">suggestionTreeView</text>
 </g>
-<g id="clust15" class="cluster">
+<g id="clust16" class="cluster">
 <title>cluster_src/workflowSuite</title>
 <path fill="#ffffff" stroke="black" stroke-width="2" d="M740,-938C740,-938 1204,-938 1204,-938 1210,-938 1216,-944 1216,-950 1216,-950 1216,-1106 1216,-1106 1216,-1112 1210,-1118 1204,-1118 1204,-1118 740,-1118 740,-1118 734,-1118 728,-1112 728,-1106 728,-1106 728,-950 728,-950 728,-944 734,-938 740,-938"/>
 <text text-anchor="middle" x="972" y="-1106.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">workflowSuite</text>
 </g>
-<g id="clust16" class="cluster">
+<g id="clust17" class="cluster">
 <title>cluster_src/workflowSuite/workflows</title>
 <path fill="#ffffff" stroke="black" stroke-width="2" d="M988,-946C988,-946 1196,-946 1196,-946 1202,-946 1208,-952 1208,-958 1208,-958 1208,-1080 1208,-1080 1208,-1086 1202,-1092 1196,-1092 1196,-1092 988,-1092 988,-1092 982,-1092 976,-1086 976,-1080 976,-1080 976,-958 976,-958 976,-952 982,-946 988,-946"/>
 <text text-anchor="middle" x="1092" y="-1080.8" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">workflows</text>
@@ -348,55 +353,55 @@
 <g id="node10" class="node">
 <title>src/discopopExtension/DiscopopExtension.ts</title>
 <g id="a_node10"><a xlink:href="src/discopopExtension/DiscopopExtension.ts" xlink:title="DiscopopExtension.ts">
-<path fill="#ddfeff" stroke="black" d="M694.33,-517.5C694.33,-517.5 497.67,-517.5 497.67,-517.5 492.83,-517.5 488,-512.67 488,-507.83 488,-507.83 488,-498.17 488,-498.17 488,-493.33 492.83,-488.5 497.67,-488.5 497.67,-488.5 694.33,-488.5 694.33,-488.5 699.17,-488.5 704,-493.33 704,-498.17 704,-498.17 704,-507.83 704,-507.83 704,-512.67 699.17,-517.5 694.33,-517.5"/>
-<text text-anchor="start" x="547.5" y="-500.8" font-family="Helvetica,sans-Serif" font-size="9.00">DiscopopExtension.ts</text>
+<path fill="#ddfeff" stroke="black" d="M694.33,-519.5C694.33,-519.5 497.67,-519.5 497.67,-519.5 492.83,-519.5 488,-514.67 488,-509.83 488,-509.83 488,-500.17 488,-500.17 488,-495.33 492.83,-490.5 497.67,-490.5 497.67,-490.5 694.33,-490.5 694.33,-490.5 699.17,-490.5 704,-495.33 704,-500.17 704,-500.17 704,-509.83 704,-509.83 704,-514.67 699.17,-519.5 694.33,-519.5"/>
+<text text-anchor="start" x="547.5" y="-502.8" font-family="Helvetica,sans-Serif" font-size="9.00">DiscopopExtension.ts</text>
 </a>
 </g>
 </g>
-<!-- src/dpResults/resultManager/CombinedHotspot.ts -->
+<!-- src/results/combinedResults/CombinedHotspot.ts -->
 <g id="node11" class="node">
-<title>src/dpResults/resultManager/CombinedHotspot.ts</title>
-<g id="a_node11"><a xlink:href="src/dpResults/resultManager/CombinedHotspot.ts" xlink:title="CombinedHotspot.ts">
+<title>src/results/combinedResults/CombinedHotspot.ts</title>
+<g id="a_node11"><a xlink:href="src/results/combinedResults/CombinedHotspot.ts" xlink:title="CombinedHotspot.ts">
 <path fill="#ddfeff" stroke="black" d="M1190.33,-523.5C1190.33,-523.5 993.67,-523.5 993.67,-523.5 988.83,-523.5 984,-518.67 984,-513.83 984,-513.83 984,-504.17 984,-504.17 984,-499.33 988.83,-494.5 993.67,-494.5 993.67,-494.5 1190.33,-494.5 1190.33,-494.5 1195.17,-494.5 1200,-499.33 1200,-504.17 1200,-504.17 1200,-513.83 1200,-513.83 1200,-518.67 1195.17,-523.5 1190.33,-523.5"/>
 <text text-anchor="start" x="1045.5" y="-506.8" font-family="Helvetica,sans-Serif" font-size="9.00">CombinedHotspot.ts</text>
 </a>
 </g>
 </g>
-<!-- src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/dpResults/resultManager/CombinedHotspot.ts -->
+<!-- src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/results/combinedResults/CombinedHotspot.ts -->
 <g id="edge26" class="edge">
-<title>src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/dpResults/resultManager/CombinedHotspot.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M704.19,-504.3C784.81,-505.28 895.06,-506.62 977.23,-507.62"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="977.57,-509.72 983.59,-507.7 977.62,-505.52 977.57,-509.72"/>
+<title>src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/results/combinedResults/CombinedHotspot.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M704.19,-505.87C784.81,-506.52 895.06,-507.41 977.23,-508.08"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="977.58,-510.18 983.59,-508.13 977.61,-505.98 977.58,-510.18"/>
 </g>
-<!-- src/dpResults/resultManager/CombinedSuggestion.ts -->
+<!-- src/results/combinedResults/CombinedSuggestion.ts -->
 <g id="node12" class="node">
-<title>src/dpResults/resultManager/CombinedSuggestion.ts</title>
-<g id="a_node12"><a xlink:href="src/dpResults/resultManager/CombinedSuggestion.ts" xlink:title="CombinedSuggestion.ts">
+<title>src/results/combinedResults/CombinedSuggestion.ts</title>
+<g id="a_node12"><a xlink:href="src/results/combinedResults/CombinedSuggestion.ts" xlink:title="CombinedSuggestion.ts">
 <path fill="#ddfeff" stroke="black" d="M1190.33,-564.5C1190.33,-564.5 993.67,-564.5 993.67,-564.5 988.83,-564.5 984,-559.67 984,-554.83 984,-554.83 984,-545.17 984,-545.17 984,-540.33 988.83,-535.5 993.67,-535.5 993.67,-535.5 1190.33,-535.5 1190.33,-535.5 1195.17,-535.5 1200,-540.33 1200,-545.17 1200,-545.17 1200,-554.83 1200,-554.83 1200,-559.67 1195.17,-564.5 1190.33,-564.5"/>
 <text text-anchor="start" x="1037.5" y="-547.8" font-family="Helvetica,sans-Serif" font-size="9.00">CombinedSuggestion.ts</text>
 </a>
 </g>
 </g>
-<!-- src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/dpResults/resultManager/CombinedSuggestion.ts -->
+<!-- src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/results/combinedResults/CombinedSuggestion.ts -->
 <g id="edge27" class="edge">
-<title>src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/dpResults/resultManager/CombinedSuggestion.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M704.13,-509.74C795.19,-515.66 918.77,-524.22 968,-530 979.07,-531.3 990.67,-532.89 1002.13,-534.59"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1001.86,-536.68 1008.11,-535.49 1002.49,-532.52 1001.86,-536.68"/>
+<title>src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/results/combinedResults/CombinedSuggestion.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M704.19,-514.76C784.81,-522.11 895.06,-532.15 977.23,-539.64"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="977.43,-541.76 983.59,-540.22 977.81,-537.58 977.43,-541.76"/>
 </g>
-<!-- src/dpResults/resultManager/ResultManager.ts -->
+<!-- src/results/resultManager/ResultManager.ts -->
 <g id="node13" class="node">
-<title>src/dpResults/resultManager/ResultManager.ts</title>
-<g id="a_node13"><a xlink:href="src/dpResults/resultManager/ResultManager.ts" xlink:title="ResultManager.ts">
-<path fill="#ddfeff" stroke="black" d="M942.33,-564.5C942.33,-564.5 745.67,-564.5 745.67,-564.5 740.83,-564.5 736,-559.67 736,-554.83 736,-554.83 736,-545.17 736,-545.17 736,-540.33 740.83,-535.5 745.67,-535.5 745.67,-535.5 942.33,-535.5 942.33,-535.5 947.17,-535.5 952,-540.33 952,-545.17 952,-545.17 952,-554.83 952,-554.83 952,-559.67 947.17,-564.5 942.33,-564.5"/>
-<text text-anchor="start" x="805" y="-547.8" font-family="Helvetica,sans-Serif" font-size="9.00">ResultManager.ts</text>
+<title>src/results/resultManager/ResultManager.ts</title>
+<g id="a_node13"><a xlink:href="src/results/resultManager/ResultManager.ts" xlink:title="ResultManager.ts">
+<path fill="#ddfeff" stroke="black" d="M942.33,-656.5C942.33,-656.5 745.67,-656.5 745.67,-656.5 740.83,-656.5 736,-651.67 736,-646.83 736,-646.83 736,-637.17 736,-637.17 736,-632.33 740.83,-627.5 745.67,-627.5 745.67,-627.5 942.33,-627.5 942.33,-627.5 947.17,-627.5 952,-632.33 952,-637.17 952,-637.17 952,-646.83 952,-646.83 952,-651.67 947.17,-656.5 942.33,-656.5"/>
+<text text-anchor="start" x="805" y="-639.8" font-family="Helvetica,sans-Serif" font-size="9.00">ResultManager.ts</text>
 </a>
 </g>
 </g>
-<!-- src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/dpResults/resultManager/ResultManager.ts -->
+<!-- src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/results/resultManager/ResultManager.ts -->
 <g id="edge28" class="edge">
-<title>src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/dpResults/resultManager/ResultManager.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M677.46,-517.53C689.05,-519.67 700.84,-521.87 712,-524 729.04,-527.25 747.31,-530.82 764.63,-534.24"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="764.67,-536.39 770.97,-535.5 765.49,-532.27 764.67,-536.39"/>
+<title>src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/results/resultManager/ResultManager.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M700.91,-519.52C704.77,-521.44 708.48,-523.59 712,-526 717.6,-529.83 715.56,-533.87 720,-539 749.2,-572.78 790.06,-604.65 816.53,-623.75"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="815.52,-625.61 821.62,-627.39 817.97,-622.19 815.52,-625.61"/>
 </g>
 <!-- src/toolSuite/ToolSuite.ts -->
 <g id="node14" class="node">
@@ -410,7 +415,7 @@
 <!-- src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/toolSuite/ToolSuite.ts -->
 <g id="edge29" class="edge">
 <title>src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/toolSuite/ToolSuite.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M704.38,-517.15C707.09,-519.2 709.64,-521.48 712,-524 722.7,-535.43 712.91,-580.04 720,-594 790.07,-731.98 847.62,-743.59 976,-830 1073.81,-895.83 1113.34,-885.03 1216,-943 1251.26,-962.91 1289.78,-989.43 1314.15,-1006.84"/>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M704.13,-518.58C706.95,-520.79 709.59,-523.25 712,-526 723.74,-539.38 710.63,-670.86 720,-686 850.66,-897.12 999.81,-820.93 1216,-943 1251.26,-962.91 1289.78,-989.43 1314.15,-1006.84"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1313.03,-1008.62 1319.12,-1010.41 1315.47,-1005.21 1313.03,-1008.62"/>
 </g>
 <!-- src/workflowSuite/WorkflowSuite.ts -->
@@ -425,95 +430,95 @@
 <!-- src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/workflowSuite/WorkflowSuite.ts -->
 <g id="edge30" class="edge">
 <title>src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/workflowSuite/WorkflowSuite.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M704.23,-516.49C707.03,-518.73 709.63,-521.22 712,-524 725.62,-539.99 710.15,-883.45 720,-902 737.25,-934.49 772.66,-957.53 801.08,-971.71"/>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M704.23,-518.49C707.03,-520.73 709.63,-523.22 712,-526 725.55,-541.9 710.2,-883.55 720,-902 737.25,-934.48 772.67,-957.53 801.08,-971.71"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="800.35,-973.69 806.66,-974.43 802.19,-969.91 800.35,-973.69"/>
 </g>
-<!-- src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/resultManager/CombinedHotspot.ts -->
-<g id="edge49" class="edge">
-<title>src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/resultManager/CombinedHotspot.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M932.08,-535.49C953.3,-531.95 976.09,-528.15 997.6,-524.57"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="998.05,-526.62 1003.63,-523.56 997.36,-522.48 998.05,-526.62"/>
+<!-- src/results/resultManager/ResultManager.ts&#45;&gt;src/results/combinedResults/CombinedHotspot.ts -->
+<g id="edge45" class="edge">
+<title>src/results/resultManager/ResultManager.ts&#45;&gt;src/results/combinedResults/CombinedHotspot.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M857.41,-627.21C878.86,-602.72 925.47,-554.04 976,-530 979.15,-528.5 982.4,-527.11 985.71,-525.82"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="986.84,-527.64 991.74,-523.6 985.39,-523.7 986.84,-527.64"/>
 </g>
-<!-- src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/resultManager/CombinedSuggestion.ts -->
-<g id="edge50" class="edge">
-<title>src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/resultManager/CombinedSuggestion.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M952.18,-550C960.54,-550 969,-550 977.39,-550"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="977.8,-552.1 983.8,-550 977.8,-547.9 977.8,-552.1"/>
+<!-- src/results/resultManager/ResultManager.ts&#45;&gt;src/results/combinedResults/CombinedSuggestion.ts -->
+<g id="edge46" class="edge">
+<title>src/results/resultManager/ResultManager.ts&#45;&gt;src/results/combinedResults/CombinedSuggestion.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M883.98,-627.42C928.15,-610.9 1000.02,-584.02 1046.4,-566.68"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1047.32,-568.58 1052.2,-564.51 1045.85,-564.64 1047.32,-568.58"/>
 </g>
-<!-- src/dpResults/model/AppliedStatus.ts -->
-<g id="node21" class="node">
-<title>src/dpResults/model/AppliedStatus.ts</title>
-<g id="a_node21"><a xlink:href="src/dpResults/model/AppliedStatus.ts" xlink:title="AppliedStatus.ts">
+<!-- src/results/pureResults/AppliedStatus.ts -->
+<g id="node22" class="node">
+<title>src/results/pureResults/AppliedStatus.ts</title>
+<g id="a_node22"><a xlink:href="src/results/pureResults/AppliedStatus.ts" xlink:title="AppliedStatus.ts">
 <path fill="#ddfeff" stroke="black" d="M1190.33,-800.5C1190.33,-800.5 993.67,-800.5 993.67,-800.5 988.83,-800.5 984,-795.67 984,-790.83 984,-790.83 984,-781.17 984,-781.17 984,-776.33 988.83,-771.5 993.67,-771.5 993.67,-771.5 1190.33,-771.5 1190.33,-771.5 1195.17,-771.5 1200,-776.33 1200,-781.17 1200,-781.17 1200,-790.83 1200,-790.83 1200,-795.67 1195.17,-800.5 1190.33,-800.5"/>
 <text text-anchor="start" x="1054.5" y="-783.8" font-family="Helvetica,sans-Serif" font-size="9.00">AppliedStatus.ts</text>
 </a>
 </g>
 </g>
-<!-- src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/model/AppliedStatus.ts -->
-<g id="edge44" class="edge">
-<title>src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/model/AppliedStatus.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M849.14,-564.51C861.26,-604.12 900.65,-714.57 976,-766 977.28,-766.87 978.59,-767.71 979.92,-768.52"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="978.91,-770.36 985.17,-771.47 980.97,-766.7 978.91,-770.36"/>
+<!-- src/results/resultManager/ResultManager.ts&#45;&gt;src/results/pureResults/AppliedStatus.ts -->
+<g id="edge47" class="edge">
+<title>src/results/resultManager/ResultManager.ts&#45;&gt;src/results/pureResults/AppliedStatus.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M855.71,-656.73C875.93,-683.35 922.54,-739.17 976,-766 978.12,-767.06 980.28,-768.07 982.48,-769.02"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="982.04,-771.11 988.39,-771.43 983.62,-767.22 982.04,-771.11"/>
 </g>
-<!-- src/dpResults/model/FileMapping.ts -->
-<g id="node23" class="node">
-<title>src/dpResults/model/FileMapping.ts</title>
-<g id="a_node23"><a xlink:href="src/dpResults/model/FileMapping.ts" xlink:title="FileMapping.ts">
+<!-- src/results/pureResults/FileMapping.ts -->
+<g id="node24" class="node">
+<title>src/results/pureResults/FileMapping.ts</title>
+<g id="a_node24"><a xlink:href="src/results/pureResults/FileMapping.ts" xlink:title="FileMapping.ts">
 <path fill="#ddfeff" stroke="black" d="M1190.33,-759.5C1190.33,-759.5 993.67,-759.5 993.67,-759.5 988.83,-759.5 984,-754.67 984,-749.83 984,-749.83 984,-740.17 984,-740.17 984,-735.33 988.83,-730.5 993.67,-730.5 993.67,-730.5 1190.33,-730.5 1190.33,-730.5 1195.17,-730.5 1200,-735.33 1200,-740.17 1200,-740.17 1200,-749.83 1200,-749.83 1200,-754.67 1195.17,-759.5 1190.33,-759.5"/>
 <text text-anchor="start" x="1059.5" y="-742.8" font-family="Helvetica,sans-Serif" font-size="9.00">FileMapping.ts</text>
 </a>
 </g>
 </g>
-<!-- src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/model/FileMapping.ts -->
-<g id="edge45" class="edge">
-<title>src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/model/FileMapping.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M851.3,-564.72C866.87,-599.13 910.65,-684.92 976,-725 977.54,-725.94 979.11,-726.85 980.71,-727.71"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="979.94,-729.67 986.25,-730.49 981.83,-725.92 979.94,-729.67"/>
+<!-- src/results/resultManager/ResultManager.ts&#45;&gt;src/results/pureResults/FileMapping.ts -->
+<g id="edge48" class="edge">
+<title>src/results/resultManager/ResultManager.ts&#45;&gt;src/results/pureResults/FileMapping.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M862.84,-656.57C886.97,-675.47 932.05,-708.03 976,-725 979.33,-726.29 982.75,-727.49 986.22,-728.62"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="985.77,-730.67 992.12,-730.44 987.01,-726.66 985.77,-730.67"/>
 </g>
-<!-- src/dpResults/model/Hotspots.ts -->
-<g id="node24" class="node">
-<title>src/dpResults/model/Hotspots.ts</title>
-<g id="a_node24"><a xlink:href="src/dpResults/model/Hotspots.ts" xlink:title="Hotspots.ts">
+<!-- src/results/pureResults/Hotspots.ts -->
+<g id="node25" class="node">
+<title>src/results/pureResults/Hotspots.ts</title>
+<g id="a_node25"><a xlink:href="src/results/pureResults/Hotspots.ts" xlink:title="Hotspots.ts">
 <path fill="#ddfeff" stroke="black" d="M1190.33,-718.5C1190.33,-718.5 993.67,-718.5 993.67,-718.5 988.83,-718.5 984,-713.67 984,-708.83 984,-708.83 984,-699.17 984,-699.17 984,-694.33 988.83,-689.5 993.67,-689.5 993.67,-689.5 1190.33,-689.5 1190.33,-689.5 1195.17,-689.5 1200,-694.33 1200,-699.17 1200,-699.17 1200,-708.83 1200,-708.83 1200,-713.67 1195.17,-718.5 1190.33,-718.5"/>
 <text text-anchor="start" x="1066" y="-701.8" font-family="Helvetica,sans-Serif" font-size="9.00">Hotspots.ts</text>
 </a>
 </g>
 </g>
-<!-- src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/model/Hotspots.ts -->
-<g id="edge46" class="edge">
-<title>src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/model/Hotspots.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M854.5,-564.6C873.72,-592.81 920.15,-654.61 976,-684 978,-685.05 980.05,-686.05 982.13,-687"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="981.37,-688.96 987.71,-689.39 983.03,-685.1 981.37,-688.96"/>
+<!-- src/results/resultManager/ResultManager.ts&#45;&gt;src/results/pureResults/Hotspots.ts -->
+<g id="edge49" class="edge">
+<title>src/results/resultManager/ResultManager.ts&#45;&gt;src/results/pureResults/Hotspots.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M885.3,-656.51C911,-665.37 945.15,-676.41 976,-684 981.9,-685.45 988,-686.84 994.17,-688.16"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="994.05,-690.28 1000.36,-689.45 994.91,-686.16 994.05,-690.28"/>
 </g>
-<!-- src/dpResults/model/LineMapping.ts -->
-<g id="node25" class="node">
-<title>src/dpResults/model/LineMapping.ts</title>
-<g id="a_node25"><a xlink:href="src/dpResults/model/LineMapping.ts" xlink:title="LineMapping.ts">
+<!-- src/results/pureResults/LineMapping.ts -->
+<g id="node26" class="node">
+<title>src/results/pureResults/LineMapping.ts</title>
+<g id="a_node26"><a xlink:href="src/results/pureResults/LineMapping.ts" xlink:title="LineMapping.ts">
 <path fill="#ddfeff" stroke="black" d="M1190.33,-677.5C1190.33,-677.5 993.67,-677.5 993.67,-677.5 988.83,-677.5 984,-672.67 984,-667.83 984,-667.83 984,-658.17 984,-658.17 984,-653.33 988.83,-648.5 993.67,-648.5 993.67,-648.5 1190.33,-648.5 1190.33,-648.5 1195.17,-648.5 1200,-653.33 1200,-658.17 1200,-658.17 1200,-667.83 1200,-667.83 1200,-672.67 1195.17,-677.5 1190.33,-677.5"/>
 <text text-anchor="start" x="1057" y="-660.8" font-family="Helvetica,sans-Serif" font-size="9.00">LineMapping.ts</text>
 </a>
 </g>
 </g>
-<!-- src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/model/LineMapping.ts -->
-<g id="edge47" class="edge">
-<title>src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/model/LineMapping.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M860.53,-564.62C883.72,-585.56 929.66,-623.69 976,-643 979.04,-644.27 982.16,-645.45 985.33,-646.56"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="984.74,-648.58 991.1,-648.48 986.07,-644.6 984.74,-648.58"/>
+<!-- src/results/resultManager/ResultManager.ts&#45;&gt;src/results/pureResults/LineMapping.ts -->
+<g id="edge50" class="edge">
+<title>src/results/resultManager/ResultManager.ts&#45;&gt;src/results/pureResults/LineMapping.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M952.18,-651.15C960.54,-651.86 969,-652.59 977.39,-653.3"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="977.65,-655.43 983.8,-653.85 978,-651.25 977.65,-655.43"/>
 </g>
-<!-- src/dpResults/model/Suggestions.ts -->
-<g id="node26" class="node">
-<title>src/dpResults/model/Suggestions.ts</title>
-<g id="a_node26"><a xlink:href="src/dpResults/model/Suggestions.ts" xlink:title="Suggestions.ts">
+<!-- src/results/pureResults/Suggestions.ts -->
+<g id="node27" class="node">
+<title>src/results/pureResults/Suggestions.ts</title>
+<g id="a_node27"><a xlink:href="src/results/pureResults/Suggestions.ts" xlink:title="Suggestions.ts">
 <path fill="#ddfeff" stroke="black" d="M1190.33,-636.5C1190.33,-636.5 993.67,-636.5 993.67,-636.5 988.83,-636.5 984,-631.67 984,-626.83 984,-626.83 984,-617.17 984,-617.17 984,-612.33 988.83,-607.5 993.67,-607.5 993.67,-607.5 1190.33,-607.5 1190.33,-607.5 1195.17,-607.5 1200,-612.33 1200,-617.17 1200,-617.17 1200,-626.83 1200,-626.83 1200,-631.67 1195.17,-636.5 1190.33,-636.5"/>
 <text text-anchor="start" x="1058.5" y="-619.8" font-family="Helvetica,sans-Serif" font-size="9.00">Suggestions.ts</text>
 </a>
 </g>
 </g>
-<!-- src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/model/Suggestions.ts -->
-<g id="edge48" class="edge">
-<title>src/dpResults/resultManager/ResultManager.ts&#45;&gt;src/dpResults/model/Suggestions.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M885.43,-564.57C911.19,-573.61 945.35,-585.14 976,-594 990.55,-598.21 1006.26,-602.31 1021.25,-606.03"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1020.85,-608.09 1027.17,-607.48 1021.85,-604.01 1020.85,-608.09"/>
+<!-- src/results/resultManager/ResultManager.ts&#45;&gt;src/results/pureResults/Suggestions.ts -->
+<g id="edge51" class="edge">
+<title>src/results/resultManager/ResultManager.ts&#45;&gt;src/results/pureResults/Suggestions.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M952.18,-633.29C960.54,-632.61 969,-631.92 977.39,-631.24"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="977.99,-633.29 983.8,-630.72 977.65,-629.11 977.99,-633.29"/>
 </g>
 <!-- src/toolSuite/instrumentation/DiscoPoPCMakeBasedInstrumentation.ts -->
 <g id="node28" class="node">
@@ -684,33 +689,33 @@
 <g id="node16" class="node">
 <title>src/discopopExtension/DiscopopUIExtension.ts</title>
 <g id="a_node16"><a xlink:href="src/discopopExtension/DiscopopUIExtension.ts" xlink:title="DiscopopUIExtension.ts">
-<path fill="#ddfeff" stroke="black" d="M454.33,-517.5C454.33,-517.5 257.67,-517.5 257.67,-517.5 252.83,-517.5 248,-512.67 248,-507.83 248,-507.83 248,-498.17 248,-498.17 248,-493.33 252.83,-488.5 257.67,-488.5 257.67,-488.5 454.33,-488.5 454.33,-488.5 459.17,-488.5 464,-493.33 464,-498.17 464,-498.17 464,-507.83 464,-507.83 464,-512.67 459.17,-517.5 454.33,-517.5"/>
-<text text-anchor="start" x="302.5" y="-500.8" font-family="Helvetica,sans-Serif" font-size="9.00">DiscopopUIExtension.ts</text>
+<path fill="#ddfeff" stroke="black" d="M454.33,-519.5C454.33,-519.5 257.67,-519.5 257.67,-519.5 252.83,-519.5 248,-514.67 248,-509.83 248,-509.83 248,-500.17 248,-500.17 248,-495.33 252.83,-490.5 257.67,-490.5 257.67,-490.5 454.33,-490.5 454.33,-490.5 459.17,-490.5 464,-495.33 464,-500.17 464,-500.17 464,-509.83 464,-509.83 464,-514.67 459.17,-519.5 454.33,-519.5"/>
+<text text-anchor="start" x="302.5" y="-502.8" font-family="Helvetica,sans-Serif" font-size="9.00">DiscopopUIExtension.ts</text>
 </a>
 </g>
 </g>
 <!-- src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/configurationManager/ConfigurationTreeDataProvider.ts -->
 <g id="edge31" class="edge">
 <title>src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/configurationManager/ConfigurationTreeDataProvider.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M362.73,-488.25C377.68,-450.59 420.37,-348.56 472,-273 503.11,-227.47 548.43,-181.29 574.49,-156.18"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="576.25,-157.41 579.13,-151.75 573.34,-154.38 576.25,-157.41"/>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M362.59,-490.39C377.38,-452.62 420.01,-349.36 472,-273 503.03,-227.42 548.38,-181.25 574.47,-156.17"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="576.22,-157.4 579.11,-151.73 573.32,-154.36 576.22,-157.4"/>
 </g>
 <!-- src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/discopopExtension/DiscopopExtension.ts -->
 <g id="edge36" class="edge">
 <title>src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/discopopExtension/DiscopopExtension.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M464.16,-503C469.96,-503 475.8,-503 481.62,-503"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="481.92,-505.1 487.92,-503 481.92,-500.9 481.92,-505.1"/>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M464.16,-505C469.96,-505 475.8,-505 481.62,-505"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="481.92,-507.1 487.92,-505 481.92,-502.9 481.92,-507.1"/>
 </g>
-<!-- src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/dpResults/resultManager/CombinedHotspot.ts -->
+<!-- src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/results/combinedResults/CombinedHotspot.ts -->
 <g id="edge32" class="edge">
-<title>src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/dpResults/resultManager/CombinedHotspot.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M359.51,-488.45C367.4,-447.75 395.88,-332.71 472,-287 495.62,-272.81 944.26,-273.01 968,-287 1043.96,-331.75 1076.32,-442.17 1086.83,-488.26"/>
+<title>src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/results/combinedResults/CombinedHotspot.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M359.46,-490.32C367.23,-449.26 395.42,-333.19 472,-287 495.6,-272.77 944.26,-273.01 968,-287 1043.96,-331.75 1076.32,-442.17 1086.83,-488.26"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1084.83,-488.92 1088.17,-494.33 1088.93,-488.01 1084.83,-488.92"/>
 </g>
-<!-- src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/dpResults/resultManager/CombinedSuggestion.ts -->
+<!-- src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/results/combinedResults/CombinedSuggestion.ts -->
 <g id="edge33" class="edge">
-<title>src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/dpResults/resultManager/CombinedSuggestion.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M360.26,-488.25C369.66,-449.67 400.86,-345.95 472,-305 495.88,-291.25 948.17,-285.86 968,-305 986,-322.37 959.56,-511.14 976,-530 977.05,-531.2 978.14,-532.35 979.28,-533.45"/>
+<title>src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/results/combinedResults/CombinedSuggestion.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M360.14,-490.39C369.34,-451.66 400.23,-346.52 472,-305 495.85,-291.2 948.17,-285.86 968,-305 986,-322.37 959.56,-511.14 976,-530 977.05,-531.2 978.14,-532.35 979.28,-533.45"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="977.93,-535.06 983.84,-537.41 980.69,-531.89 977.93,-535.06"/>
 </g>
 <!-- src/views/hotspotTreeView/HotspotTreeView.ts -->
@@ -725,8 +730,8 @@
 <!-- src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/views/hotspotTreeView/HotspotTreeView.ts -->
 <g id="edge34" class="edge">
 <title>src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/views/hotspotTreeView/HotspotTreeView.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M366.69,-488.48C384.62,-462.66 425.38,-408.51 472,-377 490.65,-364.4 513.2,-354.67 533.88,-347.48"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="534.65,-349.44 539.66,-345.52 533.3,-345.46 534.65,-349.44"/>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M366.64,-490.24C384.47,-463.99 425.1,-408.97 472,-377 490.51,-364.38 512.93,-354.67 533.54,-347.5"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="534.29,-349.46 539.29,-345.54 532.94,-345.48 534.29,-349.46"/>
 </g>
 <!-- src/views/suggestionTreeView/SuggestionTreeView.ts -->
 <g id="node18" class="node">
@@ -740,44 +745,44 @@
 <!-- src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/views/suggestionTreeView/SuggestionTreeView.ts -->
 <g id="edge35" class="edge">
 <title>src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/views/suggestionTreeView/SuggestionTreeView.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M391.61,-488.46C434.88,-470.28 508.83,-439.21 554.63,-419.96"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="555.63,-421.82 560.35,-417.56 554.01,-417.95 555.63,-421.82"/>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M390.85,-490.49C434.17,-471.93 509.11,-439.81 555.14,-420.08"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="556.2,-421.91 560.88,-417.62 554.54,-418.05 556.2,-421.91"/>
 </g>
 <!-- src/discopopExtension/HotspotDetailViewer.ts -->
 <g id="node19" class="node">
 <title>src/discopopExtension/HotspotDetailViewer.ts</title>
 <g id="a_node19"><a xlink:href="src/discopopExtension/HotspotDetailViewer.ts" xlink:title="HotspotDetailViewer.ts">
-<path fill="#ddfeff" stroke="black" d="M694.33,-558.5C694.33,-558.5 497.67,-558.5 497.67,-558.5 492.83,-558.5 488,-553.67 488,-548.83 488,-548.83 488,-539.17 488,-539.17 488,-534.33 492.83,-529.5 497.67,-529.5 497.67,-529.5 694.33,-529.5 694.33,-529.5 699.17,-529.5 704,-534.33 704,-539.17 704,-539.17 704,-548.83 704,-548.83 704,-553.67 699.17,-558.5 694.33,-558.5"/>
-<text text-anchor="start" x="545" y="-541.8" font-family="Helvetica,sans-Serif" font-size="9.00">HotspotDetailViewer.ts</text>
+<path fill="#ddfeff" stroke="black" d="M694.33,-560.5C694.33,-560.5 497.67,-560.5 497.67,-560.5 492.83,-560.5 488,-555.67 488,-550.83 488,-550.83 488,-541.17 488,-541.17 488,-536.33 492.83,-531.5 497.67,-531.5 497.67,-531.5 694.33,-531.5 694.33,-531.5 699.17,-531.5 704,-536.33 704,-541.17 704,-541.17 704,-550.83 704,-550.83 704,-555.67 699.17,-560.5 694.33,-560.5"/>
+<text text-anchor="start" x="545" y="-543.8" font-family="Helvetica,sans-Serif" font-size="9.00">HotspotDetailViewer.ts</text>
 </a>
 </g>
 </g>
 <!-- src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/discopopExtension/HotspotDetailViewer.ts -->
 <g id="edge37" class="edge">
 <title>src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/discopopExtension/HotspotDetailViewer.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M435.53,-517.55C447.73,-519.75 460.2,-521.96 472,-524 480.49,-525.46 489.31,-526.96 498.16,-528.43"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="498.02,-530.54 504.28,-529.45 498.71,-526.4 498.02,-530.54"/>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M435.53,-519.55C447.73,-521.75 460.2,-523.96 472,-526 480.49,-527.46 489.31,-528.96 498.16,-530.43"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="498.02,-532.54 504.28,-531.45 498.71,-528.4 498.02,-532.54"/>
 </g>
 <!-- src/discopopExtension/SuggestionDetailViewer.ts -->
 <g id="node20" class="node">
 <title>src/discopopExtension/SuggestionDetailViewer.ts</title>
 <g id="a_node20"><a xlink:href="src/discopopExtension/SuggestionDetailViewer.ts" xlink:title="SuggestionDetailViewer.ts">
-<path fill="#ddfeff" stroke="black" d="M694.33,-599.5C694.33,-599.5 497.67,-599.5 497.67,-599.5 492.83,-599.5 488,-594.67 488,-589.83 488,-589.83 488,-580.17 488,-580.17 488,-575.33 492.83,-570.5 497.67,-570.5 497.67,-570.5 694.33,-570.5 694.33,-570.5 699.17,-570.5 704,-575.33 704,-580.17 704,-580.17 704,-589.83 704,-589.83 704,-594.67 699.17,-599.5 694.33,-599.5"/>
-<text text-anchor="start" x="537" y="-582.8" font-family="Helvetica,sans-Serif" font-size="9.00">SuggestionDetailViewer.ts</text>
+<path fill="#ddfeff" stroke="black" d="M694.33,-601.5C694.33,-601.5 497.67,-601.5 497.67,-601.5 492.83,-601.5 488,-596.67 488,-591.83 488,-591.83 488,-582.17 488,-582.17 488,-577.33 492.83,-572.5 497.67,-572.5 497.67,-572.5 694.33,-572.5 694.33,-572.5 699.17,-572.5 704,-577.33 704,-582.17 704,-582.17 704,-591.83 704,-591.83 704,-596.67 699.17,-601.5 694.33,-601.5"/>
+<text text-anchor="start" x="537" y="-584.8" font-family="Helvetica,sans-Serif" font-size="9.00">SuggestionDetailViewer.ts</text>
 </a>
 </g>
 </g>
 <!-- src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/discopopExtension/SuggestionDetailViewer.ts -->
 <g id="edge38" class="edge">
 <title>src/discopopExtension/DiscopopUIExtension.ts&#45;&gt;src/discopopExtension/SuggestionDetailViewer.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M378.89,-517.69C401.31,-532.02 437.64,-553.31 472,-565 476.08,-566.39 480.28,-567.68 484.54,-568.89"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="484.05,-570.93 490.39,-570.48 485.15,-566.88 484.05,-570.93"/>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M378.89,-519.69C401.31,-534.02 437.64,-555.31 472,-567 476.08,-568.39 480.28,-569.68 484.54,-570.89"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="484.05,-572.93 490.39,-572.48 485.15,-568.88 484.05,-572.93"/>
 </g>
-<!-- src/views/hotspotTreeView/HotspotTreeView.ts&#45;&gt;src/dpResults/resultManager/CombinedHotspot.ts -->
+<!-- src/views/hotspotTreeView/HotspotTreeView.ts&#45;&gt;src/results/combinedResults/CombinedHotspot.ts -->
 <g id="edge63" class="edge">
-<title>src/views/hotspotTreeView/HotspotTreeView.ts&#45;&gt;src/dpResults/resultManager/CombinedHotspot.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M667.24,-345.59C684.31,-352.4 700.84,-362.39 712,-377 721.5,-389.44 708.72,-436.14 720,-447 739.9,-466.17 940.95,-460.34 968,-466 996.47,-471.96 1027.38,-482.78 1051.09,-492.08"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1050.6,-494.15 1056.96,-494.41 1052.15,-490.24 1050.6,-494.15"/>
+<title>src/views/hotspotTreeView/HotspotTreeView.ts&#45;&gt;src/results/combinedResults/CombinedHotspot.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M667.24,-345.59C684.31,-352.4 700.84,-362.39 712,-377 721.5,-389.44 708.79,-436.07 720,-447 759.61,-485.62 913.79,-457.93 968,-469 995.08,-474.53 1024.55,-483.99 1047.85,-492.32"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1047.28,-494.34 1053.64,-494.41 1048.71,-490.39 1047.28,-494.34"/>
 </g>
 <!-- src/views/hotspotTreeView/HotspotTreeDataProvider.ts -->
 <g id="node37" class="node">
@@ -794,11 +799,11 @@
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M704.18,-331C712.54,-331 721,-331 729.39,-331"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="729.8,-333.1 735.8,-331 729.8,-328.9 729.8,-333.1"/>
 </g>
-<!-- src/views/suggestionTreeView/SuggestionTreeView.ts&#45;&gt;src/dpResults/resultManager/CombinedSuggestion.ts -->
+<!-- src/views/suggestionTreeView/SuggestionTreeView.ts&#45;&gt;src/results/combinedResults/CombinedSuggestion.ts -->
 <g id="edge66" class="edge">
-<title>src/views/suggestionTreeView/SuggestionTreeView.ts&#45;&gt;src/dpResults/resultManager/CombinedSuggestion.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M620.58,-417.58C644.69,-431.83 683.65,-453.06 720,-465 826.21,-499.88 882.63,-434.82 968,-507 976.26,-513.99 967.75,-522.99 976,-530 976.93,-530.79 977.87,-531.55 978.84,-532.28"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="977.69,-534.04 983.81,-535.76 980.09,-530.6 977.69,-534.04"/>
+<title>src/views/suggestionTreeView/SuggestionTreeView.ts&#45;&gt;src/results/combinedResults/CombinedSuggestion.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M619.62,-417.66C643.61,-432.53 683.05,-455.14 720,-468 825.88,-504.83 878.44,-446.58 968,-514 974.35,-518.78 969.62,-525.25 976,-530 977.01,-530.75 978.03,-531.47 979.07,-532.17"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="978.21,-534.11 984.42,-535.48 980.42,-530.54 978.21,-534.11"/>
 </g>
 <!-- src/views/suggestionTreeView/SuggestionTreeDataProvider.ts -->
 <g id="node38" class="node">
@@ -815,59 +820,59 @@
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M704.18,-403C712.54,-403 721,-403 729.39,-403"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="729.8,-405.1 735.8,-403 729.8,-400.9 729.8,-405.1"/>
 </g>
-<!-- src/dpResults/model/ParsedResultSchema.ts -->
-<g id="node22" class="node">
-<title>src/dpResults/model/ParsedResultSchema.ts</title>
-<g id="a_node22"><a xlink:href="src/dpResults/model/ParsedResultSchema.ts" xlink:title="ParsedResultSchema.ts">
+<!-- src/extension.ts -->
+<g id="node21" class="node">
+<title>src/extension.ts</title>
+<g id="a_node21"><a xlink:href="src/extension.ts" xlink:title="extension.ts">
+<path fill="#ddfeff" stroke="black" d="M222.33,-519.5C222.33,-519.5 25.67,-519.5 25.67,-519.5 20.83,-519.5 16,-514.67 16,-509.83 16,-509.83 16,-500.17 16,-500.17 16,-495.33 20.83,-490.5 25.67,-490.5 25.67,-490.5 222.33,-490.5 222.33,-490.5 227.17,-490.5 232,-495.33 232,-500.17 232,-500.17 232,-509.83 232,-509.83 232,-514.67 227.17,-519.5 222.33,-519.5"/>
+<text text-anchor="start" x="96.5" y="-502.8" font-family="Helvetica,sans-Serif" font-size="9.00">extension.ts</text>
+</a>
+</g>
+</g>
+<!-- src/extension.ts&#45;&gt;src/discopopExtension/DiscopopUIExtension.ts -->
+<g id="edge39" class="edge">
+<title>src/extension.ts&#45;&gt;src/discopopExtension/DiscopopUIExtension.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M232.26,-505C235.32,-505 238.38,-505 241.45,-505"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="241.74,-507.1 247.74,-505 241.74,-502.9 241.74,-507.1"/>
+</g>
+<!-- src/results/pureResults/ParsedResultSchema.ts -->
+<g id="node23" class="node">
+<title>src/results/pureResults/ParsedResultSchema.ts</title>
+<g id="a_node23"><a xlink:href="src/results/pureResults/ParsedResultSchema.ts" xlink:title="ParsedResultSchema.ts">
 <path fill="#ddfeff" stroke="black" d="M1438.33,-718.5C1438.33,-718.5 1241.67,-718.5 1241.67,-718.5 1236.83,-718.5 1232,-713.67 1232,-708.83 1232,-708.83 1232,-699.17 1232,-699.17 1232,-694.33 1236.83,-689.5 1241.67,-689.5 1241.67,-689.5 1438.33,-689.5 1438.33,-689.5 1443.17,-689.5 1448,-694.33 1448,-699.17 1448,-699.17 1448,-708.83 1448,-708.83 1448,-713.67 1443.17,-718.5 1438.33,-718.5"/>
 <text text-anchor="start" x="1287" y="-701.8" font-family="Helvetica,sans-Serif" font-size="9.00">ParsedResultSchema.ts</text>
 </a>
 </g>
 </g>
-<!-- src/dpResults/model/AppliedStatus.ts&#45;&gt;src/dpResults/model/ParsedResultSchema.ts -->
-<g id="edge39" class="edge">
-<title>src/dpResults/model/AppliedStatus.ts&#45;&gt;src/dpResults/model/ParsedResultSchema.ts</title>
+<!-- src/results/pureResults/AppliedStatus.ts&#45;&gt;src/results/pureResults/ParsedResultSchema.ts -->
+<g id="edge40" class="edge">
+<title>src/results/pureResults/AppliedStatus.ts&#45;&gt;src/results/pureResults/ParsedResultSchema.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M1196.9,-771.45C1203.41,-769.81 1209.83,-768 1216,-766 1249.83,-755.01 1285.88,-735.86 1310.14,-721.74"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1311.32,-723.48 1315.43,-718.63 1309.2,-719.86 1311.32,-723.48"/>
 </g>
-<!-- src/dpResults/model/FileMapping.ts&#45;&gt;src/dpResults/model/ParsedResultSchema.ts -->
-<g id="edge40" class="edge">
-<title>src/dpResults/model/FileMapping.ts&#45;&gt;src/dpResults/model/ParsedResultSchema.ts</title>
+<!-- src/results/pureResults/FileMapping.ts&#45;&gt;src/results/pureResults/ParsedResultSchema.ts -->
+<g id="edge41" class="edge">
+<title>src/results/pureResults/FileMapping.ts&#45;&gt;src/results/pureResults/ParsedResultSchema.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M1182.7,-730.5C1193.91,-728.66 1205.22,-726.8 1216,-725 1226.46,-723.26 1237.41,-721.41 1248.29,-719.57"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1248.76,-721.62 1254.32,-718.55 1248.06,-717.48 1248.76,-721.62"/>
 </g>
-<!-- src/dpResults/model/Hotspots.ts&#45;&gt;src/dpResults/model/ParsedResultSchema.ts -->
-<g id="edge41" class="edge">
-<title>src/dpResults/model/Hotspots.ts&#45;&gt;src/dpResults/model/ParsedResultSchema.ts</title>
+<!-- src/results/pureResults/Hotspots.ts&#45;&gt;src/results/pureResults/ParsedResultSchema.ts -->
+<g id="edge42" class="edge">
+<title>src/results/pureResults/Hotspots.ts&#45;&gt;src/results/pureResults/ParsedResultSchema.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M1200.18,-704C1208.54,-704 1217,-704 1225.39,-704"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1225.8,-706.1 1231.8,-704 1225.8,-701.9 1225.8,-706.1"/>
 </g>
-<!-- src/dpResults/model/LineMapping.ts&#45;&gt;src/dpResults/model/ParsedResultSchema.ts -->
-<g id="edge42" class="edge">
-<title>src/dpResults/model/LineMapping.ts&#45;&gt;src/dpResults/model/ParsedResultSchema.ts</title>
+<!-- src/results/pureResults/LineMapping.ts&#45;&gt;src/results/pureResults/ParsedResultSchema.ts -->
+<g id="edge43" class="edge">
+<title>src/results/pureResults/LineMapping.ts&#45;&gt;src/results/pureResults/ParsedResultSchema.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M1180.08,-677.51C1201.3,-681.05 1224.09,-684.85 1245.6,-688.43"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1245.36,-690.52 1251.63,-689.44 1246.05,-686.38 1245.36,-690.52"/>
 </g>
-<!-- src/dpResults/model/Suggestions.ts&#45;&gt;src/dpResults/model/ParsedResultSchema.ts -->
-<g id="edge43" class="edge">
-<title>src/dpResults/model/Suggestions.ts&#45;&gt;src/dpResults/model/ParsedResultSchema.ts</title>
+<!-- src/results/pureResults/Suggestions.ts&#45;&gt;src/results/pureResults/ParsedResultSchema.ts -->
+<g id="edge44" class="edge">
+<title>src/results/pureResults/Suggestions.ts&#45;&gt;src/results/pureResults/ParsedResultSchema.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M1192.96,-636.52C1200.82,-638.44 1208.58,-640.59 1216,-643 1249.5,-653.91 1285.33,-672.56 1309.62,-686.37"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1308.68,-688.25 1314.93,-689.42 1310.77,-684.61 1308.68,-688.25"/>
-</g>
-<!-- src/extension.ts -->
-<g id="node27" class="node">
-<title>src/extension.ts</title>
-<g id="a_node27"><a xlink:href="src/extension.ts" xlink:title="extension.ts">
-<path fill="#ddfeff" stroke="black" d="M222.33,-517.5C222.33,-517.5 25.67,-517.5 25.67,-517.5 20.83,-517.5 16,-512.67 16,-507.83 16,-507.83 16,-498.17 16,-498.17 16,-493.33 20.83,-488.5 25.67,-488.5 25.67,-488.5 222.33,-488.5 222.33,-488.5 227.17,-488.5 232,-493.33 232,-498.17 232,-498.17 232,-507.83 232,-507.83 232,-512.67 227.17,-517.5 222.33,-517.5"/>
-<text text-anchor="start" x="96.5" y="-500.8" font-family="Helvetica,sans-Serif" font-size="9.00">extension.ts</text>
-</a>
-</g>
-</g>
-<!-- src/extension.ts&#45;&gt;src/discopopExtension/DiscopopUIExtension.ts -->
-<g id="edge51" class="edge">
-<title>src/extension.ts&#45;&gt;src/discopopExtension/DiscopopUIExtension.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M232.26,-503C235.32,-503 238.38,-503 241.45,-503"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="241.74,-505.1 247.74,-503 241.74,-500.9 241.74,-505.1"/>
 </g>
 <!-- src/toolSuite/instrumentation/CMakeBasedInstrumentation.ts -->
 <g id="node36" class="node">
@@ -890,17 +895,17 @@
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M1716.11,-922.62C1718.21,-922.44 1720.31,-922.25 1722.41,-922.07"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1722.9,-924.13 1728.69,-921.51 1722.53,-919.95 1722.9,-924.13"/>
 </g>
-<!-- src/views/hotspotTreeView/HotspotTreeDataProvider.ts&#45;&gt;src/dpResults/resultManager/CombinedHotspot.ts -->
+<!-- src/views/hotspotTreeView/HotspotTreeDataProvider.ts&#45;&gt;src/results/combinedResults/CombinedHotspot.ts -->
 <g id="edge62" class="edge">
-<title>src/views/hotspotTreeView/HotspotTreeDataProvider.ts&#45;&gt;src/dpResults/resultManager/CombinedHotspot.ts</title>
+<title>src/views/hotspotTreeView/HotspotTreeDataProvider.ts&#45;&gt;src/results/combinedResults/CombinedHotspot.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M899.96,-345.52C922.21,-352.9 947.44,-363.25 968,-377 1014.82,-408.3 1056.55,-460.75 1077.24,-489.2"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="1075.65,-490.58 1080.86,-494.22 1079.06,-488.13 1075.65,-490.58"/>
 </g>
-<!-- src/views/suggestionTreeView/SuggestionTreeDataProvider.ts&#45;&gt;src/dpResults/resultManager/CombinedSuggestion.ts -->
+<!-- src/views/suggestionTreeView/SuggestionTreeDataProvider.ts&#45;&gt;src/results/combinedResults/CombinedSuggestion.ts -->
 <g id="edge65" class="edge">
-<title>src/views/suggestionTreeView/SuggestionTreeDataProvider.ts&#45;&gt;src/dpResults/resultManager/CombinedSuggestion.ts</title>
-<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M884.09,-417.54C912.03,-430.03 948.07,-450.83 968,-481 980.16,-499.41 960.48,-514.32 976,-530 976.91,-530.92 977.84,-531.8 978.8,-532.66"/>
-<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="977.8,-534.54 983.79,-536.66 980.42,-531.26 977.8,-534.54"/>
+<title>src/views/suggestionTreeView/SuggestionTreeDataProvider.ts&#45;&gt;src/results/combinedResults/CombinedSuggestion.ts</title>
+<path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M881.99,-417.59C910.15,-430.68 947.46,-452.67 968,-484 979.38,-501.35 961.33,-515.33 976,-530 976.91,-530.91 977.85,-531.79 978.82,-532.64"/>
+<polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="977.82,-534.53 983.82,-536.62 980.43,-531.25 977.82,-534.53"/>
 </g>
 <!-- src/workflowSuite/workflows/DiscoPoPCMakeWorkflow.ts&#45;&gt;src/toolSuite/ToolSuite.ts -->
 <g id="edge71" class="edge">
