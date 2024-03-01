@@ -8,20 +8,17 @@ export class JSONWebViewProvider<T extends Object>
 
     public constructor(
         private json: T | undefined,
-        private placeholder: string
+        private placeholder: string,
+        private context: vscode.ExtensionContext,
+        private viewId: string
     ) {
-        this._updateContents() // TODO can we remove this?
-    }
-
-    public register(viewId: string) {
-        this.disposable = vscode.window.registerWebviewViewProvider(
-            viewId,
-            this
+        this.context.subscriptions.push(
+            (this.disposable = vscode.window.registerWebviewViewProvider(
+                this.viewId,
+                this
+            ))
         )
-    }
-
-    public unregister() {
-        this.disposable?.dispose()
+        this._updateContents() // TODO can we remove this?
     }
 
     public replaceContents(json: T | undefined) {

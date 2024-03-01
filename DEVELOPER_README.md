@@ -1,19 +1,16 @@
 # Overview of the extension for Developers
 
-## Getting Started
+![Dependency-Graph](dependency-graph.svg)
 
-**Prerequisites:**
+## Environment / Prerequisites
 
 -   nodejs 20 and npm 10 is installed
 -   vscode is installed
-
-**Environment:**
-
 -   The extension development is known to work well using WSL2.0 on Windows 11.
     -   Using a Linux Distribution or other Windows versions with WSL should also work, but it was not tested at the time of writing this documentation.
     -   Since the DiscoPoP tools do not support Windows anyways, no measures were taken to explicitly support pure Windows (without WSL) environments, though in theory it should be possible.
 
-**Installation:**
+## Installation
 
 -   Clone the repository (e.g. inside WSL: `git clone git@github.com:discopop-project/discopop-gui-vscode.git`)
 -   Open the directory in vscode (e.g. `code .` while being in the root directory)
@@ -21,13 +18,13 @@
 
 **NOTE:** During the installation git hooks will be created to automatically format the source code in pre-commit hooks using [husky](https://typicode.github.io/husky/). The hooks also enforce the use of [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
-**Running:**
+## Running
 
--   Press F5 to start the extension in debug mode
+Press F5 to start the extension in debug mode.
 
-Tip: The debugging support of vs code is quite good: Set breakpoints and then inspect values while stepping through the program.
+**Tip**: The debugging support of vs code is quite good: Set breakpoints and then inspect values while stepping through the program.
 
-## Helpful resources
+### Helpful resources
 
 -   Icons:
     -   https://microsoft.github.io/vscode-codicons/dist/codicon.html
@@ -35,7 +32,7 @@ Tip: The debugging support of vs code is quite good: Set breakpoints and then in
 -   API Documentation:
     -   https://code.visualstudio.com/api
 
-## Creating Releases
+### Creating Releases
 
 -   update the version in package.json
 -   run `npm install` to update the package-lock.json as well

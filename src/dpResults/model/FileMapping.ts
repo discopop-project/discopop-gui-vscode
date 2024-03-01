@@ -1,13 +1,21 @@
 import * as fs from 'fs'
+import { ParsedResultSchema } from './ParsedResultSchema'
 
-export class FileMapping {
-    private readonly inverseFileMapping: Map<string, number> = new Map() // filePath -> fileId
-
-    public constructor(private readonly fileMapping: Map<number, string>) {
-        this.inverseFileMapping = new Map(
-            Array.from(fileMapping, (entry) => [entry[1], entry[0]])
-        )
+export class FileMapping implements ParsedResultSchema {
+    public constructor(private _dotDiscopop: string) {
+        this.update(_dotDiscopop)
     }
+
+    /** provides the mapping fileID -> filePath */
+    private readonly fileMapping: Map<number, string> = new Map<
+        number,
+        string
+    >()
+    /** provides the mapping filePath -> fileID */
+    private readonly inverseFileMapping: Map<string, number> = new Map<
+        string,
+        number
+    >()
 
     public getFilePath(fileId: number): string {
         return this.fileMapping.get(fileId)
@@ -17,32 +25,51 @@ export class FileMapping {
         return this.inverseFileMapping.get(filePath)
     }
 
-    public static parse(dotDiscopop: string): FileMapping {
+    public update(dotDiscopop: string = this._dotDiscopop): void {
+        this._dotDiscopop = dotDiscopop
         const filePath = `${dotDiscopop}/FileMapping.txt`
         if (!fs.existsSync(filePath)) {
-            throw new Error('FileMapping.txt file not found.')
+            this._valid = false
+            this._error = `FileMapping.txt does not exist`
+        } else {
+            this._parseFile(filePath)
         }
-        return this._parseFile(filePath)
     }
 
-    private static _parseFile(path: string): FileMapping {
-        const fileMappingString = fs.readFileSync(path, 'utf-8')
-        return FileMapping._parseString(fileMappingString)
+    private _valid = false
+    public valid(): boolean {
+        return this._valid
     }
 
-    private static _parseString(fileMappingStr: string): FileMapping {
-        const map = fileMappingStr
-            .split('\n') // split into lines
-            .map((line) => line.trim()) // trim whitespace
-            .filter((line) => line.length > 0) // remove empty lines
-            .map((line) => line.split('\t')) // split into columns
-            .map((line) => [parseInt(line[0]), line[1]] as [number, string]) // convert first column to int
-            .reduce((map, entry) => {
-                // convert to map
-                map.set(entry[0], entry[1])
-                return map
-            }, new Map<number, string>())
+    private _error: string | undefined = undefined
+    public error(): string | undefined {
+        return this._error
+    }
 
-        return new FileMapping(map)
+    private _parseFile(path: string): void {
+        try {
+            // reset internals
+            this.fileMapping.clear()
+            this.inverseFileMapping.clear()
+
+            // parse
+            const fileContents = fs.readFileSync(path, 'utf-8')
+            const lines = fileContents.split('\n')
+            for (const line of lines) {
+                const [idString, filePath] = line.split('\t')
+                const id = Number(idString)
+                this.fileMapping.set(id, filePath)
+                this.inverseFileMapping.set(filePath, id)
+            }
+
+            // mark as valid
+            this._valid = true
+            this._error = undefined
+        } catch (error: any) {
+            // oops
+            this._valid = false
+            console.log(error)
+            this._error = 'Error while parsing FileMapping.txt'
+        }
     }
 }

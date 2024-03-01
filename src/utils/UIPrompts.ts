@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 
 export abstract class UIPrompts {
-    public static showMessageForSeconds(message: string, seconds: number = 3) {
+    public static showMessageForSeconds(message: string, seconds: number = 4) {
         vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
