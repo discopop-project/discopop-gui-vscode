@@ -1,7 +1,5 @@
 # Overview of the extension for Developers
 
-![Dependency-Graph](dependency-graph.svg)
-
 ## Environment / Prerequisites
 
 -   nodejs 20 and npm 10 is installed
@@ -24,6 +22,8 @@ Press F5 to start the extension in debug mode.
 
 **Tip**: The debugging support of vs code is quite good: Set breakpoints and then inspect values while stepping through the program.
 
+**TIP**: There is a bug in the vscode typescript support. Moving files sometimes crashes the internal typescript server which results in problems being reported. Hit CTR + SHIFT + P and then run the "restart typescript server" command. (Alternatively close and reopen vs code or make changes to tsconfig.json (and undo them), both results in the typescript server being restarted)
+
 ### Helpful resources
 
 -   Icons:
@@ -43,3 +43,7 @@ Press F5 to start the extension in debug mode.
 ## Dependency-Graph
 
 Sometimes it is helpful to see dependencies between source files. You can use [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) to create text or graph representations of all dependencies. `npm run depcruise` will create an overview in `dependency-graph.svg`. Requires graphviz to be installed! (`sudo apt install graphviz`)
+
+When git hooks are installed and working, then the file will be updated during a commit (but not added to version control, thats up to you)
+
+![Dependency-Graph](dependency-graph.svg)
