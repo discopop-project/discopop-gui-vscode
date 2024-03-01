@@ -30,7 +30,15 @@ function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
 
 export interface ConfigurationManagerCallbacks {
     loadResults(dotDiscopop: string): void
-    runDiscoPoP(dotDiscopop: string): Promise<void>
+    runDiscoPoP(
+        projectPath: string,
+        executableName: string,
+        executableArgumentsForDiscoPoP: string,
+        dotDiscoPoP: string,
+        buildPathForDiscoPoP: string,
+        buildArguments: string,
+        overrideExplorerArguments?: string
+    ): void
     runHotspotDetection(
         projectPath: string,
         executableName: string,
@@ -39,7 +47,7 @@ export interface ConfigurationManagerCallbacks {
         buildPathForHotspotDetection: string,
         buildArguments: string,
         overrideHotspotArguments?: string
-    ): Promise<void>
+    ): void
 }
 
 export class ConfigurationTreeDataProvider
@@ -68,8 +76,16 @@ export class ConfigurationTreeDataProvider
         this._context.subscriptions.push(
             vscode.commands.registerCommand(
                 Commands.runDiscoPoP,
-                async (configuration: Configuration) => {
-                    callbacks.runDiscoPoP(configuration.dotDiscoPoP)
+                async (configuration: ConfigurationCMake) => {
+                    callbacks.runDiscoPoP(
+                        configuration.projectPath,
+                        configuration.executableName,
+                        configuration.executableArgumentsForDiscoPoP,
+                        configuration.dotDiscoPoP,
+                        configuration.buildPathForDiscoPoP,
+                        configuration.buildArguments,
+                        configuration.overrideExplorerArguments
+                    )
                 }
             )
         )
@@ -111,8 +127,16 @@ export class ConfigurationTreeDataProvider
             vscode.commands.registerCommand(
                 Commands.runDiscoPoPAndHotspotDetection,
                 async (configuration: ConfigurationCMake) => {
-                    // TODO try catch finally (running = true/false)
-                    callbacks.runDiscoPoP(configuration.dotDiscoPoP)
+                    // TODO surrond with try catch and set "running" (better: move to private helpers)
+                    await callbacks.runDiscoPoP(
+                        configuration.projectPath,
+                        configuration.executableName,
+                        configuration.executableArgumentsForDiscoPoP,
+                        configuration.dotDiscoPoP,
+                        configuration.buildPathForDiscoPoP,
+                        configuration.buildArguments,
+                        configuration.overrideExplorerArguments
+                    )
                     await callbacks.runHotspotDetection(
                         configuration.projectPath,
                         configuration.executableName,
@@ -266,6 +290,13 @@ export class ConfigurationTreeDataProvider
                         script.parent.removeScript(script)
                     }
                 }
+            )
+        )
+
+        this._context.subscriptions.push(
+            vscode.window.registerTreeDataProvider(
+                'sidebar-projects-view',
+                this
             )
         )
     }

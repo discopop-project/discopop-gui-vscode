@@ -1,19 +1,18 @@
 import * as fs from 'fs'
+import { ParsedResultSchema } from './ParsedResultSchema'
 
-export class LineMapping {
-    public constructor(private lineMapping: Map<number, Map<number, number>>) {}
+export class LineMapping implements ParsedResultSchema {
+    private _lineMapping: Map<number, Map<number, number>> = new Map<
+        number,
+        Map<number, number>
+    >()
 
-    public static parse(dotDiscopop: string): LineMapping {
-        const filePath = `${dotDiscopop}/line_mapping.json`
-        if (!fs.existsSync(filePath)) {
-            // TODO in this and other classes: move this check to _parseFile
-            throw new Error(`File ${filePath} does not exist`)
-        }
-        return LineMapping._parseFile(filePath)
+    public constructor(private _dotDiscopop: string) {
+        this.update(_dotDiscopop)
     }
 
     public getMappedLineNr(fileID: number, lineNr: number): number {
-        const fileIDMapping = this.lineMapping.get(fileID)
+        const fileIDMapping = this._lineMapping.get(fileID)
         if (fileIDMapping) {
             const lineNrMapping = fileIDMapping.get(lineNr)
             if (lineNrMapping) {
@@ -27,20 +26,62 @@ export class LineMapping {
         return lineNr
     }
 
-    private static _parseFile(filePath: string): LineMapping {
-        const resultMap = new Map()
-        const lineMappingString = fs.readFileSync(filePath, 'utf-8')
-        const lineMappingJSON = JSON.parse(lineMappingString)
-        for (const [fileID, lineMapping] of Object.entries(lineMappingJSON)) {
-            const fileIDNumber = Number(fileID)
-            const lineMappingMap = new Map()
-            for (const [lineNr, lineNrMapping] of Object.entries(lineMapping)) {
-                const lineNrNumber = Number(lineNr)
-                const lineNrMappingNumber = Number(lineNrMapping)
-                lineMappingMap.set(lineNrNumber, lineNrMappingNumber)
-            }
-            resultMap.set(fileIDNumber, lineMappingMap)
+    public update(dotDiscopop: string = this._dotDiscopop): void {
+        this._dotDiscopop = dotDiscopop
+        const filePath = `${dotDiscopop}/line_mapping.json`
+        if (!fs.existsSync(filePath)) {
+            this._valid = false
+            this._error = `line_mapping.json does not exist`
+        } else {
+            this._parseFile(filePath)
         }
-        return new LineMapping(resultMap)
+    }
+
+    private _valid = false
+    /**
+     * returns true if the lineMapping was parsed successfully.
+     * Note: Using the lineMapping is still possible even if this returns false. Then the original line numbers are used.
+     */
+    public valid(): boolean {
+        return this._valid
+    }
+
+    private _error: string | undefined = undefined
+    public error(): string | undefined {
+        return this._error
+    }
+
+    private _parseFile(filePath: string): void {
+        try {
+            // reset internals
+            this._lineMapping.clear()
+
+            // parse
+            const lineMappingString = fs.readFileSync(filePath, 'utf-8')
+            const lineMappingJSON = JSON.parse(lineMappingString)
+            for (const [fileID, lineMapping] of Object.entries(
+                lineMappingJSON
+            )) {
+                const fileIDNumber = Number(fileID)
+                const lineMappingMap = new Map()
+                for (const [lineNr, lineNrMapping] of Object.entries(
+                    lineMapping
+                )) {
+                    const lineNrNumber = Number(lineNr)
+                    const lineNrMappingNumber = Number(lineNrMapping)
+                    lineMappingMap.set(lineNrNumber, lineNrMappingNumber)
+                }
+                this._lineMapping.set(fileIDNumber, lineMappingMap)
+            }
+
+            // mark as valid
+            this._valid = true
+            this._error = undefined
+        } catch (error: any) {
+            // oops
+            this._valid = false
+            console.log(error)
+            this._error = 'Error while parsing line_mapping.json'
+        }
     }
 }
