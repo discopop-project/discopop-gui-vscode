@@ -3,8 +3,8 @@ import {
     ConfigurationManagerCallbacks,
     ConfigurationTreeDataProvider,
 } from '../configurationManager/ConfigurationTreeDataProvider'
-import { CombinedHotspot } from '../dpResults/CombinedHotspot'
-import { CombinedSuggestion } from '../dpResults/CombinedSuggestion'
+import { CombinedHotspot } from '../dpResults/resultManager/CombinedHotspot'
+import { CombinedSuggestion } from '../dpResults/resultManager/CombinedSuggestion'
 import { SuggestionTreeView } from '../suggestionTreeView/SuggestionTreeView'
 import { UIPrompts } from '../utils/UIPrompts'
 import {
