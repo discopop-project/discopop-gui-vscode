@@ -1,10 +1,10 @@
 import * as vscode from 'vscode'
-import { CombinedHotspot } from '../../results/combinedResults/CombinedHotspot'
 import { Commands } from '../../utils/Commands'
 import {
     HotspotTreeDataProvider,
     HotspotTreeItem,
 } from './HotspotTreeDataProvider'
+import { CombinedHotspot } from '../../results/resultStore/CombinedHotspot'
 
 export interface HotspotTreeViewCallbacks {
     uiShowSingleHotspot: (hotspot: CombinedHotspot) => void

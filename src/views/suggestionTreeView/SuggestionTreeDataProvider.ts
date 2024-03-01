@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
-import { CombinedSuggestion } from '../../results/combinedResults/CombinedSuggestion'
 import { Commands } from '../../utils/Commands'
+import { CombinedSuggestion } from '../../results/resultStore/CombinedSuggestion'
 
 export type SuggestionTreeItem = string | CombinedSuggestion
 export class SuggestionTreeDataProvider

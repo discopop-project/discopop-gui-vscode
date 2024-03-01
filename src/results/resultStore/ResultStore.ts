@@ -1,12 +1,12 @@
-import { CombinedHotspot } from '../combinedResults/CombinedHotspot'
-import { CombinedSuggestion } from '../combinedResults/CombinedSuggestion'
 import { AppliedStatus } from '../pureResults/AppliedStatus'
 import { FileMapping } from '../pureResults/FileMapping'
 import { Hotspots } from '../pureResults/Hotspots'
 import { LineMapping } from '../pureResults/LineMapping'
 import { Suggestions } from '../pureResults/Suggestions'
+import { CombinedHotspot } from './CombinedHotspot'
+import { CombinedSuggestion } from './CombinedSuggestion'
 
-export class ResultManager {
+export class ResultStore {
     private readonly _fileMapping: FileMapping
     private readonly _lineMapping: LineMapping
     private readonly _appliedStatus: AppliedStatus
@@ -134,7 +134,7 @@ export class ResultManager {
                 combinedHotspots.push({
                     type: hotspots[0],
                     filePath: this._fileMapping.getFilePath(hotspot.fileId),
-                    startLine: this._lineMapping.getMappedLineNr(
+                    mappedStartLine: this._lineMapping.getMappedLineNr(
                         hotspot.fileId,
                         hotspot.startLine
                     ),
