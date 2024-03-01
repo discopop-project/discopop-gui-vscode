@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { CombinedSuggestion } from '../dpResults/CombinedSuggestion'
+import { CombinedSuggestion } from '../dpResults/resultManager/CombinedSuggestion'
 
 export type SuggestionTreeItem = string | CombinedSuggestion
 export class SuggestionTreeDataProvider
