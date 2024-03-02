@@ -9,8 +9,8 @@ import {
     Settings,
     WorkflowWrappers,
 } from './discopopExtension/DiscopopExtension'
-import { CombinedHotspot } from './results/resultStore/CombinedHotspot'
-import { CombinedSuggestion } from './results/resultStore/CombinedSuggestion'
+import { CombinedHotspot } from './resultStore/CombinedHotspot'
+import { CombinedSuggestion } from './resultStore/CombinedSuggestion'
 import { UIPrompts } from './utils/UIPrompts'
 import {
     getCancelTokenWrapper,
@@ -18,6 +18,7 @@ import {
     getReportProgressWrapper,
     getRequestConfirmationWrapper,
 } from './utils/UIWrappers'
+import { EditorSpotlight } from './views/EditorHighlighting'
 import { HotspotDetailViewer } from './views/HotspotDetailViewer'
 import { SuggestionDetailViewer } from './views/SuggestionDetailViewer'
 import {
@@ -28,7 +29,6 @@ import {
     SuggestionTreeView,
     SuggestionTreeViewCallbacks,
 } from './views/suggestionTreeView/SuggestionTreeView'
-import { EditorSpotlight } from './views/EditorHighlighting'
 
 export function activate(context: vscode.ExtensionContext) {
     const uiExtension = new UIExtension(context)

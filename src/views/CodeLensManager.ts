@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { CombinedSuggestion } from '../results/resultStore/CombinedSuggestion'
+import { CombinedSuggestion } from '../resultStore/CombinedSuggestion'
 
 export interface CodeLensManagerCallbacks {
     // TODO overthink what codeLenses should do,

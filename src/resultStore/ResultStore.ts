@@ -1,10 +1,10 @@
-import { AppliedStatus } from './pureResults/AppliedStatus'
-import { FileMapping } from './pureResults/FileMapping'
-import { Hotspots } from './pureResults/Hotspots'
-import { LineMapping } from './pureResults/LineMapping'
-import { Suggestions } from './pureResults/Suggestions'
-import { CombinedHotspot } from './resultStore/CombinedHotspot'
-import { CombinedSuggestion } from './resultStore/CombinedSuggestion'
+import { AppliedStatus } from '../pureResults/AppliedStatus'
+import { FileMapping } from '../pureResults/FileMapping'
+import { Hotspots } from '../pureResults/Hotspots'
+import { LineMapping } from '../pureResults/LineMapping'
+import { Suggestions } from '../pureResults/Suggestions'
+import { CombinedHotspot } from './CombinedHotspot'
+import { CombinedSuggestion } from './CombinedSuggestion'
 
 export class ResultStore {
     private readonly _fileMapping: FileMapping

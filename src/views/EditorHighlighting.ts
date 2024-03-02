@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
-import { CombinedHotspot } from '../results/resultStore/CombinedHotspot'
-import { CombinedSuggestion } from '../results/resultStore/CombinedSuggestion'
+import { CombinedHotspot } from '../resultStore/CombinedHotspot'
+import { CombinedSuggestion } from '../resultStore/CombinedSuggestion'
 
 export class EditorSpotlight {
     private static decorations: vscode.TextEditorDecorationType[] = []
