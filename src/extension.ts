@@ -28,6 +28,7 @@ import {
     SuggestionTreeView,
     SuggestionTreeViewCallbacks,
 } from './views/suggestionTreeView/SuggestionTreeView'
+import { EditorSpotlight } from './views/EditorHighlighting'
 
 export function activate(context: vscode.ExtensionContext) {
     const uiExtension = new UIExtension(context)
@@ -200,10 +201,10 @@ export class UIExtension
 
     uiShowSingleSuggestion(suggestion: CombinedSuggestion): void {
         this.suggestionDetailViewer.replaceContents(suggestion.pureJSON)
-        // TODO highlight it in the editor
+        EditorSpotlight.hightlightSuggestion(suggestion)
     }
     uiShowSingleHotspot(hotspot: CombinedHotspot): void {
         this.hotspotDetailViewer.replaceContents(hotspot.pureJSON)
-        // TODO highlight it in the editor
+        EditorSpotlight.highlightHotspot(hotspot)
     }
 }
