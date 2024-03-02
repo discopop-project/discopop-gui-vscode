@@ -1,4 +1,4 @@
-import { ResultManager, ResultManagerCallbacks } from '../results/ResultManager'
+import { ResultStore } from '../results/ResultManager'
 import { CombinedHotspot } from '../results/resultStore/CombinedHotspot'
 import { CombinedSuggestion } from '../results/resultStore/CombinedSuggestion'
 import { ToolSuite } from '../toolSuite/ToolSuite'
@@ -23,9 +23,9 @@ export interface WorkflowWrappers {
     cancelToken: CancelToken
 }
 
-export class DiscopopExtension implements ResultManagerCallbacks {
+export class DiscopopExtension {
     // TODO move it into a ResultManager, that also keeps track of file changes and updates accordingly
-    private resultManager: ResultManager | undefined = undefined
+    private resultManager: ResultStore | undefined = undefined
     private toolSuite: ToolSuite = new ToolSuite()
     private workflowSuite: WorkflowSuite = new WorkflowSuite()
 
@@ -37,22 +37,26 @@ export class DiscopopExtension implements ResultManagerCallbacks {
     public loadResults(
         dotDiscopop: string,
         discopopMissingOK: boolean = false,
-        hotspotDetectionMissingOK: boolean = false
+        hotspotDetectionMissingOK: boolean = false,
+        quiet: boolean = false
     ): void {
         if (!this.resultManager) {
-            this.resultManager = new ResultManager(dotDiscopop, this)
+            this.resultManager = new ResultStore(dotDiscopop)
         }
-        this.resultManager.update(dotDiscopop)
+        this.resultManager.updateAll(dotDiscopop)
         if (this.resultManager.validSuggestions()) {
             this.uiCallbacks.uiShowAllSuggestions(
                 this.resultManager.suggestions
             )
-            this.uiCallbacks.uiShowShortNotification(
-                'DiscoPoP results loaded successfully'
-            )
+            if (!quiet) {
+                this.uiCallbacks.uiShowShortNotification(
+                    'DiscoPoP results loaded successfully'
+                )
+            }
         } else {
-            // TODO we should provide more details (get them from ResultManager, who can get them from the individual parsers)
             if (!discopopMissingOK) {
+                // also show in "quiet" mode
+                // TODO we should provide more details (get a message from ResultStore, which can get them from the individual parsers)
                 this.uiCallbacks.uiShowShortNotification(
                     'No valid DiscoPoP suggestions found'
                 )
@@ -60,21 +64,19 @@ export class DiscopopExtension implements ResultManagerCallbacks {
         }
         if (this.resultManager.validHotspots()) {
             this.uiCallbacks.uiShowAllHotspots(this.resultManager.hotspots)
-            this.uiCallbacks.uiShowShortNotification(
-                'HotspotDetection results loaded successfully'
-            )
+            if (!quiet) {
+                this.uiCallbacks.uiShowShortNotification(
+                    'HotspotDetection results loaded successfully'
+                )
+            }
         } else {
-            // TODO we should provide more details (get them from ResultManager, who can get them from the individual parsers)
+            // TODO we should provide more details (get a message from ResultStore, which can get them from the individual parsers)
             if (!hotspotDetectionMissingOK) {
                 this.uiCallbacks.uiShowShortNotification(
                     'No valid HotspotDetection results found'
                 )
             }
         }
-    }
-
-    public onResultsLoaded(): void {
-        console.log('onResultsLoaded')
     }
 
     public async runDiscoPoP(
@@ -100,8 +102,6 @@ export class DiscopopExtension implements ResultManagerCallbacks {
             buildArguments,
             overrideExplorerArguments
         )
-
-        this.loadResults(dotDiscoPoP, false, true)
     }
 
     public async runHotspotDetection(
@@ -127,7 +127,5 @@ export class DiscopopExtension implements ResultManagerCallbacks {
             buildArguments,
             overrideExplorerArguments
         )
-
-        this.loadResults(dotDiscopop, true, false)
     }
 }

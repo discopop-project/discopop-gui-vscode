@@ -81,8 +81,18 @@ export class UIExtension
     }
 
     // ConfigurationManagerCallbacks
-    loadResults(dotDiscopop: string): void {
-        this.discopopExtension.loadResults(dotDiscopop)
+    loadResults(
+        dotDiscopop: string,
+        suggestionsMissingOK: boolean = false,
+        hotspotsMissingOK: boolean = false,
+        quiet: boolean = false
+    ): void {
+        this.discopopExtension.loadResults(
+            dotDiscopop,
+            suggestionsMissingOK,
+            hotspotsMissingOK,
+            quiet
+        )
     }
 
     async runHotspotDetection(

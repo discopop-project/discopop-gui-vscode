@@ -29,7 +29,12 @@ function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
 }
 
 export interface ConfigurationManagerCallbacks {
-    loadResults(dotDiscopop: string): void
+    loadResults(
+        dotDiscopop: string,
+        discopopMissingOK?: boolean,
+        hotspotsMissingOK?: boolean,
+        quiet?: boolean
+    ): void
     runDiscoPoP(
         projectPath: string,
         executableName: string,
@@ -77,7 +82,7 @@ export class ConfigurationTreeDataProvider
             vscode.commands.registerCommand(
                 Commands.runDiscoPoP,
                 async (configuration: ConfigurationCMake) => {
-                    callbacks.runDiscoPoP(
+                    await callbacks.runDiscoPoP(
                         configuration.projectPath,
                         configuration.executableName,
                         configuration.executableArgumentsForDiscoPoP,
@@ -85,6 +90,12 @@ export class ConfigurationTreeDataProvider
                         configuration.buildPathForDiscoPoP,
                         configuration.buildArguments,
                         configuration.overrideExplorerArguments
+                    )
+                    // TODO deal with cancellation somewhere...?
+                    await callbacks.loadResults(
+                        configuration.dotDiscoPoP,
+                        false,
+                        true
                     )
                 }
             )
@@ -105,7 +116,13 @@ export class ConfigurationTreeDataProvider
                             configuration.buildArguments,
                             configuration.overrideHotspotDetectionArguments
                         )
+                        callbacks.loadResults(
+                            configuration.dotDiscoPoP,
+                            true,
+                            false
+                        )
                     } catch (error: any) {
+                        // TODO deal with cancellation somewhere else?
                         if (error instanceof vscode.CancellationError) {
                             UIPrompts.showMessageForSeconds(
                                 'HotspotDetection was cancelled'
@@ -137,6 +154,12 @@ export class ConfigurationTreeDataProvider
                         configuration.buildArguments,
                         configuration.overrideExplorerArguments
                     )
+                    await callbacks.loadResults(
+                        configuration.dotDiscoPoP,
+                        true,
+                        true,
+                        true
+                    )
                     await callbacks.runHotspotDetection(
                         configuration.projectPath,
                         configuration.executableName,
@@ -145,6 +168,12 @@ export class ConfigurationTreeDataProvider
                         configuration.buildPathForHotspotDetection,
                         configuration.buildArguments,
                         configuration.overrideHotspotDetectionArguments
+                    )
+                    callbacks.loadResults(
+                        configuration.dotDiscoPoP,
+                        false,
+                        false,
+                        false
                     )
                 }
             )
