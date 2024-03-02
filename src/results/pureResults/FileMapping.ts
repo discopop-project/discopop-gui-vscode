@@ -26,7 +26,11 @@ export class FileMapping implements ParsedResultSchema {
     }
 
     public update(dotDiscopop: string = this._dotDiscopop): void {
+        // reset internals
         this._dotDiscopop = dotDiscopop
+        this.fileMapping.clear()
+        this.inverseFileMapping.clear()
+
         const filePath = `${dotDiscopop}/FileMapping.txt`
         if (!fs.existsSync(filePath)) {
             this._valid = false
@@ -48,10 +52,6 @@ export class FileMapping implements ParsedResultSchema {
 
     private _parseFile(path: string): void {
         try {
-            // reset internals
-            this.fileMapping.clear()
-            this.inverseFileMapping.clear()
-
             // parse
             const fileContents = fs.readFileSync(path, 'utf-8')
             const lines = fileContents.split('\n')

@@ -55,7 +55,6 @@ export class ResultStore {
         string,
         CombinedSuggestion[]
     >()
-    /** make sure to check {@link validSuggestions} is true! */
     public get suggestions(): Map<string, CombinedSuggestion[]> {
         return this._combinedSuggestions
     }
@@ -92,7 +91,6 @@ export class ResultStore {
         string,
         CombinedHotspot[]
     >()
-    /** make sure to check {@link validHotspots} is true!*/
     public get hotspots(): Map<string, CombinedHotspot[]> {
         console.log(this._combinedHotspots)
         return this._combinedHotspots

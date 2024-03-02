@@ -16,10 +16,12 @@ export class AppliedStatus implements ParsedResultSchema {
     }
 
     public update(dotDiscopop: string = this._dotDiscopop): void {
+        // reset internals
         this._dotDiscopop = dotDiscopop
+        this._appliedSuggestions.clear()
+
         const filePath = `${dotDiscopop}/patch_applicator/applied_suggestions.json`
         if (!fs.existsSync(filePath)) {
-            this._appliedSuggestions.clear()
             this._valid = false
             this._error = `applied_suggestions.json does not exist`
         } else {
@@ -39,9 +41,6 @@ export class AppliedStatus implements ParsedResultSchema {
 
     private _parseFile(filePath: string): void {
         try {
-            // reset internals
-            this._appliedSuggestions.clear()
-
             // parse
             const fileContents = fs.readFileSync(filePath, 'utf-8')
             const json = JSON.parse(fileContents)

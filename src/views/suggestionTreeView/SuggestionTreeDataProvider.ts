@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
-import { Commands } from '../../utils/Commands'
 import { CombinedSuggestion } from '../../results/resultStore/CombinedSuggestion'
+import { Commands } from '../../utils/Commands'
 
 export type SuggestionTreeItem = string | CombinedSuggestion
 export class SuggestionTreeDataProvider
@@ -24,6 +24,7 @@ export class SuggestionTreeDataProvider
         void | SuggestionTreeItem | SuggestionTreeItem[]
     > = this._onDidChangeTreeData.event
     private refresh(): void {
+        console.log('refreshing tree view')
         // Possibly make it public
         this._onDidChangeTreeData.fire()
     }

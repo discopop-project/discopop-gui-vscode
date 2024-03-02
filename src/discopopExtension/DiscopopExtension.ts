@@ -7,8 +7,8 @@ import { WorkflowSuite } from '../workflowSuite/WorkflowSuite'
 
 export interface DiscopopExtensionUICallbacks {
     // TODO updateConfigurations(...): void
-    uiShowAllSuggestions(suggestions: Map<string, CombinedSuggestion[]>): void
-    uiShowAllHotspots(hotspots: Map<string, CombinedHotspot[]>): void
+    uiUpdateSuggestions(suggestions: Map<string, CombinedSuggestion[]>): void
+    uiUpdateHotspots(hotspots: Map<string, CombinedHotspot[]>): void
     uiShowShortNotification(message: string, durationInSeconds?: number): void
 }
 
@@ -40,14 +40,15 @@ export class DiscopopExtension {
         hotspotDetectionMissingOK: boolean = false,
         quiet: boolean = false
     ): void {
+        // read results
         if (!this.resultManager) {
             this.resultManager = new ResultStore(dotDiscopop)
         }
         this.resultManager.updateAll(dotDiscopop)
+
+        // show suggestions
+        this.uiCallbacks.uiUpdateSuggestions(this.resultManager.suggestions)
         if (this.resultManager.validSuggestions()) {
-            this.uiCallbacks.uiShowAllSuggestions(
-                this.resultManager.suggestions
-            )
             if (!quiet) {
                 this.uiCallbacks.uiShowShortNotification(
                     'DiscoPoP results loaded successfully'
@@ -62,8 +63,10 @@ export class DiscopopExtension {
                 )
             }
         }
+
+        // showHotspots
+        this.uiCallbacks.uiUpdateHotspots(this.resultManager.hotspots)
         if (this.resultManager.validHotspots()) {
-            this.uiCallbacks.uiShowAllHotspots(this.resultManager.hotspots)
             if (!quiet) {
                 this.uiCallbacks.uiShowShortNotification(
                     'HotspotDetection results loaded successfully'

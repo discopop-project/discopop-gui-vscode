@@ -27,7 +27,10 @@ export class LineMapping implements ParsedResultSchema {
     }
 
     public update(dotDiscopop: string = this._dotDiscopop): void {
+        // reset internals
         this._dotDiscopop = dotDiscopop
+        this._lineMapping.clear()
+
         const filePath = `${dotDiscopop}/line_mapping.json`
         if (!fs.existsSync(filePath)) {
             this._valid = false
@@ -53,9 +56,6 @@ export class LineMapping implements ParsedResultSchema {
 
     private _parseFile(filePath: string): void {
         try {
-            // reset internals
-            this._lineMapping.clear()
-
             // parse
             const lineMappingString = fs.readFileSync(filePath, 'utf-8')
             const lineMappingJSON = JSON.parse(lineMappingString)

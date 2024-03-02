@@ -16,9 +16,6 @@ enum Hotness {
 
 export class Hotspots implements ParsedResultSchema {
     public constructor(private _dotDiscopop: string) {
-        this.hotspots.set(Hotness.YES, [])
-        this.hotspots.set(Hotness.NO, [])
-        this.hotspots.set(Hotness.MAYBE, [])
         this.update(_dotDiscopop)
     }
 
@@ -29,7 +26,10 @@ export class Hotspots implements ParsedResultSchema {
     >()
 
     public update(dotDiscopop: string = this._dotDiscopop): void {
+        // reset internals
         this._dotDiscopop = dotDiscopop
+        this.hotspots.clear()
+
         const filePath = `${dotDiscopop}/hotspot_detection/Hotspots.json`
         if (!fs.existsSync(filePath)) {
             this._valid = false
@@ -51,12 +51,10 @@ export class Hotspots implements ParsedResultSchema {
 
     private _parseFile(filePath: string): void {
         try {
-            // reset internals
-            this.hotspots.get(Hotness.YES).length = 0
-            this.hotspots.get(Hotness.NO).length = 0
-            this.hotspots.get(Hotness.MAYBE).length = 0
-
             // parse
+            this.hotspots.set(Hotness.YES, [])
+            this.hotspots.set(Hotness.NO, [])
+            this.hotspots.set(Hotness.MAYBE, [])
             const fileContents = fs.readFileSync(filePath, 'utf-8')
             const json = JSON.parse(fileContents)
             for (const hotspot of json.code_regions as any[]) {

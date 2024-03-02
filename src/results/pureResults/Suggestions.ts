@@ -21,7 +21,10 @@ export class Suggestions implements ParsedResultSchema {
     }
 
     public update(dotDiscopop: string = this._dotDiscopop): void {
+        // reset internals
         this._dotDiscopop = dotDiscopop
+        this.suggestions.clear()
+
         // prioritized parsing: patterns.json > optimizer/patterns.json > explorer/patterns.json
         let filePath = `${dotDiscopop}/patterns.json`
         if (!fs.existsSync(filePath)) {
@@ -51,9 +54,6 @@ export class Suggestions implements ParsedResultSchema {
 
     private _parseFile(path: string): void {
         try {
-            // reset internals
-            this.suggestions.clear()
-
             // parse
             // TODO: check version!!!
             const fileContents = fs.readFileSync(path, 'utf-8')

@@ -174,6 +174,30 @@ export class UIExtension
     }
 
     // UI Callbacks
+    uiUpdateSuggestions(suggestions: Map<string, CombinedSuggestion[]>): void {
+        this.suggestionTreeView.combinedSuggestions = suggestions
+    }
+    uiUpdateHotspots(hotspots: Map<string, CombinedHotspot[]>): void {
+        this.hotspotTreeView.combinedHotspots = hotspots
+    }
+    uiClearHotspots(): void {
+        // TODO a clear function would be nicer, so that we show a pretty message
+        this.hotspotTreeView.combinedHotspots = new Map<
+            string,
+            CombinedHotspot[]
+        >()
+    }
+    uiClearSuggestions(): void {
+        // TODO a clear function would be nicer, so that we show a pretty message
+        this.suggestionTreeView.combinedSuggestions = new Map<
+            string,
+            CombinedSuggestion[]
+        >()
+    }
+    uiShowShortNotification(message: string, durationInSeconds?: number): void {
+        UIPrompts.showMessageForSeconds(message, durationInSeconds)
+    }
+
     uiShowSingleSuggestion(suggestion: CombinedSuggestion): void {
         this.suggestionDetailViewer.replaceContents(suggestion.pureJSON)
         // TODO highlight it in the editor
@@ -181,14 +205,5 @@ export class UIExtension
     uiShowSingleHotspot(hotspot: CombinedHotspot): void {
         this.hotspotDetailViewer.replaceContents(hotspot.pureJSON)
         // TODO highlight it in the editor
-    }
-    uiShowAllSuggestions(suggestions: Map<string, CombinedSuggestion[]>): void {
-        this.suggestionTreeView.combinedSuggestions = suggestions
-    }
-    uiShowAllHotspots(hotspots: Map<string, CombinedHotspot[]>): void {
-        this.hotspotTreeView.combinedHotspots = hotspots
-    }
-    uiShowShortNotification(message: string, durationInSeconds?: number): void {
-        UIPrompts.showMessageForSeconds(message, durationInSeconds)
     }
 }
