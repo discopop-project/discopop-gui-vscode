@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
+import { CombinedHotspot } from '../../resultStore/CombinedHotspot'
 import { Commands } from '../../utils/Commands'
-import { CombinedHotspot } from '../../results/resultStore/CombinedHotspot'
 
 // TODO a lot of similarity with SuggestionTreeDataProvider
 // TODO maybe extract common functionality into a MapBasedTreeDataProvider class

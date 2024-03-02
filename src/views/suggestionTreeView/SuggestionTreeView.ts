@@ -1,10 +1,10 @@
 import * as vscode from 'vscode'
+import { CombinedSuggestion } from '../../resultStore/CombinedSuggestion'
 import { Commands } from '../../utils/Commands'
 import {
     SuggestionTreeDataProvider,
     SuggestionTreeItem,
 } from './SuggestionTreeDataProvider'
-import { CombinedSuggestion } from '../../results/resultStore/CombinedSuggestion'
 
 export interface SuggestionTreeViewCallbacks {
     uiShowSingleSuggestion: (suggestion: CombinedSuggestion) => void
