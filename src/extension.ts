@@ -234,33 +234,42 @@ export class UIExtension
 
     /** can be used by UI components to apply a suggestion */
     public applySuggestion(suggestion: CombinedSuggestion): void {
-        // TODO
-        console.error('applyPattern not implemented yet')
         try {
             this.discopopExtension.applySuggestion(suggestion)
         } catch (error) {
-            console.error('pattern application failed', error)
+            this.uiShowPersistentNotification(
+                'pattern application failed' + error,
+                true
+            )
         }
     }
 
     public rollbackSuggestion(suggestion: CombinedSuggestion): void {
-        // TODO
-        console.error('rollbackPattern not implemented yet')
-        //this.discopopExtension.rollbackSuggestion(suggestion)
+        try {
+            this.discopopExtension.rollbackSuggestion(suggestion)
+        } catch (error) {
+            this.uiShowPersistentNotification(
+                'pattern rollback failed' + error,
+                true
+            )
+        }
     }
 
     /** can be used by UI components to rollback all suggestions */
     public rollbackAllSuggestions(): void {
-        // TODO
-        console.error('rollbackAllSuggestions not implemented yet')
-        //this.discopopExtension.rollbackAllSuggestions()
+        try {
+            this.discopopExtension.rollbackAllSuggestions()
+        } catch (error) {
+            this.uiShowPersistentNotification(
+                'pattern rollback failed' + error,
+                true
+            )
+        }
     }
 
     /** can be used by UI components to create an interactive export */
     public createInteractiveExport(): void {
-        // TODO
-        console.error('createInteractiveExport not implemented yet')
-        //this.discopopExtension.createInteractiveExport()
+        this.discopopExtension.createInteractiveExport()
     }
 
     // Methods to update the UI
@@ -301,5 +310,14 @@ export class UIExtension
     }
     public uiPreviewSuggestion(suggestion: CombinedSuggestion): void {
         console.error('uiPreviewSuggestion not implemented yet')
+    }
+    public uiRequestConfirmation(message: string): Promise<boolean> {
+        return UIPrompts.actionConfirmed(message)
+    }
+    public uiShowPersistentNotification(
+        message: string,
+        isError: boolean = false
+    ): void {
+        UIPrompts.showMessage(message, isError)
     }
 }

@@ -1,7 +1,6 @@
 import * as fs from 'fs'
 
 import { ToolSuite } from '../../toolSuite/ToolSuite'
-import { Config } from '../../utils/Config'
 import { CancelToken } from '../../utils/cancellation/CancelToken'
 import { CancellationError } from '../../utils/cancellation/CancellationError'
 
@@ -21,6 +20,7 @@ export class DiscoPoPCMakeWorkflow {
         reportProgress: (progress: number) => void,
         requestConfirmation: (message: string) => Promise<boolean>,
         cancelToken: CancelToken,
+        skipConfirmation: boolean,
         srcDirectory: string,
         executableName: string,
         executableArguments: string = '',
@@ -39,7 +39,7 @@ export class DiscoPoPCMakeWorkflow {
         if (
             fs.existsSync(buildDirectory) &&
             !(
-                Config.skipOverwriteConfirmation() ||
+                skipConfirmation ||
                 (await requestConfirmation(
                     'The build directory already exists. Do you want to overwrite it?\n(You can disable this dialog in the extension settings)'
                 ))

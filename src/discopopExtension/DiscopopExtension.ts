@@ -7,10 +7,10 @@ import { CancelToken } from '../utils/cancellation/CancelToken'
 import { WorkflowSuite } from '../workflowSuite/WorkflowSuite'
 
 export interface DiscopopExtensionUICallbacks {
-    // TODO updateConfigurations(...): void
     uiUpdateSuggestions(suggestions: Map<string, CombinedSuggestion[]>): void
     uiUpdateHotspots(hotspots: Map<string, CombinedHotspot[]>): void
     uiShowShortNotification(message: string, durationInSeconds?: number): void
+    uiRequestConfirmation(message: string): Promise<boolean>
 }
 
 export interface WorkflowWrappers {
@@ -94,6 +94,7 @@ export class DiscopopExtension {
             uiWrappers.reportProgress,
             uiWrappers.requestConfirmation,
             uiWrappers.cancelToken,
+            this.settings.skipConfirmation.overwriteBuild,
             projectPath,
             executableName,
             executableArgumentsForDiscoPoP,
@@ -119,6 +120,7 @@ export class DiscopopExtension {
             uiWrappers.reportProgress,
             uiWrappers.requestConfirmation,
             uiWrappers.cancelToken,
+            this.settings.skipConfirmation.overwriteBuild,
             projectPath,
             executableName,
             executableArgumentsForHotspotDetection,
@@ -143,18 +145,73 @@ export class DiscopopExtension {
         )
     }
 
-    public applySuggestion(suggestion: CombinedSuggestion): void {
-        this.toolSuite.discopopPatchApplicator.patchApply(
+    public async applySuggestion(
+        suggestion: CombinedSuggestion
+    ): Promise<void> {
+        // are you sure?
+        if (!this.settings.skipConfirmation.applyRollbackSuggestion) {
+            const confirmed = await this.uiCallbacks.uiRequestConfirmation(
+                `Do you want to apply the suggestion "${suggestion.patternID}"? This will modify your source code!`
+            )
+            if (!confirmed) {
+                return
+            }
+        }
+
+        // apply
+        await this.toolSuite.discopopPatchApplicator.patchApply(
             this.resultManager.dotDiscopop,
             suggestion.patternID
         )
+
+        // refresh results quietly (TODO only update the appliedStatus, not everything...)
+        this.loadResults(this.resultManager.dotDiscopop, false, true, true)
     }
 
-    public rollbackSuggestion(suggestion: CombinedSuggestion): void {
-        this.settings.skipConfirmation.applyRollbackSuggestion
+    public async rollbackSuggestion(
+        suggestion: CombinedSuggestion
+    ): Promise<void> {
+        // are you sure?
+        if (!this.settings.skipConfirmation.applyRollbackSuggestion) {
+            const confirmed = await this.uiCallbacks.uiRequestConfirmation(
+                `Do you want to rollback the suggestion "${suggestion.patternID}"? This will modify your source code!`
+            )
+            if (!confirmed) {
+                return
+            }
+        }
+
+        // rollback
+        await this.toolSuite.discopopPatchApplicator.patchRollback(
+            this.resultManager.dotDiscopop,
+            suggestion.patternID
+        )
+
+        // refresh results quietly (TODO only update the appliedStatus, not everything...)
+        this.loadResults(this.resultManager.dotDiscopop, false, true, true)
     }
 
-    public rollbackAllSuggestions(): void {}
+    public async rollbackAllSuggestions(): Promise<void> {
+        // are you sure?
+        if (!this.settings.skipConfirmation.applyRollbackSuggestion) {
+            const confirmed = await this.uiCallbacks.uiRequestConfirmation(
+                `Do you want to rollback all applied suggestions? This will modify your source code!`
+            )
+            if (!confirmed) {
+                return
+            }
+        }
 
-    public createInteractiveExport(): void {}
+        // rollback
+        this.toolSuite.discopopPatchApplicator.patchClear(
+            this.resultManager.dotDiscopop
+        )
+
+        // refresh results quietly (TODO only update the appliedStatus, not everything...)
+        this.loadResults(this.resultManager.dotDiscopop, false, true, true)
+    }
+
+    public createInteractiveExport(): void {
+        console.error('createInteractiveExport not implemented yet')
+    }
 }

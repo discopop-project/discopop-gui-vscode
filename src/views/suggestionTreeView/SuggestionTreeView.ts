@@ -70,6 +70,15 @@ export class SuggestionTreeView {
 
         context.subscriptions.push(
             vscode.commands.registerCommand(
+                Commands.rollbackSingleSuggestion,
+                async (suggestion: CombinedSuggestion) => {
+                    callbacks.rollbackSuggestion(suggestion)
+                }
+            )
+        )
+
+        context.subscriptions.push(
+            vscode.commands.registerCommand(
                 Commands.previewSuggestion,
                 async (suggestion: CombinedSuggestion) => {
                     callbacks.uiPreviewSuggestion(suggestion)
