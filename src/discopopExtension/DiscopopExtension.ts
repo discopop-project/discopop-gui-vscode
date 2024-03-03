@@ -211,7 +211,28 @@ export class DiscopopExtension {
         this.loadResults(this.resultManager.dotDiscopop, false, true, true)
     }
 
-    public createInteractiveExport(): void {
-        console.error('createInteractiveExport not implemented yet')
+    public async createInteractiveExport(): Promise<void> {
+        // TODO create a pretty notification /workflow
+        const idList = []
+        for (const suggestion of this.resultManager.suggestions.values()) {
+            for (const combinedSuggestion of suggestion) {
+                if (combinedSuggestion.markedForExport) {
+                    idList.push(combinedSuggestion.patternID)
+                }
+            }
+        }
+        await this.toolSuite.discopopOptimizer.run(
+            this.resultManager.dotDiscopop,
+            {
+                interactiveExport: idList,
+            }
+        )
+
+        await this.toolSuite.discopopPatchGenerator.createOptimizedPatches(
+            this.resultManager.dotDiscopop
+        )
+
+        // refresh results quietly (TODO only update the appliedStatus, not everything...)
+        this.loadResults(this.resultManager.dotDiscopop, false, true, true)
     }
 }
