@@ -18,6 +18,10 @@ import {
     getReportProgressWrapper,
     getRequestConfirmationWrapper,
 } from './utils/UIWrappers'
+import {
+    DiscoPoPCodeLensProvider,
+    DiscoPoPCodeLensProviderCallbacks,
+} from './views/DiscoPoPCodeLensProvider'
 import { EditorSpotlight } from './views/EditorHighlighting'
 import { HotspotDetailViewer } from './views/HotspotDetailViewer'
 import { SuggestionDetailViewer } from './views/SuggestionDetailViewer'
@@ -42,7 +46,8 @@ export class UIExtension
         Settings,
         ConfigurationManagerCallbacks,
         SuggestionTreeViewCallbacks,
-        HotspotTreeViewCallbacks
+        HotspotTreeViewCallbacks,
+        DiscoPoPCodeLensProviderCallbacks
 {
     // extension
     private readonly discopopExtension: DiscopopExtension
@@ -57,7 +62,9 @@ export class UIExtension
     private readonly suggestionDetailViewer: SuggestionDetailViewer
     private readonly hotspotDetailViewer: HotspotDetailViewer
 
-    //
+    // code lenses
+    private readonly codeLensManager: DiscoPoPCodeLensProvider
+
     public constructor(private context: vscode.ExtensionContext) {
         this.discopopExtension = new DiscopopExtension(this, this)
 
@@ -79,6 +86,12 @@ export class UIExtension
         )
         this.suggestionTreeView = new SuggestionTreeView(this.context, this)
         this.hotspotTreeView = new HotspotTreeView(this.context, this)
+
+        // code lenses
+        this.codeLensManager = DiscoPoPCodeLensProvider.create(
+            this.context,
+            this
+        )
     }
 
     // ConfigurationManagerCallbacks
@@ -135,6 +148,7 @@ export class UIExtension
         )
     }
 
+    /** can be called by UI components to trigger a DiscoPoP run */
     async runDiscoPoP(
         projectPath: string,
         executableName: string,
@@ -174,22 +188,21 @@ export class UIExtension
         )
     }
 
-    // UI Callbacks
+    // Methods to update the UI
     uiUpdateSuggestions(suggestions: Map<string, CombinedSuggestion[]>): void {
         this.suggestionTreeView.combinedSuggestions = suggestions
+        this.codeLensManager.combinedSuggestions = suggestions
     }
     uiUpdateHotspots(hotspots: Map<string, CombinedHotspot[]>): void {
         this.hotspotTreeView.combinedHotspots = hotspots
     }
     uiClearHotspots(): void {
-        // TODO a clear function would be nicer, so that we show a pretty message
         this.hotspotTreeView.combinedHotspots = new Map<
             string,
             CombinedHotspot[]
         >()
     }
     uiClearSuggestions(): void {
-        // TODO a clear function would be nicer, so that we show a pretty message
         this.suggestionTreeView.combinedSuggestions = new Map<
             string,
             CombinedSuggestion[]
