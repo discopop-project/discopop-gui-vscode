@@ -273,6 +273,73 @@ export class UIExtension
         this.discopopExtension.createInteractiveExport()
     }
 
+    /** can be used by UI components to select one of a list of suggestions. The user is then given the option to apply or preview one of them */
+    public async selectSuggestionForPreviewOrApply(
+        suggestions: CombinedSuggestion[]
+    ): Promise<void> {
+        // no suggestions, nothing to do
+        if (suggestions.length === 0) {
+            console.error(
+                'tried to select suggestion for preview or application from an empty list'
+            )
+            return
+        }
+
+        // select suggestion
+        let suggestion: CombinedSuggestion | undefined = suggestions[0]
+        if (suggestions.length >= 1) {
+            // let the user select the suggestion
+            const suggestionQuickPickItem = await vscode.window.showQuickPick(
+                suggestions.map((suggestion) => {
+                    return {
+                        label: `${suggestion.patternID}`,
+                        description: `${suggestion.type}`,
+                        detail: `${JSON.stringify(suggestion.pureJSON)}`,
+                    }
+                }),
+                {
+                    placeHolder: 'Select a suggestion to preview or apply',
+                }
+            )
+            if (!suggestionQuickPickItem) {
+                return // user cancelled
+            }
+
+            suggestion = suggestions.find((suggestion) => {
+                return (
+                    `${suggestion.patternID}` === suggestionQuickPickItem.label
+                )
+            })
+        }
+
+        // let the user decide what to do with the suggestion
+        const action = await vscode.window.showQuickPick(
+            [
+                {
+                    label: 'Apply',
+                    description: 'Apply the suggestion',
+                },
+                {
+                    label: 'Preview',
+                    description: 'Preview the suggestion',
+                },
+            ],
+            {
+                placeHolder: 'What do you want to do with the suggestion?',
+            }
+        )
+        if (!action) {
+            return // user cancelled
+        }
+
+        // apply or preview the suggestion
+        if (action.label === 'Apply') {
+            this.applySuggestion(suggestion)
+        } else if (action.label === 'Preview') {
+            this.uiPreviewSuggestion(suggestion)
+        }
+    }
+
     // Methods to update the UI
     public uiUpdateSuggestions(
         suggestions: Map<string, CombinedSuggestion[]>
@@ -310,6 +377,9 @@ export class UIExtension
         EditorSpotlight.highlightHotspot(hotspot)
     }
     public uiPreviewSuggestion(suggestion: CombinedSuggestion): void {
+        // show the suggestion in the detail view
+        this.uiShowSingleSuggestion(suggestion)
+        // open the preview
         SuggestionPreview.previewSuggestion(
             suggestion,
             this.settings.previewMode
