@@ -1,46 +1,54 @@
 export class Commands {
     // configuration
-    public static addConfiguration: string = 'discopop.addConfiguration'
-    public static removeConfiguration: string = 'discopop.removeConfiguration'
-    public static copyConfiguration: string = 'discopop.copyConfiguration'
-    public static editConfigurationOrProperty: string =
+    public static readonly addConfiguration: string =
+        'discopop.addConfiguration'
+    public static readonly removeConfiguration: string =
+        'discopop.removeConfiguration'
+    public static readonly copyConfiguration: string =
+        'discopop.copyConfiguration'
+    public static readonly editConfigurationOrProperty: string =
         'discopop.editConfigurationOrProperty'
 
-    public static addScript: string = 'discopop.addScript'
-    public static removeScript: string = 'discopop.removeScript'
-    public static runScript: string = 'discopop.runScript'
+    public static readonly addScript: string = 'discopop.addScript'
+    public static readonly removeScript: string = 'discopop.removeScript'
+    public static readonly runScript: string = 'discopop.runScript'
 
     // runners
-    public static runDiscoPoP: string = 'discopop.runDiscoPoP'
-    public static runHotspotDetection: string = 'discopop.runHotspotDetection'
-    public static runDiscoPoPAndHotspotDetection: string =
+    public static readonly runDiscoPoP: string = 'discopop.runDiscoPoP'
+    public static readonly runHotspotDetection: string =
+        'discopop.runHotspotDetection'
+    public static readonly runDiscoPoPAndHotspotDetection: string =
         'discopop.runDiscoPoPAndHotspotDetection'
-    public static runOptimizer: string = 'discopop.runOptimizer'
-    public static loadResults = 'discopop.loadResults'
+    public static readonly runOptimizer: string = 'discopop.runOptimizer'
+    public static readonly loadResults = 'discopop.loadResults'
 
     // suggestions
-    public static showSuggestionDetails: string =
+    public static readonly showSuggestionDetails: string =
         'discopop.showSuggestionDetails'
-    public static applySuggestions: string = 'discopop.applySuggestions'
-    public static previewSuggestion: string = 'discopop.previewSuggestion'
-    public static applySingleSuggestion: string =
+    public static readonly previewSuggestion: string =
+        'discopop.previewSuggestion'
+    public static readonly applySingleSuggestion: string =
         'discopop.applySingleSuggestion'
-    public static rollbackSingleSuggestion: string =
+    public static readonly rollbackSingleSuggestion: string =
         'discopop.rollbackSingleSuggestion'
-    public static rollbackAllSuggestions: string = 'discopop.clearSuggestions'
-    public static filterSuggestions: string = 'discopop.filterSuggestions'
+    public static readonly rollbackAllSuggestions: string =
+        'discopop.clearSuggestions'
+    // TODO
+    // public static readonly filterSuggestions: string = 'discopop.filterSuggestions'
 
     // interactive export
-    public static markSuggestionForInteractiveExport: string =
+    public static readonly markSuggestionForInteractiveExport: string =
         'discopop.markSuggestionForInteractiveExport'
-    public static createInteractiveExport: string =
+    public static readonly createInteractiveExport: string =
         'discopop.createInteractiveExport'
 
     // hotspots
-    public static showHotspotDetails: string = 'discopop.showHotspotDetails'
+    public static readonly showHotspotDetails: string =
+        'discopop.showHotspotDetails'
 
     // codeLens
-    public static toggleCodeLens: string = 'discopop.toggleCodeLens' // global setting
-    public static enableCodeLens: string = 'discopop.enableCodeLens' // temporarily enable codeLens
-    public static disableCodeLens: string = 'discopop.disableCodeLens' // temporarily disable codeLens
+    public static readonly toggleCodeLens: string = 'discopop.toggleCodeLens' // global setting
+    public static readonly enableCodeLens: string = 'discopop.enableCodeLens' // temporarily enable codeLens
+    public static readonly disableCodeLens: string = 'discopop.disableCodeLens' // temporarily disable codeLens
+    public static readonly codeLensApply: string = 'discopop.codeLensClicked' // apply suggestions from the codeLens
 }

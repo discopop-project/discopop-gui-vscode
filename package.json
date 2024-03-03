@@ -194,6 +194,12 @@
                 "icon": "$(eye-closed)"
             },
             {
+                "title": "Show Potential Parallelism",
+                "command": "discopop.codeLensClicked",
+                "category": "DiscoPoP",
+                "icon": "$(eye)"
+            },
+            {
                 "title": "Preview Suggestion",
                 "command": "discopop.previewSuggestion",
                 "category": "DiscoPoP",
@@ -210,12 +216,6 @@
                 "command": "discopop.rollbackSingleSuggestion",
                 "category": "DiscoPoP",
                 "icon": "$(close)"
-            },
-            {
-                "title": "Apply Multiple Suggestions",
-                "command": "discopop.applySuggestions",
-                "category": "DiscoPoP",
-                "icon": "$(check)"
             },
             {
                 "title": "Rollback All Suggestions",

@@ -121,15 +121,15 @@ export class SuggestionTreeView {
         )
 
         // TODO filtering / sorting of suggestions
-        context.subscriptions.push(
-            vscode.commands.registerCommand(
-                Commands.filterSuggestions,
-                async () => {
-                    throw new Error('filterSuggestions not implemented')
-                    // TODO
-                }
-            )
-        )
+        // context.subscriptions.push(
+        //     vscode.commands.registerCommand(
+        //         Commands.filterSuggestions,
+        //         async () => {
+        //             throw new Error('filterSuggestions not implemented')
+        //             // TODO
+        //         }
+        //     )
+        // )
 
         // TODO renaming of suggestions
     }
