@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
-import { Settings as ISettings } from './discopopExtension/DiscopopExtension'
+import { Settings } from './Settings'
 
-export class Settings implements ISettings {
+export class VsCodeSettings implements Settings {
     public constructor() {}
 
     get skipConfirmation(): {
@@ -10,25 +10,25 @@ export class Settings implements ISettings {
     } {
         return {
             get applyRollbackSuggestion(): boolean {
-                return Settings._getter(
+                return VsCodeSettings._getter(
                     'skipConfirmation.applyRollbackSuggestion',
                     false
                 )
             },
             set applyRollbackSuggestion(value: boolean) {
-                Settings._setter(
+                VsCodeSettings._setter(
                     'skipConfirmation.applyRollbackSuggestion',
                     value
                 )
             },
             get overwriteBuild(): boolean {
-                return Settings._getter(
+                return VsCodeSettings._getter(
                     'skipConfirmation.overwriteBuild',
                     false
                 )
             },
             set overwriteBuild(value: boolean) {
-                Settings._setter('skipConfirmation.overwriteBuild', value)
+                VsCodeSettings._setter('skipConfirmation.overwriteBuild', value)
             },
         }
     }
@@ -44,10 +44,10 @@ export class Settings implements ISettings {
     get codeLens(): { enabled: boolean } {
         return {
             get enabled(): boolean {
-                return Settings._getter('codeLens.enabled', true)
+                return VsCodeSettings._getter('codeLens.enabled', true)
             },
             set enabled(value: boolean) {
-                Settings._setter('codeLens.enabled', value)
+                VsCodeSettings._setter('codeLens.enabled', value)
             },
         }
     }
@@ -56,10 +56,10 @@ export class Settings implements ISettings {
     }
 
     get previewMode(): 'Peek' | 'Editor' {
-        return Settings._getter('previewMode', 'Peek')
+        return VsCodeSettings._getter('previewMode', 'Peek')
     }
     set previewMode(value: 'Peek' | 'Editor') {
-        Settings._setter('previewMode', value)
+        VsCodeSettings._setter('previewMode', value)
     }
 
     private static _getter(key: string, defaultValue: any): any {
