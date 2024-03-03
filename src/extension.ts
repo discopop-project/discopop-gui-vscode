@@ -49,20 +49,12 @@ export class UIExtension
         HotspotTreeViewCallbacks,
         DiscoPoPCodeLensProviderCallbacks
 {
-    // extension
     private readonly discopopExtension: DiscopopExtension
-
-    // configuration
-    // TODO work on a better configuration management
     private readonly configurationManager: ConfigurationTreeDataProvider
-
-    // views
     private readonly suggestionTreeView: SuggestionTreeView
     private readonly hotspotTreeView: HotspotTreeView
     private readonly suggestionDetailViewer: SuggestionDetailViewer
     private readonly hotspotDetailViewer: HotspotDetailViewer
-
-    // code lenses
     private readonly codeLensManager: DiscoPoPCodeLensProvider
 
     public constructor(private context: vscode.ExtensionContext) {
@@ -94,7 +86,13 @@ export class UIExtension
         )
     }
 
-    // ConfigurationManagerCallbacks
+    /**
+     * can be called by UI componenets to trigger the loading of results
+     * @param dotDiscopop the path to the .discopop directory where the results are stored
+     * @param suggestionsMissingOK if true, do not show a message if loading of suggestions fails (e.g. when only hotspots should be loaded)
+     * @param hotspotsMissingOK if true, do not show a message if loading of hotspots fails (e.g. when only suggestions should be loaded)
+     * @param quiet if true: only show errors, no success messages
+     * */
     loadResults(
         dotDiscopop: string,
         suggestionsMissingOK: boolean = false,
@@ -109,6 +107,7 @@ export class UIExtension
         )
     }
 
+    /** can be called by UI components to trigger a hotspot detection run */
     async runHotspotDetection(
         projectPath: string,
         executableName: string,
@@ -188,35 +187,50 @@ export class UIExtension
         )
     }
 
+    // TODO connect this to the actual settings
+    private _temporaryGlobalCodeLensSetting: boolean = true
+    public getGlobalCodeLensSetting(): boolean {
+        return this._temporaryGlobalCodeLensSetting
+    }
+    public toggleGlobalCodeLensSetting() {
+        this._temporaryGlobalCodeLensSetting =
+            !this._temporaryGlobalCodeLensSetting
+    }
+
     // Methods to update the UI
-    uiUpdateSuggestions(suggestions: Map<string, CombinedSuggestion[]>): void {
+    public uiUpdateSuggestions(
+        suggestions: Map<string, CombinedSuggestion[]>
+    ): void {
         this.suggestionTreeView.combinedSuggestions = suggestions
         this.codeLensManager.combinedSuggestions = suggestions
     }
-    uiUpdateHotspots(hotspots: Map<string, CombinedHotspot[]>): void {
+    public uiUpdateHotspots(hotspots: Map<string, CombinedHotspot[]>): void {
         this.hotspotTreeView.combinedHotspots = hotspots
     }
-    uiClearHotspots(): void {
+    public uiClearHotspots(): void {
         this.hotspotTreeView.combinedHotspots = new Map<
             string,
             CombinedHotspot[]
         >()
     }
-    uiClearSuggestions(): void {
+    public uiClearSuggestions(): void {
         this.suggestionTreeView.combinedSuggestions = new Map<
             string,
             CombinedSuggestion[]
         >()
     }
-    uiShowShortNotification(message: string, durationInSeconds?: number): void {
+    public uiShowShortNotification(
+        message: string,
+        durationInSeconds?: number
+    ): void {
         UIPrompts.showMessageForSeconds(message, durationInSeconds)
     }
 
-    uiShowSingleSuggestion(suggestion: CombinedSuggestion): void {
+    public uiShowSingleSuggestion(suggestion: CombinedSuggestion): void {
         this.suggestionDetailViewer.replaceContents(suggestion.pureJSON)
         EditorSpotlight.hightlightSuggestion(suggestion)
     }
-    uiShowSingleHotspot(hotspot: CombinedHotspot): void {
+    public uiShowSingleHotspot(hotspot: CombinedHotspot): void {
         this.hotspotDetailViewer.replaceContents(hotspot.pureJSON)
         EditorSpotlight.highlightHotspot(hotspot)
     }
