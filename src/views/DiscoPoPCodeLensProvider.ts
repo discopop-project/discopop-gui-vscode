@@ -3,10 +3,11 @@ import { CombinedSuggestion } from '../resultStore/CombinedSuggestion'
 import { Commands } from '../utils/Commands'
 
 export interface DiscoPoPCodeLensProviderCallbacks {
-    /** called by the DiscoPoPCodeLensProvider */
     toggleGlobalCodeLensSetting: () => void
-    /** called by the DiscoPoPCodeLensProvider */
     getGlobalCodeLensSetting: () => boolean
+    selectSuggestionForPreviewOrApply: (
+        suggestions: CombinedSuggestion[]
+    ) => Promise<void>
 }
 
 export class DiscoPoPCodeLensProvider implements vscode.CodeLensProvider {
@@ -53,9 +54,16 @@ export class DiscoPoPCodeLensProvider implements vscode.CodeLensProvider {
             })
         )
 
-        // TODO register commands for the lenses, then use the callbacks
+        _context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.codeLensApply,
+                (suggestions: CombinedSuggestion[]) => {
+                    _callbacks.selectSuggestionForPreviewOrApply(suggestions)
+                }
+            )
+        )
 
-        // hide the button to turn on/off code lenses
+        // hide the button to turn on/off code lenses until we have suggestions
         vscode.commands.executeCommand(
             'setContext',
             'discopop.codeLensEnabled',
@@ -129,8 +137,8 @@ export class DiscoPoPCodeLensProvider implements vscode.CodeLensProvider {
             const codeLens = new vscode.CodeLens(range)
             codeLens.command = {
                 title: `Potential Parallelism (${combinedSuggestions.length})`,
-                command: 'discopop.TODO',
-                arguments: [document, line, combinedSuggestions],
+                command: Commands.codeLensApply,
+                arguments: [combinedSuggestions],
             }
             codeLenses.push(codeLens)
         }
