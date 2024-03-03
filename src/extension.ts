@@ -10,6 +10,7 @@ import {
 } from './discopopExtension/DiscopopExtension'
 import { CombinedHotspot } from './resultStore/CombinedHotspot'
 import { CombinedSuggestion } from './resultStore/CombinedSuggestion'
+import { VsCodeSettings } from './settings/VsCodeSettings'
 import { UIPrompts } from './utils/UIPrompts'
 import {
     getCancelTokenWrapper,
@@ -32,7 +33,6 @@ import {
     SuggestionTreeView,
     SuggestionTreeViewCallbacks,
 } from './views/suggestionTreeView/SuggestionTreeView'
-import { Settings } from './Settings'
 
 export function activate(context: vscode.ExtensionContext) {
     const uiExtension = new UIExtension(context)
@@ -57,10 +57,10 @@ export class UIExtension
     private readonly codeLensManager: DiscoPoPCodeLensProvider
 
     // TODO use real settings instead
-    private readonly settings: Settings
+    private readonly settings: VsCodeSettings
 
     public constructor(private context: vscode.ExtensionContext) {
-        this.settings = new Settings()
+        this.settings = new VsCodeSettings()
 
         this.discopopExtension = new DiscopopExtension(this, this.settings)
 

@@ -1,6 +1,7 @@
 import { CombinedHotspot } from '../resultStore/CombinedHotspot'
 import { CombinedSuggestion } from '../resultStore/CombinedSuggestion'
 import { ResultStore } from '../resultStore/ResultStore'
+import { Settings } from '../settings/Settings'
 import { ToolSuite } from '../toolSuite/ToolSuite'
 import { CancelToken } from '../utils/cancellation/CancelToken'
 import { WorkflowSuite } from '../workflowSuite/WorkflowSuite'
@@ -10,17 +11,6 @@ export interface DiscopopExtensionUICallbacks {
     uiUpdateSuggestions(suggestions: Map<string, CombinedSuggestion[]>): void
     uiUpdateHotspots(hotspots: Map<string, CombinedHotspot[]>): void
     uiShowShortNotification(message: string, durationInSeconds?: number): void
-}
-
-export interface Settings {
-    skipConfirmation: {
-        applyRollbackSuggestion: boolean
-        overwriteBuild: boolean
-    }
-    codeLens: {
-        enabled: boolean
-    }
-    previewMode: 'Peek' | 'Editor'
 }
 
 export interface WorkflowWrappers {
