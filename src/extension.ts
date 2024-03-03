@@ -25,6 +25,7 @@ import {
 import { EditorSpotlight } from './views/EditorHighlighting'
 import { HotspotDetailViewer } from './views/HotspotDetailViewer'
 import { SuggestionDetailViewer } from './views/SuggestionDetailViewer'
+import { SuggestionPreview } from './views/SuggestionPreview'
 import {
     HotspotTreeView,
     HotspotTreeViewCallbacks,
@@ -309,7 +310,10 @@ export class UIExtension
         EditorSpotlight.highlightHotspot(hotspot)
     }
     public uiPreviewSuggestion(suggestion: CombinedSuggestion): void {
-        console.error('uiPreviewSuggestion not implemented yet')
+        SuggestionPreview.previewSuggestion(
+            suggestion,
+            this.settings.previewMode
+        )
     }
     public uiRequestConfirmation(message: string): Promise<boolean> {
         return UIPrompts.actionConfirmed(message)

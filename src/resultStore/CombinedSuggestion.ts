@@ -9,6 +9,7 @@ export interface CombinedSuggestion {
     mappedEndLine: number
     applicable: boolean
     applied: boolean
-    pureJSON: any
+    dotDiscopop: string // TODO this is rather new and not used everywhere yet, but it should be!
     markedForExport: boolean
+    pureJSON: any
 }
