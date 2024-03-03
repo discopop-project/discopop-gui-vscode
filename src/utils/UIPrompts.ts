@@ -30,12 +30,20 @@ export abstract class UIPrompts {
      * @param message the prompt to display to the user
      * @returns true if the user confirmed, false otherwise
      */
-    static async actionConfirmed(message: string): Promise<boolean> {
+    public static async actionConfirmed(message: string): Promise<boolean> {
         const answer = await vscode.window.showWarningMessage(
             message,
             { modal: true },
             'Yes'
         )
         return answer === 'Yes'
+    }
+
+    public static showMessage(message: string, isError: boolean = false) {
+        if (isError) {
+            vscode.window.showErrorMessage(message)
+        } else {
+            vscode.window.showInformationMessage(message)
+        }
     }
 }

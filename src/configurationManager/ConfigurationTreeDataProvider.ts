@@ -3,7 +3,6 @@ import * as path from 'path'
 import * as vscode from 'vscode'
 import { ExtensionContext } from 'vscode'
 import { Commands } from '../utils/Commands'
-import { SimpleTree } from '../utils/SimpleTree'
 import { UIPrompts } from '../utils/UIPrompts'
 import {
     Configuration,
@@ -12,6 +11,7 @@ import {
 } from './Configuration'
 import configurationFromJSON from './ConfigurationDeserializer'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
+import { SimpleTree } from './SimpleTree'
 import { ConfigurationCMake } from './cmake/ConfigurationCMake'
 import { ConfigurationViewOnly } from './viewOnly/ConfigurationViewOnly'
 import { CustomScripts, Script } from './viewOnly/CustomScripts'
