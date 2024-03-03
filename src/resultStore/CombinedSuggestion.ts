@@ -10,4 +10,5 @@ export interface CombinedSuggestion {
     applicable: boolean
     applied: boolean
     pureJSON: any
+    markedForExport: boolean
 }

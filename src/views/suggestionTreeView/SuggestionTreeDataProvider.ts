@@ -23,10 +23,13 @@ export class SuggestionTreeDataProvider
     public readonly onDidChangeTreeData: vscode.Event<
         void | SuggestionTreeItem | SuggestionTreeItem[]
     > = this._onDidChangeTreeData.event
-    private refresh(): void {
+    public refresh(item?: SuggestionTreeItem): void {
         console.log('refreshing tree view')
-        // Possibly make it public
-        this._onDidChangeTreeData.fire()
+        if (item) {
+            this._onDidChangeTreeData.fire(item)
+        } else {
+            this._onDidChangeTreeData.fire()
+        }
     }
 
     public getTreeItem(
@@ -34,7 +37,6 @@ export class SuggestionTreeDataProvider
     ): vscode.TreeItem | Thenable<vscode.TreeItem> {
         if (typeof element === 'string') {
             // create a pretty view for a suggestion group
-            // TODO maybe put this in a separate class that extends TreeItem
             const treeItem = new vscode.TreeItem(
                 element +
                     ' (' +
@@ -47,10 +49,11 @@ export class SuggestionTreeDataProvider
         }
 
         // create a pretty view for a suggestion
-        // TODO maybe put this in a separate class that extends TreeItem
-        const treeItem = new vscode.TreeItem(String(element.patternID))
+        const treeItem = new vscode.TreeItem(
+            String(element.patternID) + (element.markedForExport ? ' [*]' : '')
+        )
         const fileName = element.filePath.split('/').pop()
-        treeItem.resourceUri = vscode.Uri.file(element.filePath) // TODO is this good?
+        // treeItem.resourceUri = vscode.Uri.file(element.filePath)
         treeItem.description = `${fileName}:${element.mappedStartLine}`
         treeItem.tooltip = element.filePath + ':' + element.mappedStartLine
         treeItem.command = {

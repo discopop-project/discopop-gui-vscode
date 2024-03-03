@@ -81,6 +81,7 @@ export class ResultStore {
                     applicable: suggestion.applicable_pattern,
                     applied: this._appliedStatus.isApplied(suggestion.id),
                     pureJSON: suggestion.pureJSON,
+                    markedForExport: false,
                 })
             }
             this._combinedSuggestions.set(suggestions[0], combinedSuggestions)

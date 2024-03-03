@@ -59,14 +59,7 @@ export class DiscoPoPCodeLensProvider implements vscode.CodeLensProvider {
         vscode.commands.executeCommand(
             'setContext',
             'discopop.codeLensEnabled',
-            'enabled' // 'undefined'|'enabled'|'disabled' -> no button|button to hide|button to show
-        )
-
-        // hide the button to turn on/off code lenses
-        vscode.commands.executeCommand(
-            'setContext',
-            'discopop.suggestionsAvailable',
-            false
+            'undefined' // 'undefined'|'enabled'|'disabled' -> no button|button to hide|button to show
         )
 
         return DiscoPoPCodeLensProvider._instance
@@ -188,11 +181,13 @@ export class DiscoPoPCodeLensProvider implements vscode.CodeLensProvider {
                     .push(suggestion)
             }
         }
+
         vscode.commands.executeCommand(
             'setContext',
-            'discopop.suggestionsAvailable',
-            true
+            'discopop.codeLensEnabled',
+            this._hidden ? 'disabled' : 'enabled'
         )
+
         this._refresh()
     }
 }

@@ -35,11 +35,10 @@ export class Suggestions implements ParsedResultSchema {
                     this._valid = false
                     this._error = `patterns.json does not exist in any of the expected locations`
                     return
-                } else {
-                    this._parseFile(filePath)
                 }
             }
         }
+        this._parseFile(filePath)
     }
 
     private _valid = false
@@ -56,6 +55,7 @@ export class Suggestions implements ParsedResultSchema {
         try {
             // parse
             // TODO: check version!!!
+            console.log('reading patterns from ' + path)
             const fileContents = fs.readFileSync(path, 'utf-8')
             const json = JSON.parse(fileContents)
             for (const [type, suggestions] of Object.entries(json.patterns) as [

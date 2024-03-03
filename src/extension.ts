@@ -6,7 +6,6 @@ import {
 import {
     DiscopopExtension,
     DiscopopExtensionUICallbacks,
-    Settings,
     WorkflowWrappers,
 } from './discopopExtension/DiscopopExtension'
 import { CombinedHotspot } from './resultStore/CombinedHotspot'
@@ -33,6 +32,7 @@ import {
     SuggestionTreeView,
     SuggestionTreeViewCallbacks,
 } from './views/suggestionTreeView/SuggestionTreeView'
+import { Settings } from './Settings'
 
 export function activate(context: vscode.ExtensionContext) {
     const uiExtension = new UIExtension(context)
@@ -43,7 +43,6 @@ export function deactivate() {}
 export class UIExtension
     implements
         DiscopopExtensionUICallbacks,
-        Settings,
         ConfigurationManagerCallbacks,
         SuggestionTreeViewCallbacks,
         HotspotTreeViewCallbacks,
@@ -57,11 +56,16 @@ export class UIExtension
     private readonly hotspotDetailViewer: HotspotDetailViewer
     private readonly codeLensManager: DiscoPoPCodeLensProvider
 
+    // TODO use real settings instead
+    private readonly settings: Settings
+
     public constructor(private context: vscode.ExtensionContext) {
-        this.discopopExtension = new DiscopopExtension(this, this)
+        this.settings = new Settings()
+
+        this.discopopExtension = new DiscopopExtension(this, this.settings)
 
         // configuration management
-        // TODO this should be part of the Extension and we would only have views here
+        // TODO this should be part of the Extension or outsourced to some other component and we would only have views here
         this.configurationManager = new ConfigurationTreeDataProvider(
             this.context,
             this
@@ -76,7 +80,7 @@ export class UIExtension
             undefined,
             this.context
         )
-        this.suggestionTreeView = new SuggestionTreeView(this.context, this)
+        this.suggestionTreeView = SuggestionTreeView.create(this.context, this)
         this.hotspotTreeView = new HotspotTreeView(this.context, this)
 
         // code lenses
@@ -93,7 +97,7 @@ export class UIExtension
      * @param hotspotsMissingOK if true, do not show a message if loading of hotspots fails (e.g. when only suggestions should be loaded)
      * @param quiet if true: only show errors, no success messages
      * */
-    loadResults(
+    public loadResults(
         dotDiscopop: string,
         suggestionsMissingOK: boolean = false,
         hotspotsMissingOK: boolean = false,
@@ -108,7 +112,7 @@ export class UIExtension
     }
 
     /** can be called by UI components to trigger a hotspot detection run */
-    async runHotspotDetection(
+    public async runHotspotDetection(
         projectPath: string,
         executableName: string,
         executableArgumentsForHotspotDetection: string[],
@@ -133,7 +137,7 @@ export class UIExtension
                     requestConfirmation: getRequestConfirmationWrapper(),
                     cancelToken: getCancelTokenWrapper(token),
                 }
-                await this.discopopExtension.runHotspotDetection(
+                return this.discopopExtension.runHotspotDetection(
                     uiWrappers,
                     projectPath,
                     executableName,
@@ -148,7 +152,7 @@ export class UIExtension
     }
 
     /** can be called by UI components to trigger a DiscoPoP run */
-    async runDiscoPoP(
+    public async runDiscoPoP(
         projectPath: string,
         executableName: string,
         executableArgumentsForDiscoPoP: string,
@@ -173,7 +177,7 @@ export class UIExtension
                     requestConfirmation: getRequestConfirmationWrapper(),
                     cancelToken: getCancelTokenWrapper(token),
                 }
-                await this.discopopExtension.runDiscoPoP(
+                return this.discopopExtension.runDiscoPoP(
                     uiWrappers,
                     projectPath,
                     executableName,
@@ -187,14 +191,76 @@ export class UIExtension
         )
     }
 
-    // TODO connect this to the actual settings
-    private _temporaryGlobalCodeLensSetting: boolean = true
-    public getGlobalCodeLensSetting(): boolean {
-        return this._temporaryGlobalCodeLensSetting
+    /** can be used by UI components to trigger an optimizer run */
+    public async runOptimizer(
+        dotDiscoPoP: string,
+        overrideOptions?: string
+    ): Promise<void> {
+        // TODO this entire with Progress, cancellation and the UI wrappers stuff should move to a separate class/function
+        // runUIWorkflow(name, method, args)
+        // usage: runUIWorkflow('Optimizer', this.discopopExtension.runOptimizer, [dotDiscoPoP, overrideOptions])
+        return vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.Notification,
+                title: 'Running Optimizer',
+                cancellable: true,
+            },
+            async (progress, token) => {
+                const uiWrappers: WorkflowWrappers = {
+                    reportMessage: getReportMessageWrapper(
+                        'Optimizer: ',
+                        progress
+                    ),
+                    reportProgress: getReportProgressWrapper(progress),
+                    requestConfirmation: getRequestConfirmationWrapper(),
+                    cancelToken: getCancelTokenWrapper(token),
+                }
+                return this.discopopExtension.runOptimizer(
+                    uiWrappers,
+                    dotDiscoPoP,
+                    overrideOptions
+                )
+            }
+        )
     }
+
+    // codelensprovider callbacks
     public toggleGlobalCodeLensSetting() {
-        this._temporaryGlobalCodeLensSetting =
-            !this._temporaryGlobalCodeLensSetting
+        this.settings.codeLens.enabled = !this.settings.codeLens.enabled
+    }
+    public getGlobalCodeLensSetting() {
+        return this.settings.codeLens.enabled
+    }
+
+    /** can be used by UI components to apply a suggestion */
+    public applySuggestion(suggestion: CombinedSuggestion): void {
+        // TODO
+        console.error('applyPattern not implemented yet')
+        try {
+            this.discopopExtension.applySuggestion(suggestion)
+        } catch (error) {
+            console.error('pattern application failed', error)
+        }
+    }
+
+    public rollbackSuggestion(suggestion: CombinedSuggestion): void {
+        // TODO
+        console.error('rollbackPattern not implemented yet')
+        //this.discopopExtension.rollbackSuggestion(suggestion)
+    }
+
+    /** can be used by UI components to rollback all suggestions */
+    public rollbackAllSuggestions(): void {
+        // TODO
+        console.error('rollbackAllSuggestions not implemented yet')
+        //this.discopopExtension.rollbackAllSuggestions()
+    }
+
+    /** can be used by UI components to create an interactive export */
+    public createInteractiveExport(): void {
+        // TODO
+        console.error('createInteractiveExport not implemented yet')
+        //this.discopopExtension.createInteractiveExport()
     }
 
     // Methods to update the UI
@@ -225,7 +291,6 @@ export class UIExtension
     ): void {
         UIPrompts.showMessageForSeconds(message, durationInSeconds)
     }
-
     public uiShowSingleSuggestion(suggestion: CombinedSuggestion): void {
         this.suggestionDetailViewer.replaceContents(suggestion.pureJSON)
         EditorSpotlight.hightlightSuggestion(suggestion)
@@ -233,5 +298,8 @@ export class UIExtension
     public uiShowSingleHotspot(hotspot: CombinedHotspot): void {
         this.hotspotDetailViewer.replaceContents(hotspot.pureJSON)
         EditorSpotlight.highlightHotspot(hotspot)
+    }
+    public uiPreviewSuggestion(suggestion: CombinedSuggestion): void {
+        console.error('uiPreviewSuggestion not implemented yet')
     }
 }
