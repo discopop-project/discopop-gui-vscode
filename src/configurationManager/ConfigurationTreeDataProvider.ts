@@ -53,6 +53,10 @@ export interface ConfigurationManagerCallbacks {
         buildArguments: string,
         overrideHotspotArguments?: string
     ): Promise<void>
+    runOptimizer(
+        dotDiscoPoP: string,
+        overrideOptimizerArgs?: string
+    ): Promise<void>
 }
 
 export class ConfigurationTreeDataProvider
@@ -175,6 +179,19 @@ export class ConfigurationTreeDataProvider
                         false,
                         false
                     )
+                }
+            )
+        )
+
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.runOptimizer,
+                async (configuration: ConfigurationCMake) => {
+                    await callbacks.runOptimizer(
+                        configuration.dotDiscoPoP,
+                        configuration.overrideOptimizerArguments || undefined
+                    )
+                    callbacks.loadResults(configuration.dotDiscoPoP, true, true)
                 }
             )
         )

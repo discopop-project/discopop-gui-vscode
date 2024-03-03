@@ -76,22 +76,22 @@
         "configuration": {
             "title": "DiscoPoP",
             "properties": {
-                "discopop.recommendationsCodeLens": {
+                "discopop.codeLens.enabled": {
                     "type": "boolean",
                     "default": false,
                     "description": "Globally enable or disable DiscoPoP CodeLens recommendations. You can also temporarily disable code lenses for a single file by using the button in the top right corner of the editor."
                 },
-                "discopop.skipOverwriteConfirmation": {
+                "discopop.skipConfirmation.overwriteBuild": {
                     "type": "boolean",
                     "default": false,
                     "description": "When building a project using DiscoPoP, the build directory may be overriden. This setting allows you to enable/disable a warning before overwriting it."
                 },
-                "discopop.suggestionApplySkipConfirmation": {
+                "discopop.skipConfirmation.applyRollbackSuggestion": {
                     "type": "boolean",
                     "default": false,
                     "description": "Skip the confirmation dialog when applying or rolling back a suggestion."
                 },
-                "discopop.suggestionPreviewMode": {
+                "discopop.previewMode": {
                     "type": "string",
                     "description": "Choose how to preview suggestions.",
                     "enum": [
@@ -347,12 +347,12 @@
                 {
                     "command": "discopop.enableCodeLens",
                     "group": "navigation",
-                    "when": "discopop.codeLensEnabled == disabled"
+                    "when": "config.discopop.codeLens.enabled && discopop.codeLensEnabled == disabled"
                 },
                 {
                     "command": "discopop.disableCodeLens",
                     "group": "navigation",
-                    "when": "discopop.codeLensEnabled === enabled"
+                    "when": "config.discopop.codeLens.enabled && discopop.codeLensEnabled === enabled"
                 }
             ],
             "view/item/context": [

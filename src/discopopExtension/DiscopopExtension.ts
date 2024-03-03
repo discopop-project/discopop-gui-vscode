@@ -13,7 +13,14 @@ export interface DiscopopExtensionUICallbacks {
 }
 
 export interface Settings {
-    // TODO
+    skipConfirmation: {
+        applyRollbackSuggestion: boolean
+        overwriteBuild: boolean
+    }
+    codeLens: {
+        enabled: boolean
+    }
+    previewMode: 'Peek' | 'Editor'
 }
 
 export interface WorkflowWrappers {
@@ -131,4 +138,33 @@ export class DiscopopExtension {
             overrideExplorerArguments
         )
     }
+
+    public async runOptimizer(
+        uiWrappers: WorkflowWrappers,
+        dotDiscopop: string,
+        overrideOptions?: string
+    ): Promise<void> {
+        await this.workflowSuite.optimizerWorkflow.run(
+            uiWrappers.reportMessage,
+            uiWrappers.reportProgress,
+            uiWrappers.cancelToken,
+            dotDiscopop,
+            overrideOptions
+        )
+    }
+
+    public applySuggestion(suggestion: CombinedSuggestion): void {
+        this.toolSuite.discopopPatchApplicator.patchApply(
+            this.resultManager.dotDiscopop,
+            suggestion.patternID
+        )
+    }
+
+    public rollbackSuggestion(suggestion: CombinedSuggestion): void {
+        this.settings.skipConfirmation.applyRollbackSuggestion
+    }
+
+    public rollbackAllSuggestions(): void {}
+
+    public createInteractiveExport(): void {}
 }
