@@ -1,18 +1,33 @@
 import * as vscode from 'vscode'
 import { CombinedSuggestion } from '../resultStore/CombinedSuggestion'
+import { Commands } from '../utils/Commands'
 
 export interface DiscoPoPCodeLensProviderCallbacks {
-    // TODO overthink what codeLenses should do,
-    //
+    /** called by the DiscoPoPCodeLensProvider */
+    toggleGlobalCodeLensSetting: () => void
+    /** called by the DiscoPoPCodeLensProvider */
+    getGlobalCodeLensSetting: () => boolean
 }
 
 export class DiscoPoPCodeLensProvider implements vscode.CodeLensProvider {
     private static _instance: DiscoPoPCodeLensProvider
+
+    private constructor(private callbacks: DiscoPoPCodeLensProviderCallbacks) {}
+
     public static create(
         _context: vscode.ExtensionContext,
         _callbacks: DiscoPoPCodeLensProviderCallbacks
     ) {
-        DiscoPoPCodeLensProvider._instance = new DiscoPoPCodeLensProvider()
+        if (DiscoPoPCodeLensProvider._instance !== undefined) {
+            console.error(
+                'DiscoPoPCodeLensProvider already created. Only call create once!'
+            )
+            return DiscoPoPCodeLensProvider._instance
+        }
+
+        DiscoPoPCodeLensProvider._instance = new DiscoPoPCodeLensProvider(
+            _callbacks
+        )
         _context.subscriptions.push(
             vscode.languages.registerCodeLensProvider(
                 { scheme: 'file', language: 'cpp' },
@@ -20,29 +35,62 @@ export class DiscoPoPCodeLensProvider implements vscode.CodeLensProvider {
             )
         )
 
+        _context.subscriptions.push(
+            vscode.commands.registerCommand(Commands.toggleCodeLens, () => {
+                _callbacks.toggleGlobalCodeLensSetting()
+            })
+        )
+
+        _context.subscriptions.push(
+            vscode.commands.registerCommand(Commands.enableCodeLens, () => {
+                DiscoPoPCodeLensProvider._instance.show()
+            })
+        )
+
+        _context.subscriptions.push(
+            vscode.commands.registerCommand(Commands.disableCodeLens, () => {
+                DiscoPoPCodeLensProvider._instance.hide()
+            })
+        )
+
+        // TODO register commands for the lenses, then use the callbacks
+
+        // hide the button to turn on/off code lenses
         vscode.commands.executeCommand(
             'setContext',
             'discopop.codeLensEnabled',
-            'undefined' // yes, this is a string, it is supposed to be a string :)
+            'enabled' // 'undefined'|'enabled'|'disabled' -> no button|button to hide|button to show
         )
 
+        // hide the button to turn on/off code lenses
         vscode.commands.executeCommand(
             'setContext',
             'discopop.suggestionsAvailable',
             false
         )
 
-        // TODO register commands for the lenses, then use the callbacks
-
         return DiscoPoPCodeLensProvider._instance
     }
 
+    // show or hide the code lenses
+    private _hidden: boolean = false
     public show() {
-        // TODO
+        this._hidden = false
+        vscode.commands.executeCommand(
+            'setContext',
+            'discopop.codeLensEnabled',
+            'enabled'
+        )
+        this._refresh()
     }
-
     public hide() {
-        // TODO
+        this._hidden = true
+        vscode.commands.executeCommand(
+            'setContext',
+            'discopop.codeLensEnabled',
+            'disabled'
+        )
+        this._refresh()
     }
 
     // event system to tell vscode that the code lenses have changed
@@ -51,7 +99,7 @@ export class DiscoPoPCodeLensProvider implements vscode.CodeLensProvider {
     public onDidChangeCodeLenses?: vscode.Event<void> =
         this._onDidChangeCodeLenses.event
     private _refresh() {
-        this._onDidChangeCodeLenses.fire
+        this._onDidChangeCodeLenses.fire()
     }
 
     // called by vscode to provide code lenses
@@ -59,6 +107,20 @@ export class DiscoPoPCodeLensProvider implements vscode.CodeLensProvider {
         document: vscode.TextDocument,
         token: vscode.CancellationToken
     ): vscode.ProviderResult<vscode.CodeLens[]> {
+        // if globally disabled: return empty array
+        if (!this.callbacks.getGlobalCodeLensSetting()) {
+            console.log('code lenses globally disabled, not showing any')
+            return []
+        }
+
+        // if locally disabled: return empty array
+        if (this._hidden) {
+            console.log('code lenses locally disabled, not showing any')
+            return []
+        }
+
+        console.log('providing code lenses')
+
         // only suggestions for the current document
         const suggestions = this._combinedSuggestionsByFileAndLine.get(
             document.fileName
