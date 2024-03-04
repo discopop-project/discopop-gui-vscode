@@ -124,12 +124,7 @@ export class SuggestionTreeView {
             vscode.commands.registerCommand(
                 Commands.filterSuggestions,
                 async () => {
-                    const filters =
-                        await this._suggestionTreeDataProvider.showSuggestionFilterQuickPick()
-                    if (filters === undefined) {
-                        return
-                    }
-                    this._suggestionTreeDataProvider.selectedFilters = filters
+                    this._suggestionTreeDataProvider.selectFilters()
                 }
             )
         )

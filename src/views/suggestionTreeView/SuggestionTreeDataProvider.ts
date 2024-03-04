@@ -9,43 +9,30 @@ export class SuggestionTreeDataProvider
 {
     public constructor() {}
 
-    public showSuggestionFilterQuickPick(): Promise<SuggestionFilter[]> {
-        return new Promise((resolve, reject) => {
-            const quickPick = vscode.window.createQuickPick<SuggestionFilter>()
-            quickPick.items = this.availableFilters
-            quickPick.selectedItems = this.selectedFilters
-
-            quickPick.canSelectMany = true
-            quickPick.title = 'Filter suggestions'
-            quickPick.placeholder = 'Select filters to apply'
-            quickPick.onDidAccept(() => {
-                resolve(Array.from(quickPick.selectedItems))
-                quickPick.hide()
-            })
-            quickPick.onDidHide(() => {
-                resolve(undefined)
-            })
-            // TODO add a button to restore defaults?
-            // quickPick.buttons = [
-            //     {
-            //         iconPath: new vscode.ThemeIcon('clear-all'),
-            //         tooltip: 'Reset Filters',
-            //     },
-            // ]
-
-            // when a filter is inverted, this event is triggered
-            quickPick.onDidTriggerItemButton((item) => {
-                item.item.toggleInverted()
-                // TODO update the item.button properties and show different icons/tooltips if the filter is inverted
-
-                // triggers to refresh the rendering
-                const tmp = quickPick.selectedItems
-                quickPick.items = quickPick.items
-                quickPick.selectedItems = tmp
-            })
-
-            quickPick.show()
+    public selectFilters(): void {
+        const quickPick = vscode.window.createQuickPick<SuggestionFilter>()
+        quickPick.items = this.availableFilters
+        quickPick.selectedItems = this.selectedFilters
+        quickPick.canSelectMany = true
+        quickPick.placeholder = 'Filter Suggestions'
+        quickPick.onDidAccept(() => {
+            this.selectedFilters = Array.from(quickPick.selectedItems)
+            quickPick.hide()
         })
+        quickPick.onDidHide(() => {
+            quickPick.dispose()
+        })
+
+        quickPick.onDidTriggerItemButton((item) => {
+            item.item.toggleInverted()
+
+            // refresh the rendering
+            const tmp = quickPick.selectedItems
+            quickPick.items = quickPick.items
+            quickPick.selectedItems = tmp
+        })
+
+        quickPick.show()
     }
 
     public readonly availableFilters: SuggestionFilter[] = [
@@ -81,7 +68,6 @@ export class SuggestionTreeDataProvider
     }
     /** subset of the available filters that is currently selected */
     public set selectedFilters(selectedFilters: SuggestionFilter[]) {
-        console.log('setting selected filters')
         this._selectedFilters = selectedFilters.map((f) =>
             this.availableFilters.indexOf(f)
         )
@@ -89,11 +75,6 @@ export class SuggestionTreeDataProvider
             console.error('invalid filter, using defaults instead')
             this._selectedFilters = [0]
         }
-        console.log(
-            'selected filters: ',
-            this._selectedFilters,
-            selectedFilters
-        )
         this.refresh()
     }
 
