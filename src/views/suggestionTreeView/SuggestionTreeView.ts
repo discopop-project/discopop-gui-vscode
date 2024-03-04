@@ -97,7 +97,7 @@ export class SuggestionTreeView {
                             ' marked for export: ' +
                             suggestion.markedForExport
                     )
-                    this._suggestionTreeDataProvider.refresh(suggestion)
+                    this._suggestionTreeDataProvider.refresh()
                 }
             )
         )
@@ -120,16 +120,19 @@ export class SuggestionTreeView {
             )
         )
 
-        // TODO filtering / sorting of suggestions
-        // context.subscriptions.push(
-        //     vscode.commands.registerCommand(
-        //         Commands.filterSuggestions,
-        //         async () => {
-        //             throw new Error('filterSuggestions not implemented')
-        //             // TODO
-        //         }
-        //     )
-        // )
+        context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.filterSuggestions,
+                async () => {
+                    const filters =
+                        await this._suggestionTreeDataProvider.showSuggestionFilterQuickPick()
+                    if (filters === undefined) {
+                        return
+                    }
+                    this._suggestionTreeDataProvider.selectedFilters = filters
+                }
+            )
+        )
 
         // TODO renaming of suggestions
     }

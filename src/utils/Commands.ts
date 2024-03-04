@@ -34,7 +34,8 @@ export class Commands {
     public static readonly rollbackAllSuggestions: string =
         'discopop.clearSuggestions'
     // TODO
-    // public static readonly filterSuggestions: string = 'discopop.filterSuggestions'
+    public static readonly filterSuggestions: string =
+        'discopop.filterSuggestions'
 
     // interactive export
     public static readonly markSuggestionForInteractiveExport: string =
