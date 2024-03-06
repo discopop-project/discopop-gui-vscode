@@ -12,11 +12,14 @@ export class SuggestionTreeDataProvider
     public selectFilters(): void {
         const quickPick = vscode.window.createQuickPick<SuggestionFilter>()
         quickPick.items = this.availableFilters
-        quickPick.selectedItems = this.selectedFilters
+        quickPick.selectedItems = this.getSelectedFilters()
         quickPick.canSelectMany = true
         quickPick.placeholder = 'Filter Suggestions'
         quickPick.onDidAccept(() => {
-            this.selectedFilters = Array.from(quickPick.selectedItems)
+            this._selectedFilters = Array.from(quickPick.selectedItems).map(
+                (f) => this.availableFilters.indexOf(f)
+            )
+            this.refresh()
             quickPick.hide()
         })
         quickPick.onDidHide(() => {
@@ -63,7 +66,7 @@ export class SuggestionTreeDataProvider
     ]
     private _selectedFilters: number[] = [0]
     /** subset of the available filters that is currently selected */
-    public get selectedFilters(): readonly SuggestionFilter[] {
+    public getSelectedFilters(): readonly SuggestionFilter[] {
         return this._selectedFilters.map((i) => this.availableFilters[i])
     }
     /** subset of the available filters that is currently selected */
