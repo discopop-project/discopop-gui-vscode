@@ -1,7 +1,6 @@
 import * as fs from 'fs'
-import { ParsedResultSchema } from './ParsedResultSchema'
 
-export class FileMapping implements ParsedResultSchema {
+export class FileMapping {
     public constructor(private _dotDiscopop: string) {
         this.update(_dotDiscopop)
     }

@@ -1,5 +1,4 @@
 import * as fs from 'fs'
-import { ParsedResultSchema } from './ParsedResultSchema'
 
 export interface Hotspot {
     fileId: number
@@ -14,7 +13,7 @@ enum Hotness {
     MAYBE = 'MAYBE',
 }
 
-export class Hotspots implements ParsedResultSchema {
+export class Hotspots {
     public constructor(private _dotDiscopop: string) {
         this.update(_dotDiscopop)
     }
