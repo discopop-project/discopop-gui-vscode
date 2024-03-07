@@ -63,7 +63,7 @@ export class UIExtension
     public constructor(private context: vscode.ExtensionContext) {
         this.settings = new VsCodeSettings()
 
-        this.discopopExtension = new DiscopopExtension(this, this.settings)
+        this.discopopExtension = new DiscopopExtension(this.settings, this)
 
         // configuration management
         // TODO this should be part of the Extension or outsourced to some other component and we would only have views here

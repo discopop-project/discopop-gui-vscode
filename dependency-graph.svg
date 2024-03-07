@@ -404,18 +404,18 @@
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M472.01,-820.5C474.78,-822.17 477.46,-823.99 480,-826 487.19,-831.68 480.45,-839.81 488,-845 526.02,-871.1 640.78,-870.46 729.64,-865.41"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="729.86,-867.5 735.73,-865.06 729.61,-863.31 729.86,-867.5"/>
 </g>
-<!-- src/resultStore/ResultStore.ts -->
+<!-- src/resultStore/ResultManager.ts -->
 <g id="node14" class="node">
-<title>src/resultStore/ResultStore.ts</title>
-<g id="a_node14"><a xlink:href="src/resultStore/ResultStore.ts" xlink:title="ResultStore.ts">
+<title>src/resultStore/ResultManager.ts</title>
+<g id="a_node14"><a xlink:href="src/resultStore/ResultManager.ts" xlink:title="ResultManager.ts">
 <path fill="#ddfeff" stroke="black" d="M702.33,-829.5C702.33,-829.5 505.67,-829.5 505.67,-829.5 500.83,-829.5 496,-824.67 496,-819.83 496,-819.83 496,-810.17 496,-810.17 496,-805.33 500.83,-800.5 505.67,-800.5 505.67,-800.5 702.33,-800.5 702.33,-800.5 707.17,-800.5 712,-805.33 712,-810.17 712,-810.17 712,-819.83 712,-819.83 712,-824.67 707.17,-829.5 702.33,-829.5"/>
-<text text-anchor="start" x="572" y="-812.8" font-family="Helvetica,sans-Serif" font-size="9.00">ResultStore.ts</text>
+<text text-anchor="start" x="565" y="-812.8" font-family="Helvetica,sans-Serif" font-size="9.00">ResultManager.ts</text>
 </a>
 </g>
 </g>
-<!-- src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/resultStore/ResultStore.ts -->
+<!-- src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/resultStore/ResultManager.ts -->
 <g id="edge30" class="edge">
-<title>src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/resultStore/ResultStore.ts</title>
+<title>src/discopopExtension/DiscopopExtension.ts&#45;&gt;src/resultStore/ResultManager.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M472.16,-810.6C477.96,-810.8 483.8,-810.99 489.62,-811.19"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="489.86,-813.3 495.92,-811.4 490,-809.1 489.86,-813.3"/>
 </g>
@@ -464,15 +464,15 @@
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M369.22,-792.28C381.85,-750.06 422.55,-626.29 488,-543 512.04,-512.41 548.14,-485.68 573.46,-469.03"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="574.8,-470.66 578.69,-465.63 572.52,-467.14 574.8,-470.66"/>
 </g>
-<!-- src/resultStore/ResultStore.ts&#45;&gt;src/resultStore/CombinedHotspot.ts -->
+<!-- src/resultStore/ResultManager.ts&#45;&gt;src/resultStore/CombinedHotspot.ts -->
 <g id="edge51" class="edge">
-<title>src/resultStore/ResultStore.ts&#45;&gt;src/resultStore/CombinedHotspot.ts</title>
+<title>src/resultStore/ResultManager.ts&#45;&gt;src/resultStore/CombinedHotspot.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M712.16,-815C717.96,-815 723.8,-815 729.62,-815"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="729.92,-817.1 735.92,-815 729.92,-812.9 729.92,-817.1"/>
 </g>
-<!-- src/resultStore/ResultStore.ts&#45;&gt;src/resultStore/CombinedSuggestion.ts -->
+<!-- src/resultStore/ResultManager.ts&#45;&gt;src/resultStore/CombinedSuggestion.ts -->
 <g id="edge52" class="edge">
-<title>src/resultStore/ResultStore.ts&#45;&gt;src/resultStore/CombinedSuggestion.ts</title>
+<title>src/resultStore/ResultManager.ts&#45;&gt;src/resultStore/CombinedSuggestion.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M689.24,-829.51C709.69,-833.04 731.64,-836.82 752.37,-840.39"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="752.2,-842.49 758.47,-841.44 752.91,-838.35 752.2,-842.49"/>
 </g>
@@ -485,9 +485,9 @@
 </a>
 </g>
 </g>
-<!-- src/resultStore/ResultStore.ts&#45;&gt;src/pureResults/AppliedStatus.ts -->
+<!-- src/resultStore/ResultManager.ts&#45;&gt;src/pureResults/AppliedStatus.ts -->
 <g id="edge46" class="edge">
-<title>src/resultStore/ResultStore.ts&#45;&gt;src/pureResults/AppliedStatus.ts</title>
+<title>src/resultStore/ResultManager.ts&#45;&gt;src/pureResults/AppliedStatus.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M614.02,-800.11C631.91,-771.98 674.8,-711.24 728,-682 730.59,-680.58 733.25,-679.25 735.98,-678.01"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="736.96,-679.87 741.65,-675.58 735.31,-676.01 736.96,-679.87"/>
 </g>
@@ -500,9 +500,9 @@
 </a>
 </g>
 </g>
-<!-- src/resultStore/ResultStore.ts&#45;&gt;src/pureResults/FileMapping.ts -->
+<!-- src/resultStore/ResultManager.ts&#45;&gt;src/pureResults/FileMapping.ts -->
 <g id="edge47" class="edge">
-<title>src/resultStore/ResultStore.ts&#45;&gt;src/pureResults/FileMapping.ts</title>
+<title>src/resultStore/ResultManager.ts&#45;&gt;src/pureResults/FileMapping.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M610.7,-800.41C624.84,-766.3 665.01,-681.2 728,-641 730,-639.72 732.06,-638.52 734.16,-637.39"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="735.41,-639.11 739.84,-634.54 733.53,-635.35 735.41,-639.11"/>
 </g>
@@ -515,9 +515,9 @@
 </a>
 </g>
 </g>
-<!-- src/resultStore/ResultStore.ts&#45;&gt;src/pureResults/Hotspots.ts -->
+<!-- src/resultStore/ResultManager.ts&#45;&gt;src/pureResults/Hotspots.ts -->
 <g id="edge48" class="edge">
-<title>src/resultStore/ResultStore.ts&#45;&gt;src/pureResults/Hotspots.ts</title>
+<title>src/resultStore/ResultManager.ts&#45;&gt;src/pureResults/Hotspots.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M608.73,-800.32C619.59,-760.78 655.16,-651.55 728,-600 729.7,-598.8 731.44,-597.66 733.23,-596.58"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="734.5,-598.28 738.72,-593.52 732.45,-594.61 734.5,-598.28"/>
 </g>
@@ -530,9 +530,9 @@
 </a>
 </g>
 </g>
-<!-- src/resultStore/ResultStore.ts&#45;&gt;src/pureResults/LineMapping.ts -->
+<!-- src/resultStore/ResultManager.ts&#45;&gt;src/pureResults/LineMapping.ts -->
 <g id="edge49" class="edge">
-<title>src/resultStore/ResultStore.ts&#45;&gt;src/pureResults/LineMapping.ts</title>
+<title>src/resultStore/ResultManager.ts&#45;&gt;src/pureResults/LineMapping.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M653.16,-800.43C692.52,-788.52 748.13,-771.7 788.99,-759.34"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="789.77,-761.3 794.91,-757.55 788.56,-757.28 789.77,-761.3"/>
 </g>
@@ -545,9 +545,9 @@
 </a>
 </g>
 </g>
-<!-- src/resultStore/ResultStore.ts&#45;&gt;src/pureResults/Suggestions.ts -->
+<!-- src/resultStore/ResultManager.ts&#45;&gt;src/pureResults/Suggestions.ts -->
 <g id="edge50" class="edge">
-<title>src/resultStore/ResultStore.ts&#45;&gt;src/pureResults/Suggestions.ts</title>
+<title>src/resultStore/ResultManager.ts&#45;&gt;src/pureResults/Suggestions.ts</title>
 <path fill="none" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" d="M619.81,-800.22C641.55,-779.46 684.25,-742.09 728,-723 731.75,-721.36 735.62,-719.86 739.57,-718.46"/>
 <polygon fill="#000000" fill-opacity="0.200000" stroke="#000000" stroke-width="2" stroke-opacity="0.200000" points="740.39,-720.41 745.42,-716.51 739.06,-716.42 740.39,-720.41"/>
 </g>

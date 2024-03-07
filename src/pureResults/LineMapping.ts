@@ -6,8 +6,13 @@ export class LineMapping {
         Map<number, number>
     >()
 
-    public constructor(private _dotDiscopop: string) {
-        this.update(_dotDiscopop)
+    public constructor(private _dotDiscopop?: string) {
+        if (_dotDiscopop) {
+            this.update(_dotDiscopop)
+        } else {
+            this._valid = false
+            this._error = `no .discopop directory provided`
+        }
     }
 
     public getMappedLineNr(fileID: number, lineNr: number): number {
@@ -49,7 +54,7 @@ export class LineMapping {
     }
 
     private _error: string | undefined = undefined
-    public error(): string | undefined {
+    public get error(): string | undefined {
         return this._error
     }
 
