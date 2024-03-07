@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.1.0
+
+-   internal refactoring
+-   improved support for pattern merging
+-   improved suggestion tree filters
+
 ## 0.0.11
 
 -   experimental support for pattern merging (BETA)

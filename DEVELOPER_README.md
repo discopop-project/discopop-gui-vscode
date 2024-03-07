@@ -38,6 +38,7 @@ Press F5 to start the extension in debug mode.
 -   run `npm install` to update the package-lock.json as well
 -   update the CHANGELOG.md
 -   update the README.md compatibility table
+-   commit these changes and push them to github
 -   create a release using the github user interface
 
 ## Dependency-Graph
