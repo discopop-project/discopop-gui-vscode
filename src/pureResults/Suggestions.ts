@@ -1,5 +1,4 @@
 import * as fs from 'fs'
-import { ParsedResultSchema } from './ParsedResultSchema'
 
 export interface Suggestion {
     id: number
@@ -11,7 +10,7 @@ export interface Suggestion {
     pureJSON: any
 }
 
-export class Suggestions implements ParsedResultSchema {
+export class Suggestions {
     public readonly suggestions: Map<string, Suggestion[]> = new Map<
         string,
         Suggestion[]

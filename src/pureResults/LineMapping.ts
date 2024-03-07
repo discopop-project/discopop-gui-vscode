@@ -1,7 +1,6 @@
 import * as fs from 'fs'
-import { ParsedResultSchema } from './ParsedResultSchema'
 
-export class LineMapping implements ParsedResultSchema {
+export class LineMapping {
     private _lineMapping: Map<number, Map<number, number>> = new Map<
         number,
         Map<number, number>

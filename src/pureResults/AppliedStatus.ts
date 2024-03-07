@@ -1,7 +1,6 @@
 import * as fs from 'fs'
-import { ParsedResultSchema } from './ParsedResultSchema'
 
-export class AppliedStatus implements ParsedResultSchema {
+export class AppliedStatus {
     private readonly _appliedSuggestions: Set<number> = new Set<number>()
     public constructor(private _dotDiscopop: string) {
         this.update(_dotDiscopop)
