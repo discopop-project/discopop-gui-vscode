@@ -203,7 +203,7 @@ export class DiscopopExtension {
         }
 
         // rollback
-        this.toolSuite.discopopPatchApplicator.patchClear(
+        await this.toolSuite.discopopPatchApplicator.patchClear(
             this.resultManager.dotDiscopop
         )
 
