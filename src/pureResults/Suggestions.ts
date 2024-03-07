@@ -15,8 +15,13 @@ export class Suggestions {
         string,
         Suggestion[]
     >()
-    constructor(private _dotDiscopop: string) {
-        this.update(_dotDiscopop)
+    constructor(private _dotDiscopop?: string) {
+        if (_dotDiscopop) {
+            this.update(_dotDiscopop)
+        } else {
+            this._valid = false
+            this._error = `no .discopop directory provided`
+        }
     }
 
     public update(dotDiscopop: string = this._dotDiscopop): void {
@@ -46,7 +51,7 @@ export class Suggestions {
     }
 
     private _error: string | undefined = undefined
-    public error(): string | undefined {
+    public get error(): string | undefined {
         return this._error
     }
 

@@ -1,6 +1,9 @@
 import { CombinedHotspot } from '../resultStore/CombinedHotspot'
 import { CombinedSuggestion } from '../resultStore/CombinedSuggestion'
-import { ResultStore } from '../resultStore/ResultStore'
+import {
+    ResultManager,
+    ResultManagerImplementation,
+} from '../resultStore/ResultManager'
 import { Settings } from '../settings/Settings'
 import { ToolSuite } from '../toolSuite/ToolSuite'
 import { CancelToken } from '../utils/cancellation/CancelToken'
@@ -9,8 +12,9 @@ import { WorkflowSuite } from '../workflowSuite/WorkflowSuite'
 export interface DiscopopExtensionUICallbacks {
     uiUpdateSuggestions(suggestions: Map<string, CombinedSuggestion[]>): void
     uiUpdateHotspots(hotspots: Map<string, CombinedHotspot[]>): void
-    uiShowShortNotification(message: string, durationInSeconds?: number): void
     uiRequestConfirmation(message: string): Promise<boolean>
+    uiShowShortNotification(message: string, durationInSeconds?: number): void
+    uiShowPersistentNotification(message: string, isError?: boolean): void
 }
 
 export interface WorkflowWrappers {
@@ -21,60 +25,73 @@ export interface WorkflowWrappers {
 }
 
 export class DiscopopExtension {
-    // TODO move it into a ResultManager, that also keeps track of file changes and updates accordingly
-    private resultManager: ResultStore | undefined = undefined
     private toolSuite: ToolSuite = new ToolSuite()
     private workflowSuite: WorkflowSuite = new WorkflowSuite()
-
+    private resultManager: ResultManager = new ResultManagerImplementation()
     public constructor(
-        private uiCallbacks: DiscopopExtensionUICallbacks,
-        private settings: Settings
+        private settings: Settings,
+        private uiCallbacks: DiscopopExtensionUICallbacks
     ) {}
 
     public loadResults(
         dotDiscopop: string,
         discopopMissingOK: boolean = false,
         hotspotDetectionMissingOK: boolean = false,
-        quiet: boolean = false
+        quietSuccess: boolean = false
     ): void {
-        // read results
-        if (!this.resultManager) {
-            this.resultManager = new ResultStore(dotDiscopop)
-        }
         this.resultManager.updateAll(dotDiscopop)
 
-        // show suggestions
+        // update the UI (if the results are invalid, the UI will be updated with empty data, which is fine)
         this.uiCallbacks.uiUpdateSuggestions(this.resultManager.suggestions)
-        if (this.resultManager.validSuggestions()) {
-            if (!quiet) {
+        this.uiCallbacks.uiUpdateHotspots(this.resultManager.hotspots)
+
+        // show a notification if the results are invalid
+
+        const [suggestionsValid, hotspotsValid] = [
+            this.resultManager.validSuggestions,
+            this.resultManager.validHotspots,
+        ]
+        // both loaded
+        if (suggestionsValid && hotspotsValid) {
+            if (!quietSuccess) {
                 this.uiCallbacks.uiShowShortNotification(
-                    'DiscoPoP results loaded successfully'
-                )
-            }
-        } else {
-            if (!discopopMissingOK) {
-                // also show in "quiet" mode
-                // TODO we should provide more details (get a message from ResultStore, which can get them from the individual parsers)
-                this.uiCallbacks.uiShowShortNotification(
-                    'No valid DiscoPoP suggestions found'
+                    'Loaded hotspots and suggestions'
                 )
             }
         }
-
-        // showHotspots
-        this.uiCallbacks.uiUpdateHotspots(this.resultManager.hotspots)
-        if (this.resultManager.validHotspots()) {
-            if (!quiet) {
-                this.uiCallbacks.uiShowShortNotification(
-                    'HotspotDetection results loaded successfully'
-                )
+        // both failed
+        else if (!suggestionsValid && !hotspotsValid) {
+            this.uiCallbacks.uiShowPersistentNotification(
+                'Failed to load results: ' + this.resultManager.errorMessage,
+                true
+            )
+        }
+        // hotspots loaded, no suggestions
+        else if (!suggestionsValid) {
+            if (!quietSuccess) {
+                this.uiCallbacks.uiShowShortNotification('Loaded hotspots')
             }
-        } else {
-            // TODO we should provide more details (get a message from ResultStore, which can get them from the individual parsers)
-            if (!hotspotDetectionMissingOK) {
-                this.uiCallbacks.uiShowShortNotification(
-                    'No valid HotspotDetection results found'
+            if (!discopopMissingOK) {
+                this.uiCallbacks.uiShowPersistentNotification(
+                    'No suggestions found: ' + this.resultManager.errorMessage,
+                    true
                 )
+            } else {
+                this.uiCallbacks.uiShowShortNotification('No suggestions found')
+            }
+        }
+        // suggestions loaded, no hotspots
+        else if (!hotspotsValid) {
+            if (!quietSuccess) {
+                this.uiCallbacks.uiShowShortNotification('Loaded suggestions')
+            }
+            if (!hotspotDetectionMissingOK) {
+                this.uiCallbacks.uiShowPersistentNotification(
+                    'No hotspots found: ' + this.resultManager.errorMessage,
+                    true
+                )
+            } else {
+                this.uiCallbacks.uiShowShortNotification('No hotspots found')
             }
         }
     }

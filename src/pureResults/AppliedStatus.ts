@@ -2,8 +2,13 @@ import * as fs from 'fs'
 
 export class AppliedStatus {
     private readonly _appliedSuggestions: Set<number> = new Set<number>()
-    public constructor(private _dotDiscopop: string) {
-        this.update(_dotDiscopop)
+    public constructor(private _dotDiscopop?: string) {
+        if (_dotDiscopop) {
+            this.update(_dotDiscopop)
+        } else {
+            this._valid = false
+            this._error = `no .discopop directory provided`
+        }
     }
 
     public isApplied(patternID: number): boolean {
@@ -34,7 +39,7 @@ export class AppliedStatus {
     }
 
     private _error = undefined
-    public error(): string | undefined {
+    public get error(): string | undefined {
         return this._error
     }
 
