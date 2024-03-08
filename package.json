@@ -470,9 +470,10 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
+        "vscode:prepublish": "npm run package",
+        "compile": "node ./esbuild.js",
+        "package": "NODE_ENV=production node ./esbuild.js",
+        "watch": "node ./esbuild.js --watch",
         "prettier": "prettier --check \"src/**/*\"",
         "prettier:fix": "prettier --write \"src/**/*\"",
         "lint": "eslint src --ext ts",
@@ -489,6 +490,7 @@
         "@typescript-eslint/eslint-plugin": "^5.27.0",
         "@typescript-eslint/parser": "^5.27.0",
         "dependency-cruiser": "^16.2.1",
+        "esbuild": "^0.16.17",
         "eslint": "^8.16.0",
         "eslint-config-prettier": "^9.0.0",
         "husky": "^8.0.3",
