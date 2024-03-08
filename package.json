@@ -487,6 +487,7 @@
         "@commitlint/config-conventional": "^17.7.0",
         "@types/node": "16.x",
         "@types/vscode": "^1.68.0",
+        "@types/vscode-webview": "^1.57.5",
         "@typescript-eslint/eslint-plugin": "^5.27.0",
         "@typescript-eslint/parser": "^5.27.0",
         "dependency-cruiser": "^16.2.1",

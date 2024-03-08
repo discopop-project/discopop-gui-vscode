@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
-import { getUri } from './utils/getUri'
 import { getNonce } from './utils/getNonce'
+import { getUri } from './utils/getUri'
 
 export class LogPanel {
     public static panel: LogPanel | undefined
@@ -10,6 +10,7 @@ export class LogPanel {
     private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
         this._panel = panel
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables)
+        this._setWebviewMessageListener(this._panel.webview)
         this._panel.webview.html = this._getWebviewContent(
             this._panel.webview,
             extensionUri
@@ -68,5 +69,24 @@ export class LogPanel {
             </body>
         </html>
         `
+    }
+
+    private _setWebviewMessageListener(webview: vscode.Webview) {
+        webview.onDidReceiveMessage(
+            (message: any) => {
+                const command = message.command
+                const text = message.text
+
+                console.log(message)
+
+                switch (command) {
+                    case 'hello':
+                        vscode.window.showInformationMessage(text)
+                        return
+                }
+            },
+            undefined,
+            this._disposables
+        )
     }
 }
