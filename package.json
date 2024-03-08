@@ -108,6 +108,12 @@
         },
         "commands": [
             {
+                "title": "Show DiscoPoP Log",
+                "command": "discopop.logPanel",
+                "category": "DiscoPoP",
+                "icon": "$(output)"
+            },
+            {
                 "title": "Add Configuration",
                 "command": "discopop.addConfiguration",
                 "category": "DiscoPoP",
