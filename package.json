@@ -497,7 +497,8 @@
         "typescript": "^4.7.2"
     },
     "dependencies": {
-        "@vscode/codicons": "^0.0.33"
+        "@vscode/codicons": "^0.0.33",
+        "@vscode/webview-ui-toolkit": "^1.4.0"
     },
     "lint-staged": {
         "*.ts": "eslint",

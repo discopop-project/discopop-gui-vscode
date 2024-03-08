@@ -42,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
     const logPanelCommand = vscode.commands.registerCommand(
         'discopop.logPanel', // TODO move to Commands constants
         () => {
-            LogPanel.render()
+            LogPanel.render(context.extensionUri)
         }
     )
 }
