@@ -31,6 +31,8 @@ Press F5 to start the extension in debug mode.
     -   https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
 -   API Documentation:
     -   https://code.visualstudio.com/api
+-   Webview UI Toolkit:
+    -   https://github.com/microsoft/vscode-webview-ui-toolkit/blob/main/docs/getting-started.md
 
 ### Creating Releases
 
