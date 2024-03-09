@@ -1,4 +1,5 @@
 import * as vscode from 'vscode'
+import { LogPanel } from './LogPanel'
 import {
     ConfigurationManagerCallbacks,
     ConfigurationTreeDataProvider,
@@ -34,17 +35,30 @@ import {
     SuggestionTreeView,
     SuggestionTreeViewCallbacks,
 } from './views/suggestionTreeView/SuggestionTreeView'
-import { LogPanel } from './LogPanel'
 
 export function activate(context: vscode.ExtensionContext) {
     const uiExtension = new UIExtension(context)
 
+    // TODO integrate this into the UIExtension
     const logPanelCommand = vscode.commands.registerCommand(
         'discopop.logPanel', // TODO move to Commands constants
         () => {
             LogPanel.render(context.extensionUri)
         }
     )
+    context.subscriptions.push(logPanelCommand)
+
+    // // TODO for testing purposes only:
+    // const updateLogPanelCommand = vscode.commands.registerCommand(
+    //     "discopop.updateLogPanel", // TODO
+    //     () => {
+    //         LogPanel.update()
+    //     }
+    // )
+
+    // TODO temp only
+    // trigger the log view to open
+    LogPanel.render(context.extensionUri)
 }
 
 export function deactivate() {}
