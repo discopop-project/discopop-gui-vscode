@@ -23,6 +23,12 @@ export interface CommandExecutionOptions {
 
     /** defaults to true in CommandExecution*/
     trimOutput?: boolean
+
+    /** callback will be invoked whenever new data was written to stdout */
+    stdoutCallback?: (data: string) => void
+
+    /** callback will be invoked whenever new data was written to stderr */
+    stderrCallback?: (data: string) => void
 }
 
 export interface ExecutionResult {
@@ -124,6 +130,12 @@ export class CommandExecution {
                     }
                 }
             )
+            if (options.stdoutCallback) {
+                childProcess.stdout.on('data', options.stdoutCallback)
+            }
+            if (options.stderrCallback) {
+                childProcess.stderr.on('data', options.stderrCallback)
+            }
             if (options.cancelToken) {
                 options.cancelToken.onCancel(async () => {
                     if (!childProcess.kill()) {

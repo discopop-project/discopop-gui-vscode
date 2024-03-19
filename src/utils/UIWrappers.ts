@@ -1,4 +1,5 @@
 import * as vscode from 'vscode'
+import { LogPanel } from '../LogPanel'
 import { UIPrompts } from './UIPrompts'
 import { CancelToken } from './cancellation/CancelToken'
 import EventEmitter = require('events')
@@ -48,6 +49,9 @@ export function getReportMessageWrapper(
                 message: message,
             })
         }
+
+        // all progress reports are forwarded to the log
+        LogPanel.panel?.addLogLine(`${prefix}${'-'.repeat(nesting)} ${message}`)
     }
 }
 

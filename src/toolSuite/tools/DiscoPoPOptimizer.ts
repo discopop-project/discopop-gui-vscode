@@ -127,7 +127,9 @@ export class DiscoPoPOptimizer {
     public async run(
         dotDiscopop: string,
         options: OptimizerOptions | string = DefaultOptimizerOptions,
-        cancelToken?: CancelToken
+        cancelToken?: CancelToken,
+        stdoutCallback?: (data: string) => void,
+        stderrCallback?: (data: string) => void
     ): Promise<void> {
         await CommandExecution.commandExists(
             'discopop_optimizer',
@@ -152,6 +154,8 @@ export class DiscoPoPOptimizer {
             throwOnNonZeroExitCode: true,
             cancelToken: cancelToken,
             throwOnCancellation: true,
+            stdoutCallback: stdoutCallback,
+            stderrCallback: stderrCallback,
         })
     }
 }

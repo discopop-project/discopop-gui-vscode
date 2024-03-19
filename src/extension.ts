@@ -57,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
     // )
 
     // TODO temp only
-    // trigger the log view to open
+    // trigger the log view to open on startup
     LogPanel.render(context.extensionUri)
 }
 

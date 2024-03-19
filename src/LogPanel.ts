@@ -27,7 +27,7 @@ export class LogPanel {
         if (this._panel !== undefined) {
             this._panel.webview.postMessage({
                 command: 'addLogLine',
-                text: 'I heard you loud and clear! 🤠',
+                text: line, //'I heard you loud and clear! 🤠',
             })
         }
     }
@@ -90,12 +90,12 @@ export class LogPanel {
                     <vscode-panel-tab id="log-tab">Log</vscode-panel-tab>
                     <vscode-panel-tab id="controls-tab">Controls</vscode-panel-tab>
                     <vscode-panel-tab id="suggestions-tab">Suggestions</vscode-panel-tab>
-                    <vscode-panel-tab id="optimizer-tab">Interactive Optimizer</vscode-panel-tab>
                     <vscode-panel-view id="log-tab-view">
                         Log content will be Here
                         <ul id=logLines>${this._getLogLines()}</ul>
                     </vscode-panel-view>
                     <vscode-panel-view id="controls-tab-view">
+                        <!-- Here could be a button to set .discopop (may be overriden whenever a configuration is executed, a "lock" button may be added to prevent this behaviour) -->
                         <vscode-button id="THE_BUTTON">Create a FileMapping</vscode-button>
                         <vscode-button id="button-2">Run the explorer</vscode-button>
                         <vscode-button id="button-3">Run the optimizer</vscode-button>
@@ -104,9 +104,11 @@ export class LogPanel {
                     </vscode-panel-view>
                     <vscode-panel-view id="suggestions-tab-view">
                         Suggestions will be Here
-                    </vscode-panel-view>
-                    <vscode-panel-view id="optimizer-tab-view">
-                        Optimizer will be Here
+                        <ul>
+                            <li>...</li>
+                            <li>...</li>
+                            <li>...</li>
+                        </ul>
                     </vscode-panel-view>
                 </vscode-panels>
                 </section>
@@ -126,7 +128,6 @@ export class LogPanel {
                 switch (command) {
                     case 'hello':
                         vscode.window.showInformationMessage(text)
-                        this.addLogLine(text)
                         return
                 }
             },

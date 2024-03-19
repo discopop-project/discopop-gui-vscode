@@ -11,20 +11,27 @@ export class OptimizerWorkflow {
         dotDiscopop: string,
         overrideOptionsString?: string
     ): Promise<void> {
-        const toolSuite = new ToolSuite()
-        const discopopOptimizer = toolSuite.discopopOptimizer
-        const patchGenerator = toolSuite.discopopPatchGenerator
+        const logStdX = (data: string) => {
+            reportMessage(data, 1)
+        }
 
         reportMessage('Running Optimizer...', 0)
-        await discopopOptimizer.run(
+        await ToolSuite.discopopOptimizer.run(
             dotDiscopop,
             overrideOptionsString,
-            cancelToken
+            cancelToken,
+            logStdX,
+            logStdX
         )
         reportProgress(80)
 
         reportMessage('Creating Optimized Patches...', 0)
-        await patchGenerator.createOptimizedPatches(dotDiscopop, cancelToken)
+        await ToolSuite.discopopPatchGenerator.createOptimizedPatches(
+            dotDiscopop,
+            cancelToken,
+            logStdX,
+            logStdX
+        )
         reportProgress(20)
     }
 }
