@@ -7,23 +7,33 @@ export class DiscoPoPExplorer {
     public async run(
         dotDiscoPoP: string,
         cancelToken?: CancelToken,
-        overrideExplorerArguments?: string
+        overrideExplorerArguments?: string,
+        stdoutCallback?: (data: string) => void,
+        stderrCallback?: (data: string) => void
     ): Promise<void> {
+        let command = 'discopop_explorer'
+
+        // throw if discopop_explorer command does not exist
         await CommandExecution.commandExists(
-            'discopop_explorer',
-            true,
+            command,
+            true, // throw
             'Is DiscoPoP installed?'
         )
-        let commandWithArgs = 'discopop_explorer'
+
+        // ovveride options?
         if (overrideExplorerArguments) {
-            commandWithArgs += ' ' + overrideExplorerArguments
+            command += ' ' + overrideExplorerArguments
         }
+
+        // execute
         await CommandExecution.execute({
-            command: commandWithArgs,
+            command: command,
             cwd: dotDiscoPoP,
             cancelToken: cancelToken,
             throwOnNonZeroExitCode: true,
             throwOnCancellation: true,
+            stdoutCallback: stdoutCallback,
+            stderrCallback: stderrCallback,
         })
     }
 }

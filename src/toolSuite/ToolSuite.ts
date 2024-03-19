@@ -11,7 +11,9 @@ import { HotspotDetection } from './tools/HotspotDetection'
  * provides access to the DiscoPoP tools
  */
 export class ToolSuite {
-    public constructor() {}
+    private constructor() {
+        throw new Error('ToolSuite cannot be instantiated')
+    }
 
     private static _discopopConfigProvider: DiscoPoPConfigProvider = undefined
     public static get discopopConfigProvider(): DiscoPoPConfigProvider {
@@ -21,9 +23,9 @@ export class ToolSuite {
         )
     }
 
-    private _discopopCMakeInstrumentation: DiscoPoPCMakeBasedInstrumentation =
+    private static _discopopCMakeInstrumentation: DiscoPoPCMakeBasedInstrumentation =
         undefined
-    public get discopopCMakeInstrumentation(): DiscoPoPCMakeBasedInstrumentation {
+    public static get discopopCMakeInstrumentation(): DiscoPoPCMakeBasedInstrumentation {
         return (
             this._discopopCMakeInstrumentation ??
             (this._discopopCMakeInstrumentation =
@@ -31,9 +33,9 @@ export class ToolSuite {
         )
     }
 
-    private _hotspotDetectionCMakeInstrumentation: HotspotDetectionCMakeBasedInstrumentation =
+    private static _hotspotDetectionCMakeInstrumentation: HotspotDetectionCMakeBasedInstrumentation =
         undefined
-    public get hotspotDetectionCMakeInstrumentation(): HotspotDetectionCMakeBasedInstrumentation {
+    public static get hotspotDetectionCMakeInstrumentation(): HotspotDetectionCMakeBasedInstrumentation {
         return (
             this._hotspotDetectionCMakeInstrumentation ??
             (this._hotspotDetectionCMakeInstrumentation =
@@ -41,40 +43,40 @@ export class ToolSuite {
         )
     }
 
-    private _discopopExplorer: DiscoPoPExplorer = undefined
-    public get discopopExplorer(): DiscoPoPExplorer {
+    private static _discopopExplorer: DiscoPoPExplorer = undefined
+    public static get discopopExplorer(): DiscoPoPExplorer {
         return (
             this._discopopExplorer ??
             (this._discopopExplorer = new DiscoPoPExplorer())
         )
     }
 
-    private _discopopPatchGenerator: DiscoPoPPatchGenerator = undefined
-    public get discopopPatchGenerator(): DiscoPoPPatchGenerator {
+    private static _discopopPatchGenerator: DiscoPoPPatchGenerator = undefined
+    public static get discopopPatchGenerator(): DiscoPoPPatchGenerator {
         return (
             this._discopopPatchGenerator ??
             (this._discopopPatchGenerator = new DiscoPoPPatchGenerator())
         )
     }
 
-    private _discopopPatchApplicator: DiscoPoPPatchApplicator = undefined
-    public get discopopPatchApplicator(): DiscoPoPPatchApplicator {
+    private static _discopopPatchApplicator: DiscoPoPPatchApplicator = undefined
+    public static get discopopPatchApplicator(): DiscoPoPPatchApplicator {
         return (
             this._discopopPatchApplicator ??
             (this._discopopPatchApplicator = new DiscoPoPPatchApplicator())
         )
     }
 
-    private _discopopOptimizer: DiscoPoPOptimizer = undefined
-    public get discopopOptimizer(): DiscoPoPOptimizer {
+    private static _discopopOptimizer: DiscoPoPOptimizer = undefined
+    public static get discopopOptimizer(): DiscoPoPOptimizer {
         return (
             this._discopopOptimizer ??
             (this._discopopOptimizer = new DiscoPoPOptimizer())
         )
     }
 
-    private _hotspotDetection: HotspotDetection = undefined
-    public get hotspotDetection(): HotspotDetection {
+    private static _hotspotDetection: HotspotDetection = undefined
+    public static get hotspotDetection(): HotspotDetection {
         return (
             this._hotspotDetection ??
             (this._hotspotDetection = new HotspotDetection())

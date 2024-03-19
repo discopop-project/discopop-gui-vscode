@@ -7,7 +7,9 @@ export class HotspotDetection {
     public async run(
         dotDiscopop: string,
         cancelToken: CancelToken,
-        overrideHotspotDetectionArguments?: string
+        overrideHotspotDetectionArguments?: string,
+        stdoutCallback?: (data: string) => void,
+        stderrCallback?: (data: string) => void
     ): Promise<void> {
         // Check if hotspot_analyzer is installed
         await CommandExecution.commandExists(
@@ -29,6 +31,8 @@ export class HotspotDetection {
             cancelToken: cancelToken,
             throwOnNonZeroExitCode: true,
             throwOnCancellation: true,
+            stdoutCallback: stdoutCallback,
+            stderrCallback: stderrCallback,
         })
     }
 }

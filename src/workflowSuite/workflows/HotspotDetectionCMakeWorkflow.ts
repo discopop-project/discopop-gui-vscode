@@ -28,9 +28,12 @@ export class HotspotDetectionCMakeWorkflow {
         buildArguments: string = '',
         overrideExplorerArguments?: string
     ): Promise<void> {
-        const toolSuite = new ToolSuite()
-        const instrumentation = toolSuite.hotspotDetectionCMakeInstrumentation
-        const hotspotDetection = toolSuite.hotspotDetection
+        const instrumentation = ToolSuite.hotspotDetectionCMakeInstrumentation
+        const hotspotDetection = ToolSuite.hotspotDetection
+
+        const logStdX = (data: string) => {
+            reportMessage(data, 1)
+        }
 
         // make sure we have a clean build directory
         reportMessage('Preparing...', 0)
@@ -56,13 +59,21 @@ export class HotspotDetectionCMakeWorkflow {
             buildArguments,
             srcDirectory,
             buildDirectory,
-            cancelToken
+            cancelToken,
+            logStdX,
+            logStdX
         )
         reportProgress(10)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running Make...', 0)
-        await instrumentation.runMake(dotDiscopop, buildDirectory, cancelToken)
+        await instrumentation.runMake(
+            dotDiscopop,
+            buildDirectory,
+            cancelToken,
+            logStdX,
+            logStdX
+        )
         reportProgress(10)
         this.throwUponCancellation(cancelToken)
 
@@ -72,7 +83,9 @@ export class HotspotDetectionCMakeWorkflow {
             executableName,
             executableArguments,
             buildDirectory,
-            cancelToken
+            cancelToken,
+            logStdX,
+            logStdX
         )
         reportProgress(30)
         this.throwUponCancellation(cancelToken)
@@ -81,7 +94,9 @@ export class HotspotDetectionCMakeWorkflow {
         await hotspotDetection.run(
             dotDiscopop,
             cancelToken,
-            overrideExplorerArguments
+            overrideExplorerArguments,
+            logStdX,
+            logStdX
         ) // TODO allow additional arguments?
         reportProgress(30)
     }

@@ -48,7 +48,9 @@ export abstract class CMakeBasedInstrumentation {
         buildArguments: string,
         srcDirectory: string,
         buildDirectory: string,
-        cancelToken?: CancelToken
+        cancelToken?: CancelToken,
+        stdoutCallback?: (data: string) => void,
+        stderrCallback?: (data: string) => void
     ): Promise<void> {
         if (cancelToken?.isCancelled) {
             throw new CancellationError(
@@ -63,6 +65,8 @@ export abstract class CMakeBasedInstrumentation {
             cancelToken: cancelToken,
             throwOnNonZeroExitCode: true,
             throwOnCancellation: true,
+            stdoutCallback: stdoutCallback,
+            stderrCallback: stderrCallback,
         })
         fs.rmSync(buildDirectory + '/.discopop', {
             recursive: true,
@@ -73,7 +77,9 @@ export abstract class CMakeBasedInstrumentation {
     public async runMake(
         dotDiscopop: string,
         buildDirectory: string,
-        cancelToken?: CancelToken
+        cancelToken?: CancelToken,
+        stdoutCallback?: (data: string) => void,
+        stderrCallback?: (data: string) => void
     ): Promise<void> {
         if (cancelToken?.isCancelled) {
             throw new CancellationError(
@@ -89,6 +95,8 @@ export abstract class CMakeBasedInstrumentation {
             env: {
                 DOT_DISCOPOP: dotDiscopop,
             },
+            stdoutCallback: stdoutCallback,
+            stderrCallback: stderrCallback,
         })
     }
 
@@ -98,7 +106,9 @@ export abstract class CMakeBasedInstrumentation {
         executableName: string,
         executableArguments: string[],
         buildDirectory: string,
-        cancelToken?: CancelToken
+        cancelToken?: CancelToken,
+        stdoutCallback?: (data: string) => void,
+        stderrCallback?: (data: string) => void
     ): Promise<void> {
         if (cancelToken?.isCancelled) {
             throw new CancellationError(
@@ -115,6 +125,8 @@ export abstract class CMakeBasedInstrumentation {
                 env: {
                     DOT_DISCOPOP: dotDiscopop,
                 },
+                stdoutCallback: stdoutCallback,
+                stderrCallback: stderrCallback,
             })
         }
     }

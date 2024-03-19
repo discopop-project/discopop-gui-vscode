@@ -29,10 +29,13 @@ export class DiscoPoPCMakeWorkflow {
         buildArguments: string = '',
         overrideExplorerArguments?: string
     ): Promise<void> {
-        const toolSuite = new ToolSuite()
-        const instrumentation = toolSuite.discopopCMakeInstrumentation
-        const explorer = toolSuite.discopopExplorer
-        const patchGenerator = toolSuite.discopopPatchGenerator
+        const instrumentation = ToolSuite.discopopCMakeInstrumentation
+        const explorer = ToolSuite.discopopExplorer
+        const patchGenerator = ToolSuite.discopopPatchGenerator
+
+        const logStdX = (data: string) => {
+            reportMessage(data, 1)
+        }
 
         // make sure we have a clean build directory
         reportMessage('Preparing...', 0)
@@ -58,7 +61,9 @@ export class DiscoPoPCMakeWorkflow {
             buildArguments,
             srcDirectory,
             buildDirectory,
-            cancelToken
+            cancelToken,
+            logStdX,
+            logStdX
         )
         reportProgress(10)
         this.throwUponCancellation(cancelToken)
@@ -74,18 +79,31 @@ export class DiscoPoPCMakeWorkflow {
             executableName,
             [executableArguments],
             buildDirectory,
-            cancelToken
+            cancelToken,
+            logStdX,
+            logStdX
         )
         reportProgress(30)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Running Pattern Detection...', 0)
-        await explorer.run(dotDiscopop, cancelToken, overrideExplorerArguments)
+        await explorer.run(
+            dotDiscopop,
+            cancelToken,
+            overrideExplorerArguments,
+            logStdX,
+            logStdX
+        )
         reportProgress(30)
         this.throwUponCancellation(cancelToken)
 
         reportMessage('Generating Patches...', 0)
-        await patchGenerator.createDefaultPatches(dotDiscopop, cancelToken)
+        await patchGenerator.createDefaultPatches(
+            dotDiscopop,
+            cancelToken,
+            logStdX,
+            logStdX
+        )
         reportProgress(10)
     }
 

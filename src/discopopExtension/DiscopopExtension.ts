@@ -25,7 +25,6 @@ export interface WorkflowWrappers {
 }
 
 export class DiscopopExtension {
-    private toolSuite: ToolSuite = new ToolSuite()
     private workflowSuite: WorkflowSuite = new WorkflowSuite()
     private resultManager: ResultManager = new ResultManagerImplementation()
     public constructor(
@@ -176,7 +175,7 @@ export class DiscopopExtension {
         }
 
         // apply
-        await this.toolSuite.discopopPatchApplicator.patchApply(
+        await ToolSuite.discopopPatchApplicator.patchApply(
             this.resultManager.dotDiscopop,
             suggestion.patternID
         )
@@ -199,7 +198,7 @@ export class DiscopopExtension {
         }
 
         // rollback
-        await this.toolSuite.discopopPatchApplicator.patchRollback(
+        await ToolSuite.discopopPatchApplicator.patchRollback(
             this.resultManager.dotDiscopop,
             suggestion.patternID
         )
@@ -220,7 +219,7 @@ export class DiscopopExtension {
         }
 
         // rollback
-        await this.toolSuite.discopopPatchApplicator.patchClear(
+        await ToolSuite.discopopPatchApplicator.patchClear(
             this.resultManager.dotDiscopop
         )
 
@@ -238,14 +237,11 @@ export class DiscopopExtension {
                 }
             }
         }
-        await this.toolSuite.discopopOptimizer.run(
-            this.resultManager.dotDiscopop,
-            {
-                interactiveExport: idList,
-            }
-        )
+        await ToolSuite.discopopOptimizer.run(this.resultManager.dotDiscopop, {
+            interactiveExport: idList,
+        })
 
-        await this.toolSuite.discopopPatchGenerator.createOptimizedPatches(
+        await ToolSuite.discopopPatchGenerator.createOptimizedPatches(
             this.resultManager.dotDiscopop
         )
 
