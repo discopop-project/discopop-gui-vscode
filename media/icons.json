@@ -1,0 +1,11 @@
+{
+    "iconDefinitions": {
+        "_dotDiscopop": {
+            "iconPath": "./discopop_icon.png"
+        }
+    },
+
+    "folderNames": {
+        ".discopop": "_dotDiscopop"
+    }
+}

@@ -461,7 +461,14 @@
                     "group": "loaders"
                 }
             ]
-        }
+        },
+        "iconThemes": [
+            {
+                "id": "discopop-icon-theme",
+                "label": "DiscoPoP Icon Theme",
+                "path": "./media/icons.json"
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
