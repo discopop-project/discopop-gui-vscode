@@ -17,17 +17,21 @@ export class LogPanel {
         )
     }
 
-    private _logLines: string[] = []
+    private _logLines: { line: string; level: number }[] = []
 
-    public addLogLine(line: string) {
+    public addLogLine(line: string, level: number) {
         // store all log lines
-        this._logLines.push(line)
+        this._logLines.push({
+            line: line,
+            level: level,
+        })
 
         // if the panel is already created, update the content
         if (this._panel !== undefined) {
             this._panel.webview.postMessage({
                 command: 'addLogLine',
-                text: line, //'I heard you loud and clear! 🤠',
+                text:
+                    level === 0 ? `<span class='strong'>${line}</span>` : line,
             })
         }
     }
@@ -88,6 +92,11 @@ export class LogPanel {
                 ul {
                     list-style-type: none;
                     padding: 0;
+                }
+
+                .strong {
+                    color: var(--vscode-editor-foreground);
+                    font-weight: bold;
                 }
             </style>
             <body>
