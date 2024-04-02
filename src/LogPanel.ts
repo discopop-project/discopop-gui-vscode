@@ -86,7 +86,7 @@ export class LogPanel {
             </head>
             <body>
                 <section>
-                <vscode-panels>
+                <!-- <vscode-panels>
                     <vscode-panel-tab id="log-tab">Log</vscode-panel-tab>
                     <vscode-panel-tab id="controls-tab">Controls</vscode-panel-tab>
                     <vscode-panel-tab id="suggestions-tab">Suggestions</vscode-panel-tab>
@@ -95,7 +95,6 @@ export class LogPanel {
                         <ul id=logLines>${this._getLogLines()}</ul>
                     </vscode-panel-view>
                     <vscode-panel-view id="controls-tab-view">
-                        <!-- Here could be a button to set .discopop (may be overriden whenever a configuration is executed, a "lock" button may be added to prevent this behaviour) -->
                         <vscode-button id="THE_BUTTON">Create a FileMapping</vscode-button>
                         <vscode-button id="button-2">Run the explorer</vscode-button>
                         <vscode-button id="button-3">Run the optimizer</vscode-button>
@@ -111,6 +110,8 @@ export class LogPanel {
                         </ul>
                     </vscode-panel-view>
                 </vscode-panels>
+                -->
+                <ul id=logLines>${this._getLogLines()}</ul>
                 </section>
                 <script type="module" nonce="${nonce}" src="${webviewUri}"></script>
             </body>
