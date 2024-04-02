@@ -26,7 +26,7 @@ window.addEventListener('message', (event) => {
         case 'addLogLine':
             document.getElementById(
                 'logLines'
-            ).innerHTML += `<li>${event.data.text}</li>`
+            ).innerHTML += `${event.data.text}`
             break
     }
 })

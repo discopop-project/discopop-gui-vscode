@@ -47,18 +47,6 @@ export function activate(context: vscode.ExtensionContext) {
         }
     )
     context.subscriptions.push(logPanelCommand)
-
-    // // TODO for testing purposes only:
-    // const updateLogPanelCommand = vscode.commands.registerCommand(
-    //     "discopop.updateLogPanel", // TODO
-    //     () => {
-    //         LogPanel.update()
-    //     }
-    // )
-
-    // TODO temp only
-    // trigger the log view to open on startup
-    LogPanel.render(context.extensionUri)
 }
 
 export function deactivate() {}
