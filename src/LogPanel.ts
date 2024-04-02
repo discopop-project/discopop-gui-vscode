@@ -84,6 +84,12 @@ export class LogPanel {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>DiscoPoP</title>
             </head>
+            <style>
+                ul {
+                    list-style-type: none;
+                    padding: 0;
+                }
+            </style>
             <body>
                 <section>
                 <!-- <vscode-panels>
