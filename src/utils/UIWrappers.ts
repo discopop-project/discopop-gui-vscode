@@ -50,8 +50,8 @@ export function getReportMessageWrapper(
             })
         }
 
-        // all progress reports are forwarded to the log
-        LogPanel.panel?.addLogLine(message, nesting)
+        // all progress reports are forwarded to the logPanel
+        LogPanel.addLogLine(message, nesting)
     }
 }
 

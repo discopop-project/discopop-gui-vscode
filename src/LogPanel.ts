@@ -4,6 +4,7 @@ import { getUri } from './utils/getUri'
 
 export class LogPanel {
     public static panel: LogPanel | undefined
+    private static _logLines: { line: string; level: number }[] = []
     private readonly _panel: vscode.WebviewPanel
     private _disposables: vscode.Disposable[] = []
 
@@ -17,30 +18,37 @@ export class LogPanel {
         )
     }
 
-    private _logLines: { line: string; level: number }[] = []
-
-    public addLogLine(line: string, level: number) {
+    public static addLogLine(line: string, level: number) {
         // store all log lines
-        this._logLines.push({
+        LogPanel._logLines.push({
             line: line,
             level: level,
         })
 
         // if the panel is already created, update the content
-        if (this._panel !== undefined) {
-            this._panel.webview.postMessage({
+        if (LogPanel.panel && LogPanel.panel._panel) {
+            LogPanel.panel._panel.webview.postMessage({
                 command: 'addLogLine',
-                text:
-                    level === 0 ? `<span class='strong'>${line}</span>` : line,
+                text: LogPanel._formatLogLine({ line: line, level: level }),
             })
         }
     }
 
-    private _getLogLines() {
-        return this._logLines.map((line) => `<li>${line}</li>`).join('') || ''
+    private static _formatLogLine(logLine: { line: string; level: number }) {
+        return logLine.level === 0
+            ? `<li><span class='strong'>${logLine.line}</span></li>`
+            : `<li>${logLine.line}</li>`
     }
 
-    // TODO put it down into the terminal area
+    private static _getLogLines() {
+        return (
+            LogPanel._logLines
+                .map((line) => LogPanel._formatLogLine(line))
+                .join('') || ''
+        )
+    }
+
+    // TODO put it down into the terminal area ?
     public static render(extensionUri: vscode.Uri) {
         if (LogPanel.panel) {
             LogPanel.panel._panel.reveal(vscode.ViewColumn.One)
@@ -72,7 +80,7 @@ export class LogPanel {
     }
 
     // returns the HTML content for the webview
-    // note: adding components (e.g. <vscode-button>) requires them to be registered!
+    // note: adding components (e.g. <vscode-button>) requires them to be registered in webview/main.ts!
     private _getWebviewContent(
         webview: vscode.Webview,
         extensionUri: vscode.Uri
@@ -107,7 +115,7 @@ export class LogPanel {
                     <vscode-panel-tab id="suggestions-tab">Suggestions</vscode-panel-tab>
                     <vscode-panel-view id="log-tab-view">
                         Log content will be Here
-                        <ul id=logLines>${this._getLogLines()}</ul>
+                        <ul id=logLines>${LogPanel._getLogLines()}</ul>
                     </vscode-panel-view>
                     <vscode-panel-view id="controls-tab-view">
                         <vscode-button id="THE_BUTTON">Create a FileMapping</vscode-button>
@@ -126,7 +134,7 @@ export class LogPanel {
                     </vscode-panel-view>
                 </vscode-panels>
                 -->
-                <ul id=logLines>${this._getLogLines()}</ul>
+                <ul id=logLines>${LogPanel._getLogLines()}</ul>
                 </section>
                 <script type="module" nonce="${nonce}" src="${webviewUri}"></script>
             </body>
