@@ -51,7 +51,7 @@ export function getReportMessageWrapper(
         }
 
         // all progress reports are forwarded to the log
-        LogPanel.panel?.addLogLine(`${prefix}${'-'.repeat(nesting)} ${message}`)
+        LogPanel.panel?.addLogLine(message, nesting)
     }
 }
 
