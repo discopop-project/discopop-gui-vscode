@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.1
+
+-   added a log webview, which can be opened via command to provide more detailed information
+
 ## 0.1.0
 
 -   internal refactoring

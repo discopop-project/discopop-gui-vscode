@@ -22,6 +22,7 @@ The following table lists which discopop version is expected by a given version 
 
 | Extension Version | DiscoPoP Version |
 | ----------------- | ---------------- |
+| 0.1.1             | 3.2.0            |
 | 0.1.0             | 3.2.0            |
 | 0.0.6 - 0.0.11    | 3.2.0            |
 | 0.0.5             | 3.0.0            |
