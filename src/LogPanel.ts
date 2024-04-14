@@ -36,8 +36,8 @@ export class LogPanel {
 
     private static _formatLogLine(logLine: { line: string; level: number }) {
         return logLine.level === 0
-            ? `<li><span class='strong'>${logLine.line}</span></li>`
-            : `<li>${logLine.line}</li>`
+            ? `<li class='strong'>${logLine.line}</li>`
+            : `<li class='indented'>${logLine.line}</li>`
     }
 
     private static _getLogLines() {
@@ -103,8 +103,12 @@ export class LogPanel {
                 }
 
                 .strong {
+                    margin-top: 0.5em;
                     color: var(--vscode-editor-foreground);
                     font-weight: bold;
+                }
+                .indented {
+                    margin-left: 1em;
                 }
             </style>
             <body>
@@ -146,14 +150,8 @@ export class LogPanel {
     private _setWebviewMessageListener(webview: vscode.Webview) {
         webview.onDidReceiveMessage(
             (message: any) => {
-                const command = message.command
-                const text = message.text
-
-                switch (command) {
-                    case 'hello':
-                        vscode.window.showInformationMessage(text)
-                        return
-                }
+                // here you can handle messages from the webview
+                // e.g. `vscode.window.showInformationMessage(message.text)`
             },
             undefined,
             this._disposables

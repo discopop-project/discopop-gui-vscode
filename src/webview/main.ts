@@ -1,26 +1,20 @@
-import {
-    Button,
-    provideVSCodeDesignSystem,
-    vsCodeButton,
-    vsCodePanelTab,
-    vsCodePanelView,
-    vsCodePanels,
-} from '@vscode/webview-ui-toolkit'
+import { Button, provideVSCodeDesignSystem } from '@vscode/webview-ui-toolkit'
 
-provideVSCodeDesignSystem().register(
-    vsCodeButton(),
-    vsCodePanels(),
-    vsCodePanelTab(),
-    vsCodePanelView()
-)
+provideVSCodeDesignSystem()
+    .register
+    // // IMPORTANT: register components here, otherwise they will not be available in the webview!
+    // vsCodeButton(),
+    // vsCodePanels(),
+    // vsCodePanelTab(),
+    // vsCodePanelView()
+    ()
 
 const vscode = acquireVsCodeApi()
 
+// upon loading the webview, the main function is called, which can be used to set up the webview
 window.addEventListener('load', main)
 
-// messages from the extension to the webview are handled here:
-// my convention is to use the command property to determine the action,
-// other properties are used for the data
+// messages from the extension to the webview are handled here
 window.addEventListener('message', (event) => {
     switch (event.data.command) {
         case 'addLogLine':
@@ -28,20 +22,21 @@ window.addEventListener('message', (event) => {
                 'logLines'
             ).innerHTML += `${event.data.text}`
             break
+        // case "...":
+        // // handle other messages from the extensions here
     }
 })
 
 function main() {
-    // To get improved type annotations/IntelliSense the associated class for
-    // a given toolkit component can be imported and used to type cast a reference
-    // to the element (i.e. the `as Button` syntax)
-    const howdyButton = document.getElementById('THE_BUTTON') as Button
-    howdyButton?.addEventListener('click', handleButtonClickCreateFileMapping)
+    // // assuming there is a button in the webview with the id 'THE_BUTTON',
+    // // you can do the following:
+    // const howdyButton = document.getElementById('THE_BUTTON') as Button
+    // howdyButton?.addEventListener('click', handleButtonClickCreateFileMapping)
 }
 
 function handleButtonClickCreateFileMapping(this: Button) {
-    vscode.postMessage({
-        command: 'hello',
-        text: 'Lets create a FileMapping! 🤠',
-    })
+    // vscode.postMessage({
+    //     command: 'hello',
+    //     text: 'Hello from the webview!',
+    // })
 }
