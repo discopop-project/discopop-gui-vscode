@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import { CombinedHotspot } from '../resultStore/CombinedHotspot'
 import { CombinedSuggestion } from '../resultStore/CombinedSuggestion'
+import { CombinedDataDependency } from '../resultStore/CombinedDataDependency'
 
 export class EditorSpotlight {
     private static decorations: vscode.TextEditorDecorationType[] = []
@@ -84,6 +85,31 @@ export class EditorSpotlight {
         // since we do not know the end of the hotspot, we just highlight the line
         const range = new vscode.Range(startLine, startLine)
         editor.setDecorations(decoration, [{ range: range }])
+    }
+
+    public static async hightlightDataDependency(
+        combinedDataDependeny: CombinedDataDependency
+    ) {
+        const editor = await this.getEditor(combinedDataDependeny.filePath)
+        const startLine = new vscode.Position(
+            combinedDataDependeny.mappedLine - 1,
+            0
+        )
+        EditorSpotlight._revealLine(editor, startLine)
+
+        // highlight the respective code lines
+        EditorSpotlight._removeDecorations(
+            editor,
+            Decoration.YES,
+            Decoration.MAYBE,
+            Decoration.NO,
+            Decoration.SOFT
+        )
+        const entireRange = new vscode.Range(
+            startLine,
+            new vscode.Position(combinedDataDependeny.mappedLine, 0)
+        )
+        editor.setDecorations(Decoration.SOFT, [{ range: entireRange }])
     }
 
     private static _removeDecorations(

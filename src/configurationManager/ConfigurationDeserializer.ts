@@ -30,6 +30,7 @@ export default function configurationFromJSON(
                 json.name,
                 observer,
                 json.dotDiscoPoP,
+                json.projectPath,
                 json.scripts
             )
         default:

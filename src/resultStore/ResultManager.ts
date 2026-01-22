@@ -3,8 +3,10 @@ import { FileMapping } from '../pureResults/FileMapping'
 import { Hotspots } from '../pureResults/Hotspots'
 import { LineMapping } from '../pureResults/LineMapping'
 import { Suggestions } from '../pureResults/Suggestions'
+import { StaticDependencies } from '../pureResults/StaticDependencies'
 import { CombinedHotspot } from './CombinedHotspot'
 import { CombinedSuggestion } from './CombinedSuggestion'
+import { CombinedDataDependency } from './CombinedDataDependency'
 
 /**
  * The ResultManager is responsible for managing the results of the discoPoP analysis.
@@ -28,11 +30,19 @@ export interface ResultManager {
      */
     validHotspots: boolean
 
+    /**
+     * returns true if the data dependency results have all been parsed successfully.
+     */
+    validDataDependecies: boolean
+
     /** if validSuggestions() or validHotspots returns false:  */
     errorMessage: string | null
 
     /** the path to the used .discopop directory */
     dotDiscopop: string
+
+    /** the path to the used project directory */
+    projectpath?: string
 
     /** a map containing all the combined suggestions, grouped by their type */
     suggestions: Map<string, CombinedSuggestion[]>
@@ -40,14 +50,20 @@ export interface ResultManager {
     /** a map containing all the hotspots, grouped by hotness (YES,NO,MAYBE) */
     hotspots: Map<string, CombinedHotspot[]>
 
+    /** a map containing all the data dependencies, grouped by dependent id */
+    dataDependencies: Map<string, CombinedDataDependency[]>
+
     /** reread all files, you can also specify to use a different .discopop directory */
-    updateAll(dotDiscopop?: string)
+    updateAll(dotDiscopop?: string, projectPath?: string)
 
     /** reread the patterns.json */
     updateSuggestions(): void
 
     /** reread the Hotspots.json */
     updateHotspots(): void
+
+    /** reread the dataDependencies */
+    updateDataDependencies(): void
 
     /** reread the FileMapping.txt */
     updateFileMapping(): void
@@ -65,18 +81,26 @@ export class ResultManagerImplementation implements ResultManager {
     private readonly _appliedStatus: AppliedStatus
     private readonly _suggestions: Suggestions
     private readonly _hotspots: Hotspots
+    private readonly _staticDependencies: StaticDependencies
 
-    public constructor(private _dotDiscopop?: string) {
+    public constructor(
+        private _dotDiscopop?: string,
+        private _projectPath?: string
+    ) {
         this._suggestions = new Suggestions(_dotDiscopop)
         this._hotspots = new Hotspots(_dotDiscopop)
         this._fileMapping = new FileMapping(_dotDiscopop)
         this._lineMapping = new LineMapping(_dotDiscopop)
         this._appliedStatus = new AppliedStatus(_dotDiscopop)
+        this._staticDependencies = new StaticDependencies(_dotDiscopop)
         if (this.validSuggestions) {
             this._recomputeCombinedSuggestions()
         }
         if (this.validHotspots) {
             this._recomputeCombinedHotspots()
+        }
+        if (this.validDataDependecies) {
+            this._recomputeCombinedDataDependencies()
         }
     }
 
@@ -97,11 +121,17 @@ export class ResultManagerImplementation implements ResultManager {
         if (!this._hotspots.valid()) {
             errorMessage += `Hotspots invalid: ${this._hotspots.error} \n`
         }
+        if (!this._staticDependencies.valid()) {
+            errorMessage += `Static dependencies invalid: ${this._staticDependencies.error} \n`
+        }
         if (this._combinedSuggestionsValid !== null) {
             errorMessage += `Failed to combine results: ${this._combinedSuggestionsValid} \n`
         }
         if (this._combinedHotspotsValid !== null) {
             errorMessage += `Failed to combine results: ${this._combinedHotspotsValid} \n`
+        }
+        if (this._combinedDataDependenciesValid !== null) {
+            errorMessage += `Failed to combine results: ${this._combinedDataDependenciesValid} \n`
         }
         return errorMessage === '' ? null : errorMessage
     }
@@ -128,8 +158,23 @@ export class ResultManagerImplementation implements ResultManager {
         )
     }
 
+    /** error message or null */
+    private _combinedDataDependenciesValid: string | null = null
+    public get validDataDependecies(): boolean {
+        return (
+            this._fileMapping.valid() &&
+            this._lineMapping.valid() &&
+            this._staticDependencies.valid() &&
+            this._combinedDataDependenciesValid === null
+        )
+    }
+
     public get dotDiscopop(): string {
         return this._dotDiscopop
+    }
+
+    public get projectpath(): string | undefined {
+        return this._projectPath
     }
 
     private _combinedSuggestions: Map<string, CombinedSuggestion[]> = new Map<
@@ -205,18 +250,57 @@ export class ResultManagerImplementation implements ResultManager {
         }
     }
 
-    public updateAll(dotDiscopop: string = this._dotDiscopop) {
+    private _combinedDataDependencies: Map<string, CombinedDataDependency[]> =
+        new Map<string, CombinedDataDependency[]>()
+    public get dataDependencies(): Map<string, CombinedDataDependency[]> {
+        return this._combinedDataDependencies
+    }
+    private _recomputeCombinedDataDependencies() {
+        this._combinedDataDependencies.clear()
+        for (const staticDependencies of this._staticDependencies.staticDependencies.entries()) {
+            const combinedDataDependecies: CombinedDataDependency[] = []
+            for (const staticDependecy of staticDependencies[1]) {
+                combinedDataDependecies.push({
+                    id: staticDependencies[0],
+                    dependentName: staticDependecy.dependentName,
+                    type: staticDependecy.type,
+                    access: staticDependecy.access,
+                    fileId: staticDependecy.fileId,
+                    filePath: this._fileMapping.getFilePath(
+                        staticDependecy.fileId
+                    ),
+                    originalLine: this._lineMapping.getMappedLineNr(
+                        staticDependecy.fileId,
+                        staticDependecy.line
+                    ),
+                    mappedLine: staticDependecy.line,
+                })
+            }
+            this._combinedDataDependencies.set(
+                staticDependencies[0],
+                combinedDataDependecies
+            )
+        }
+    }
+
+    public updateAll(
+        dotDiscopop: string = this._dotDiscopop,
+        projectPath: string = this._projectPath
+    ) {
         // update
         this._dotDiscopop = dotDiscopop
+        this._projectPath = projectPath
         this._fileMapping.update(this._dotDiscopop)
         this._lineMapping.update(this._dotDiscopop)
         this._appliedStatus.update(this._dotDiscopop)
         this._suggestions.update(this._dotDiscopop)
         this._hotspots.update(this._dotDiscopop)
+        this._staticDependencies.update(this._dotDiscopop)
 
         // recompute
         this._recomputeCombinedHotspots()
         this._recomputeCombinedSuggestions()
+        this._recomputeCombinedDataDependencies()
     }
 
     public updateSuggestions() {
@@ -235,6 +319,14 @@ export class ResultManagerImplementation implements ResultManager {
         this._recomputeCombinedHotspots()
     }
 
+    public updateDataDependencies() {
+        // update
+        this._staticDependencies.update()
+
+        // recompute
+        this._recomputeCombinedDataDependencies()
+    }
+
     public updateFileMapping() {
         // update
         this._fileMapping.update()
@@ -242,6 +334,7 @@ export class ResultManagerImplementation implements ResultManager {
         if (!this._fileMapping.valid()) {
             this._combinedSuggestions.clear()
             this._combinedHotspots.clear()
+            this._combinedDataDependencies.clear()
             return
         }
 
@@ -262,6 +355,15 @@ export class ResultManagerImplementation implements ResultManager {
                 )
             })
         })
+
+        // recompute suggestions
+        this._combinedDataDependencies.forEach((list) => {
+            list.forEach((combinedDataDependency) => {
+                combinedDataDependency.filePath = this._fileMapping.getFilePath(
+                    combinedDataDependency.fileId
+                )
+            })
+        })
     }
 
     /** reread the line_mapping.json */
@@ -271,6 +373,7 @@ export class ResultManagerImplementation implements ResultManager {
 
         if (!this._lineMapping.valid()) {
             this._combinedSuggestions.clear()
+            this._combinedDataDependencies.clear()
             return
         } else {
             // update lineNumbers of already computed suggestions
@@ -285,6 +388,17 @@ export class ResultManagerImplementation implements ResultManager {
                         this._lineMapping.getMappedLineNr(
                             combinedSuggestion.fileID,
                             combinedSuggestion.originalEndLine
+                        )
+                })
+            })
+
+            // update lineNumbers of already computed data dependencies
+            this._combinedDataDependencies.forEach((list) => {
+                list.forEach((combinedDataDependency) => {
+                    combinedDataDependency.mappedLine =
+                        this._lineMapping.getMappedLineNr(
+                            combinedDataDependency.fileId,
+                            combinedDataDependency.originalLine
                         )
                 })
             })

@@ -83,6 +83,11 @@ export abstract class Configuration implements ConfigurationTreeItem {
      * @returns the path to the .discopop directory that contains the results of the DiscoPoP and HotspotDetection analyses
      */
     abstract get dotDiscoPoP(): string
+
+    /**
+     * @returns the path to the project directory that contains the source code on which analyses is done
+     */
+    abstract get projectPath(): string
 }
 
 export enum ConfigurationType {

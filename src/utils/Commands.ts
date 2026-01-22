@@ -47,6 +47,12 @@ export class Commands {
     public static readonly showHotspotDetails: string =
         'discopop.showHotspotDetails'
 
+    // data dependencies
+    public static readonly showDataDependentDetails: string =
+        'discopop.showDataDependentDetails'
+    public static readonly showDataDependency: string =
+        'discopop.showDataDependency'
+
     // codeLens
     public static readonly toggleCodeLens: string = 'discopop.toggleCodeLens' // global setting
     public static readonly enableCodeLens: string = 'discopop.enableCodeLens' // temporarily enable codeLens

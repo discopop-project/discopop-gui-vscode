@@ -38,14 +38,19 @@
                     "name": "CONFIGURATIONS"
                 },
                 {
-                    "type:": "tree",
+                    "type": "tree",
                     "id": "sidebar-suggestions-view",
                     "name": "SUGGESTIONS"
                 },
                 {
-                    "type:": "tree",
+                    "type": "tree",
                     "id": "sidebar-hotspots-view",
                     "name": "HOTSPOTS"
+                },
+                {
+                    "type": "tree",
+                    "id": "sidebar-data-dependents-view",
+                    "name": "DATA DEPENDENTS"
                 },
                 {
                     "type": "webview",
@@ -56,6 +61,11 @@
                     "type": "webview",
                     "id": "sidebar-hotspot-detail-view",
                     "name": "HOTSPOT DETAILS"
+                },
+                {
+                    "type": "tree",
+                    "id": "sidebar-data-dependencies-detail-view",
+                    "name": "DATA DEPENDENCY DETAILS"
                 }
             ]
         },
@@ -71,6 +81,14 @@
             {
                 "view": "sidebar-hotspots-view",
                 "contents": "No hotspots available. Please run a configuration to view results here."
+            },
+            {
+                "view": "sidebar-data-dependents-view",
+                "contents": "No data dependents available. Please run a configuration to view results here."
+            },
+            {
+                "view": "sidebar-data-dependencies-detail-view",
+                "contents": "No data dependent selected. Select a data dependent to see the details here."
             }
         ],
         "configuration": {
@@ -251,6 +269,11 @@
                 "command": "discopop.createInteractiveExport",
                 "category": "DiscoPoP",
                 "icon": "$(star)"
+            },
+            {
+                "title": "Show dependencies",
+                "command": "discopop.showDataDependentDetails",
+                "category": "DiscoPop"
             }
         ],
         "menus": {

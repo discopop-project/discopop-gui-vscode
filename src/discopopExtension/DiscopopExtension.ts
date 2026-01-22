@@ -1,3 +1,4 @@
+import { CombinedDataDependency } from '../resultStore/CombinedDataDependency'
 import { CombinedHotspot } from '../resultStore/CombinedHotspot'
 import { CombinedSuggestion } from '../resultStore/CombinedSuggestion'
 import {
@@ -12,6 +13,10 @@ import { WorkflowSuite } from '../workflowSuite/WorkflowSuite'
 export interface DiscopopExtensionUICallbacks {
     uiUpdateSuggestions(suggestions: Map<string, CombinedSuggestion[]>): void
     uiUpdateHotspots(hotspots: Map<string, CombinedHotspot[]>): void
+    uiUpdateDataDependencies(
+        dataDependencies: Map<string, CombinedDataDependency[]>,
+        projectPath: string
+    ): void
     uiRequestConfirmation(message: string): Promise<boolean>
     uiShowShortNotification(message: string, durationInSeconds?: number): void
     uiShowPersistentNotification(message: string, isError?: boolean): void
@@ -34,42 +39,52 @@ export class DiscopopExtension {
 
     public loadResults(
         dotDiscopop: string,
+        projectPath: string,
         discopopMissingOK: boolean = false,
         hotspotDetectionMissingOK: boolean = false,
+        projectMissingOK: boolean = false,
         quietSuccess: boolean = false
     ): void {
-        this.resultManager.updateAll(dotDiscopop)
+        this.resultManager.updateAll(dotDiscopop, projectPath)
 
         // update the UI (if the results are invalid, the UI will be updated with empty data, which is fine)
         this.uiCallbacks.uiUpdateSuggestions(this.resultManager.suggestions)
         this.uiCallbacks.uiUpdateHotspots(this.resultManager.hotspots)
+        this.uiCallbacks.uiUpdateDataDependencies(
+            this.resultManager.dataDependencies,
+            projectPath
+        )
 
         // show a notification if the results are invalid
 
-        const [suggestionsValid, hotspotsValid] = [
+        const [suggestionsValid, hotspotsValid, dataDependenciesValid] = [
             this.resultManager.validSuggestions,
             this.resultManager.validHotspots,
+            this.resultManager.validDataDependecies,
         ]
-        // both loaded
+
+        // all three loaded
         if (suggestionsValid && hotspotsValid) {
             if (!quietSuccess) {
                 this.uiCallbacks.uiShowShortNotification(
                     'Loaded hotspots and suggestions'
                 )
             }
+
+            return
         }
-        // both failed
-        else if (!suggestionsValid && !hotspotsValid) {
+
+        // all three failed
+        if (!suggestionsValid && !hotspotsValid && !dataDependenciesValid) {
             this.uiCallbacks.uiShowPersistentNotification(
                 'Failed to load results: ' + this.resultManager.errorMessage,
                 true
             )
+
+            return
         }
-        // hotspots loaded, no suggestions
-        else if (!suggestionsValid) {
-            if (!quietSuccess) {
-                this.uiCallbacks.uiShowShortNotification('Loaded hotspots')
-            }
+
+        if (!suggestionsValid) {
             if (!discopopMissingOK) {
                 this.uiCallbacks.uiShowPersistentNotification(
                     'No suggestions found: ' + this.resultManager.errorMessage,
@@ -78,12 +93,11 @@ export class DiscopopExtension {
             } else {
                 this.uiCallbacks.uiShowShortNotification('No suggestions found')
             }
+        } else if (!quietSuccess) {
+            this.uiCallbacks.uiShowShortNotification('Loaded suggestions')
         }
-        // suggestions loaded, no hotspots
-        else if (!hotspotsValid) {
-            if (!quietSuccess) {
-                this.uiCallbacks.uiShowShortNotification('Loaded suggestions')
-            }
+
+        if (!hotspotsValid) {
             if (!hotspotDetectionMissingOK) {
                 this.uiCallbacks.uiShowPersistentNotification(
                     'No hotspots found: ' + this.resultManager.errorMessage,
@@ -92,6 +106,24 @@ export class DiscopopExtension {
             } else {
                 this.uiCallbacks.uiShowShortNotification('No hotspots found')
             }
+        } else if (!quietSuccess) {
+            this.uiCallbacks.uiShowShortNotification('Loaded hotspots')
+        }
+
+        if (!dataDependenciesValid) {
+            if (!discopopMissingOK && !projectMissingOK) {
+                this.uiCallbacks.uiShowPersistentNotification(
+                    'No data dependencies found: ' +
+                        this.resultManager.errorMessage,
+                    true
+                )
+            } else {
+                this.uiCallbacks.uiShowShortNotification(
+                    'No data Dependencies found'
+                )
+            }
+        } else if (!quietSuccess) {
+            this.uiCallbacks.uiShowShortNotification('Loaded data dependencies')
         }
     }
 
@@ -181,7 +213,14 @@ export class DiscopopExtension {
         )
 
         // refresh results quietly (TODO only update the appliedStatus, not everything...)
-        this.loadResults(this.resultManager.dotDiscopop, false, true, true)
+        this.loadResults(
+            this.resultManager.dotDiscopop,
+            this.resultManager.projectpath,
+            false,
+            true,
+            false,
+            true
+        )
     }
 
     public async rollbackSuggestion(
@@ -204,7 +243,14 @@ export class DiscopopExtension {
         )
 
         // refresh results quietly (TODO only update the appliedStatus, not everything...)
-        this.loadResults(this.resultManager.dotDiscopop, false, true, true)
+        this.loadResults(
+            this.resultManager.dotDiscopop,
+            this.resultManager.projectpath,
+            false,
+            true,
+            false,
+            true
+        )
     }
 
     public async rollbackAllSuggestions(): Promise<void> {
@@ -224,7 +270,14 @@ export class DiscopopExtension {
         )
 
         // refresh results quietly (TODO only update the appliedStatus, not everything...)
-        this.loadResults(this.resultManager.dotDiscopop, false, true, true)
+        this.loadResults(
+            this.resultManager.dotDiscopop,
+            this.resultManager.projectpath,
+            false,
+            true,
+            false,
+            true
+        )
     }
 
     public async createInteractiveExport(): Promise<void> {
@@ -246,6 +299,13 @@ export class DiscopopExtension {
         )
 
         // refresh results quietly (TODO only update the appliedStatus, not everything...)
-        this.loadResults(this.resultManager.dotDiscopop, false, true, true)
+        this.loadResults(
+            this.resultManager.dotDiscopop,
+            this.resultManager.projectpath,
+            false,
+            true,
+            false,
+            true
+        )
     }
 }

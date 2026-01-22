@@ -11,7 +11,7 @@ import {
 } from './Configuration'
 import configurationFromJSON from './ConfigurationDeserializer'
 import { ConfigurationTreeItem } from './ConfigurationTreeItem'
-import { SimpleTree } from './SimpleTree'
+import { SimpleTree } from '../utils/SimpleTree'
 import { ConfigurationCMake } from './cmake/ConfigurationCMake'
 import { ConfigurationViewOnly } from './viewOnly/ConfigurationViewOnly'
 import { CustomScripts, Script } from './viewOnly/CustomScripts'
@@ -33,8 +33,10 @@ function logAndShowErrorMessageHandler(error: any, optionalMessage?: string) {
 export interface ConfigurationManagerCallbacks {
     loadResults(
         dotDiscopop: string,
+        projectPath: string,
         discopopMissingOK?: boolean,
         hotspotsMissingOK?: boolean,
+        projectMissingOK?: boolean,
         quiet?: boolean
     ): void
     runDiscoPoP(
@@ -79,7 +81,10 @@ export class ConfigurationTreeDataProvider
             vscode.commands.registerCommand(
                 Commands.loadResults,
                 async (configuration: Configuration) => {
-                    callbacks.loadResults(configuration.dotDiscoPoP)
+                    callbacks.loadResults(
+                        configuration.dotDiscoPoP,
+                        configuration.projectPath
+                    )
                 }
             )
         )
@@ -100,8 +105,10 @@ export class ConfigurationTreeDataProvider
                     // TODO deal with cancellation somewhere...?
                     await callbacks.loadResults(
                         configuration.dotDiscoPoP,
+                        configuration.projectPath,
                         false,
-                        true
+                        true,
+                        false
                     )
                 }
             )
@@ -124,8 +131,10 @@ export class ConfigurationTreeDataProvider
                         )
                         callbacks.loadResults(
                             configuration.dotDiscoPoP,
+                            configuration.projectPath,
                             true,
-                            false
+                            false,
+                            true
                         )
                     } catch (error: any) {
                         // TODO deal with cancellation somewhere else?
@@ -162,6 +171,8 @@ export class ConfigurationTreeDataProvider
                     )
                     await callbacks.loadResults(
                         configuration.dotDiscoPoP,
+                        configuration.projectPath,
+                        true,
                         true,
                         true,
                         true
@@ -177,6 +188,8 @@ export class ConfigurationTreeDataProvider
                     )
                     callbacks.loadResults(
                         configuration.dotDiscoPoP,
+                        configuration.projectPath,
+                        false,
                         false,
                         false,
                         false
@@ -193,7 +206,13 @@ export class ConfigurationTreeDataProvider
                         configuration.dotDiscoPoP,
                         configuration.overrideOptimizerArguments || undefined
                     )
-                    callbacks.loadResults(configuration.dotDiscoPoP, true, true)
+                    callbacks.loadResults(
+                        configuration.dotDiscoPoP,
+                        configuration.projectPath,
+                        true,
+                        true,
+                        true
+                    )
                 }
             )
         )
@@ -385,7 +404,7 @@ export class ConfigurationTreeDataProvider
         let configuration: Configuration | undefined = undefined
         switch (type) {
             case ConfigurationType.CMake:
-                const projectPath = await vscode.window.showInputBox({
+                let projectPath = await vscode.window.showInputBox({
                     prompt: 'Enter the path to the project',
                     ignoreFocusOut: true,
                     value: workspaceFolder,
@@ -446,10 +465,20 @@ export class ConfigurationTreeDataProvider
                     return
                 }
 
+                projectPath = await vscode.window.showInputBox({
+                    prompt: 'Enter the path to the project',
+                    ignoreFocusOut: true,
+                    value: workspaceFolder,
+                })
+                if (projectPath === undefined) {
+                    return
+                }
+
                 configuration = new ConfigurationViewOnly(
                     name,
                     this,
-                    dotDiscoPoP
+                    dotDiscoPoP,
+                    projectPath
                 )
                 break
             default: // if this happens, likely a new configuration type was added and this switch should be updated
@@ -526,6 +555,7 @@ export class ConfigurationTreeDataProvider
                         const split_line = line.split(' ')
                         const config_label = split_line[0]
                         const config_dir = split_line[1]
+                        const project_path = split_line[2] // could not find where or how store happens, so be mindful of this
                         // check if candidates should be considered (that is, if the config_dir is not already in use by a stored configuration)
                         let candidate_valid = true
                         configurations.forEach((config) => {
@@ -540,6 +570,7 @@ export class ConfigurationTreeDataProvider
                                 config_label,
                                 this,
                                 config_dir,
+                                project_path,
                                 []
                             )
                             this.roots = this.roots.concat([new_configuration])

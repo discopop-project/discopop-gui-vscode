@@ -35,6 +35,15 @@ import {
     SuggestionTreeView,
     SuggestionTreeViewCallbacks,
 } from './views/suggestionTreeView/SuggestionTreeView'
+import {
+    DataDependentTreeView,
+    DataDependentTreeViewCallbacks,
+} from './views/dataDependentTreeView/DataDependentTreeView'
+import { CombinedDataDependency } from './resultStore/CombinedDataDependency'
+import {
+    DataDependenciesDetailTreeView,
+    DataDependenciesDetailTreeViewCallbacks,
+} from './views/dataDependenciesDetailTreeView/DataDependenciesDetailTreeView'
 
 export function activate(context: vscode.ExtensionContext) {
     const uiExtension = new UIExtension(context)
@@ -57,14 +66,18 @@ export class UIExtension
         ConfigurationManagerCallbacks,
         SuggestionTreeViewCallbacks,
         HotspotTreeViewCallbacks,
+        DataDependentTreeViewCallbacks,
+        DataDependenciesDetailTreeViewCallbacks,
         DiscoPoPCodeLensProviderCallbacks
 {
     private readonly discopopExtension: DiscopopExtension
     private readonly configurationManager: ConfigurationTreeDataProvider
     private readonly suggestionTreeView: SuggestionTreeView
     private readonly hotspotTreeView: HotspotTreeView
+    private readonly dataDependentTreeView: DataDependentTreeView
     private readonly suggestionDetailViewer: SuggestionDetailViewer
     private readonly hotspotDetailViewer: HotspotDetailViewer
+    private readonly dataDependenciesDetailTreeView: DataDependenciesDetailTreeView
     private readonly codeLensManager: DiscoPoPCodeLensProvider
 
     // TODO use real settings instead
@@ -91,8 +104,14 @@ export class UIExtension
             undefined,
             this.context
         )
+        this.dataDependenciesDetailTreeView =
+            DataDependenciesDetailTreeView.create(this.context, this)
         this.suggestionTreeView = SuggestionTreeView.create(this.context, this)
         this.hotspotTreeView = new HotspotTreeView(this.context, this)
+        this.dataDependentTreeView = DataDependentTreeView.create(
+            this.context,
+            this
+        )
 
         // code lenses
         this.codeLensManager = DiscoPoPCodeLensProvider.create(
@@ -110,14 +129,18 @@ export class UIExtension
      * */
     public loadResults(
         dotDiscopop: string,
+        projectPath: string,
         suggestionsMissingOK: boolean = false,
         hotspotsMissingOK: boolean = false,
+        projectMissingOK = false,
         quiet: boolean = false
     ): void {
         this.discopopExtension.loadResults(
             dotDiscopop,
+            projectPath,
             suggestionsMissingOK,
             hotspotsMissingOK,
+            projectMissingOK,
             quiet
         )
     }
@@ -367,17 +390,26 @@ export class UIExtension
     public uiUpdateHotspots(hotspots: Map<string, CombinedHotspot[]>): void {
         this.hotspotTreeView.combinedHotspots = hotspots
     }
-    public uiClearHotspots(): void {
-        this.hotspotTreeView.combinedHotspots = new Map<
-            string,
-            CombinedHotspot[]
-        >()
+    public uiUpdateDataDependencies(
+        dataDependencies: Map<string, CombinedDataDependency[]>,
+        projectPath: string
+    ): void {
+        this.dataDependentTreeView.update(dataDependencies, projectPath)
     }
     public uiClearSuggestions(): void {
         this.suggestionTreeView.combinedSuggestions = new Map<
             string,
             CombinedSuggestion[]
         >()
+    }
+    public uiClearHotspots(): void {
+        this.hotspotTreeView.combinedHotspots = new Map<
+            string,
+            CombinedHotspot[]
+        >()
+    }
+    public uiClearDataDependencies(): void {
+        this.dataDependentTreeView.clear()
     }
     public uiShowShortNotification(
         message: string,
@@ -410,5 +442,18 @@ export class UIExtension
         isError: boolean = false
     ): void {
         UIPrompts.showMessage(message, isError)
+    }
+    public uiShowDataDependenciesOfDependent(
+        combinedDataDependencies: CombinedDataDependency[]
+    ): void {
+        this.dataDependenciesDetailTreeView.update(combinedDataDependencies)
+    }
+    public uiClearDataDependenciesOfDependent(): void {
+        this.dataDependenciesDetailTreeView.clear()
+    }
+    public uiHighlightDataDependency(
+        combinedDataDependency: CombinedDataDependency
+    ): void {
+        EditorSpotlight.hightlightDataDependency(combinedDataDependency)
     }
 }

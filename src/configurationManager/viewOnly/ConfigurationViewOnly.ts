@@ -30,6 +30,16 @@ export class ConfigurationViewOnly
         this.refresh() // should happen automatically? can we remove this?
     }
 
+    private readonly _projectPath: StringProperty
+
+    public get projectPath(): string {
+        return this._projectPath.value
+    }
+    public set projectPath(value: string) {
+        this._projectPath.value = value
+        this.refresh() // should happen automatically? can we remove this?
+    }
+
     private _scripts: CustomScripts
     public get scripts(): string[] {
         return this._scripts.scripts
@@ -45,6 +55,7 @@ export class ConfigurationViewOnly
         name: string,
         onConfigurationChange: ConfigurationObserver,
         dotDiscoPoP: string,
+        projectPath: string,
         scripts: string[] = []
     ) {
         super(name, onConfigurationChange)
@@ -52,6 +63,12 @@ export class ConfigurationViewOnly
             '.discopop',
             dotDiscoPoP,
             'Enter the path to the .discopop directory with the analysis results',
+            this
+        )
+        this._projectPath = new StringProperty(
+            'Project path',
+            projectPath,
+            'Enter the path to the project directory',
             this
         )
         this._scripts = new CustomScripts(this, scripts)
@@ -70,8 +87,7 @@ export class ConfigurationViewOnly
     }
 
     getChildren(): ConfigurationTreeItem[] {
-        // dotDiscoPoP and scripts are the only children
-        return [this._dotDiscoPoP, this._scripts]
+        return [this._dotDiscoPoP, this._projectPath, this._scripts]
     }
 
     toJSON(): any {
@@ -79,6 +95,7 @@ export class ConfigurationViewOnly
             configurationType: this.configurationType,
             name: this.name,
             dotDiscoPoP: this.dotDiscoPoP,
+            projectPath: this.projectPath,
             scripts: this.scripts,
         }
     }
