@@ -70,7 +70,12 @@ export class StaticDependencies {
                     continue
                 }
 
-                if (access === 'INIT' || access === 'WAW' || access === 'WAR') {
+                if (
+                    access === 'INIT' ||
+                    access === 'WAW' ||
+                    access === 'WAR' ||
+                    'RAW'
+                ) {
                     const staticDependecy: StaticDependency = {
                         dependentName: dependentName,
                         type: parts[1],

@@ -23,11 +23,20 @@ export class DataDependency implements TreeNode {
 
     public getView(): vscode.TreeItem {
         const fileName = this._dataDependency.filePath.split('/').at(-1)
+        let treeItem: vscode.TreeItem
 
-        const treeItem = new vscode.TreeItem(
-            `File : ${fileName}   Ln : ${this._dataDependency.mappedLine}   Access type : ${this._dataDependency.access}`,
-            vscode.TreeItemCollapsibleState.Collapsed
-        )
+        if (this._dataDependency.access === 'INIT') {
+            treeItem = new vscode.TreeItem(
+                `Var : ${this._dataDependency.dependentName}   File : ${fileName}   Ln : ${this._dataDependency.mappedLine}`,
+                vscode.TreeItemCollapsibleState.Collapsed
+            )
+        } else {
+            treeItem = new vscode.TreeItem(
+                `File : ${fileName}   Ln : ${this._dataDependency.mappedLine}   Access type : ${this._dataDependency.access}`,
+                vscode.TreeItemCollapsibleState.Collapsed
+            )
+        }
+
         treeItem.iconPath = new vscode.ThemeIcon('symbol-class')
         treeItem.contextValue = 'data-dependency-detail-tree-data-dependency'
 
@@ -58,9 +67,5 @@ export class DataDependency implements TreeNode {
 
     public getLineNumber(): string {
         return String(this._dataDependency.mappedLine)
-    }
-
-    public checkINIT(): boolean {
-        return this._dataDependency.access === 'INIT'
     }
 }

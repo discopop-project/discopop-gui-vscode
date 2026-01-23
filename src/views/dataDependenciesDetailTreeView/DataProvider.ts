@@ -3,35 +3,28 @@ import { TreeNode } from './TreeNode'
 import { SimpleTree } from '../../utils/SimpleTree'
 import { DataDependency } from './DataDependency'
 import * as vscode from 'vscode'
+import { WriteAccess } from './WriteAccess'
+import { ReadAccess } from './ReadAccess'
 
 export class DataProvider extends SimpleTree<TreeNode> {
+    protected _readAccess: ReadAccess | undefined = undefined
+
     protected _loadDependents(): void {
+        const readAccess: ReadAccess = new ReadAccess(this)
+        const writeAccess: WriteAccess = new WriteAccess(this)
+
         for (const dataDependency of this._combinedDataDependencies) {
-            this.roots.push(new DataDependency(dataDependency, this))
+            if (dataDependency.access === 'INIT') {
+                this.roots.push(new DataDependency(dataDependency, this))
+            } else if (dataDependency.access === 'RAW') {
+                readAccess.addDataDependency(dataDependency)
+            } else {
+                writeAccess.addDataDependency(dataDependency)
+            }
         }
 
-        this.roots.sort((a, b) => {
-            if (
-                !(a instanceof DataDependency) ||
-                !(b instanceof DataDependency)
-            ) {
-                console.error(
-                    'other than type of DataDependency added to DataProvider, this should never happen'
-                )
-                return 0
-            }
-
-            if (a.checkINIT() !== b.checkINIT()) {
-                return a.checkINIT() ? -1 : 1
-            }
-
-            const fileCompare = a.getFileName().localeCompare(b.getFileName())
-            if (fileCompare !== 0) {
-                return fileCompare
-            }
-
-            return Number(a.getLineNumber()) - Number(b.getLineNumber())
-        })
+        this.roots.push(readAccess)
+        this.roots.push(writeAccess)
     }
 
     public constructor() {
