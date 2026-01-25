@@ -12,7 +12,7 @@ export class Dependent implements TreeNode {
 
     public getView(): vscode.TreeItem {
         const treeItem = new vscode.TreeItem(
-            `${this._dependent.dependentName} : Ln ${this._dependent.mappedLine}`,
+            `Ln : ${this._dependent.mappedLine} , ${this._dependent.dependentName}`,
             vscode.TreeItemCollapsibleState.None
         )
 

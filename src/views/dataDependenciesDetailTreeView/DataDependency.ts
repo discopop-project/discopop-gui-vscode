@@ -27,12 +27,12 @@ export class DataDependency implements TreeNode {
 
         if (this._dataDependency.access === 'INIT') {
             treeItem = new vscode.TreeItem(
-                `Var : ${this._dataDependency.dependentName}   File : ${fileName}   Ln : ${this._dataDependency.mappedLine}`,
+                `${this._dataDependency.dependentName}`,
                 vscode.TreeItemCollapsibleState.Collapsed
             )
         } else {
             treeItem = new vscode.TreeItem(
-                `File : ${fileName}   Ln : ${this._dataDependency.mappedLine}   Access type : ${this._dataDependency.access}`,
+                `File : ${fileName} , Ln : ${this._dataDependency.mappedLine} , Access type : ${this._dataDependency.access}`,
                 vscode.TreeItemCollapsibleState.Collapsed
             )
         }
