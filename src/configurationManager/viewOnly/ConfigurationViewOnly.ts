@@ -55,7 +55,7 @@ export class ConfigurationViewOnly
         name: string,
         onConfigurationChange: ConfigurationObserver,
         dotDiscoPoP: string,
-        projectPath: string,
+        projectPath: string = '',
         scripts: string[] = []
     ) {
         super(name, onConfigurationChange)

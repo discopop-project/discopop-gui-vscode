@@ -403,8 +403,8 @@ export class ConfigurationTreeDataProvider
 
         let configuration: Configuration | undefined = undefined
         switch (type) {
-            case ConfigurationType.CMake:
-                let projectPath = await vscode.window.showInputBox({
+            case ConfigurationType.CMake: {
+                const projectPath = await vscode.window.showInputBox({
                     prompt: 'Enter the path to the project',
                     ignoreFocusOut: true,
                     value: workspaceFolder,
@@ -455,7 +455,8 @@ export class ConfigurationTreeDataProvider
                     // use default for all override... arguements
                 )
                 break
-            case ConfigurationType.ViewOnly:
+            }
+            case ConfigurationType.ViewOnly: {
                 const dotDiscoPoP = await vscode.window.showInputBox({
                     prompt: 'Enter the path to the .discopop directory.',
                     ignoreFocusOut: true,
@@ -465,7 +466,7 @@ export class ConfigurationTreeDataProvider
                     return
                 }
 
-                projectPath = await vscode.window.showInputBox({
+                const projectPath = await vscode.window.showInputBox({
                     prompt: 'Enter the path to the project',
                     ignoreFocusOut: true,
                     value: workspaceFolder,
@@ -481,6 +482,7 @@ export class ConfigurationTreeDataProvider
                     projectPath
                 )
                 break
+            }
             default: // if this happens, likely a new configuration type was added and this switch should be updated
                 throw new Error('Unknown configuration type, Aborting...')
         }
