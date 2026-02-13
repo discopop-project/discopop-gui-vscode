@@ -74,7 +74,7 @@ export class StaticDependencies {
                     access === 'INIT' ||
                     access === 'WAW' ||
                     access === 'WAR' ||
-                    'RAW'
+                    access === 'RAW'
                 ) {
                     const staticDependecy: StaticDependency = {
                         dependentName: dependentName,
