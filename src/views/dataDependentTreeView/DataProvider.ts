@@ -126,7 +126,9 @@ export class DataProvider extends SimpleTree<TreeNode> {
     }
 
     public getCombinedDataDependencies(id: string): CombinedDataDependency[] {
-        if (this._combinedDataDependencies === undefined) return []
+        if (this._combinedDataDependencies === undefined) {
+            return []
+        }
         return this._combinedDataDependencies.get(id)
     }
 }

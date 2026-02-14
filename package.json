@@ -161,6 +161,12 @@
                 "icon": "$(edit)"
             },
             {
+                "title": "Delete Selected",
+                "command": "discopop.deleteSelectedConfigurations",
+                "category": "DiscoPoP",
+                "icon": "$(trashcan)"
+            },
+            {
                 "title": "Add Script",
                 "command": "discopop.addScript",
                 "category": "DiscoPoP",
@@ -295,6 +301,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "discopop.deleteSelectedConfigurations",
+                    "when": "false"
+                },
+                {
                     "command": "discopop.runDiscoPoPAndHotspotDetection",
                     "when": "false"
                 },
@@ -353,12 +363,21 @@
                 {
                     "command": "discopop.createInteractiveExport",
                     "when": "true"
+                },
+                {
+                    "command": "discopop.showDataDependentDetails",
+                    "when": "false"
                 }
             ],
             "view/title": [
                 {
                     "command": "discopop.addConfiguration",
                     "when": "view == sidebar-projects-view",
+                    "group": "navigation"
+                },
+                {
+                    "command": "discopop.deleteSelectedConfigurations",
+                    "when": "view == sidebar-projects-view && discopop.hasConfigurationSelection",
                     "group": "navigation"
                 },
                 {

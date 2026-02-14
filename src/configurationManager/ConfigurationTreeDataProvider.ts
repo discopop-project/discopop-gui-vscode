@@ -261,6 +261,30 @@ export class ConfigurationTreeDataProvider
             )
         )
 
+        this._context.subscriptions.push(
+            vscode.commands.registerCommand(
+                Commands.deleteSelectedConfigurations,
+                async () => {
+                    const selected = treeView.selection.filter(
+                        (item): item is Configuration =>
+                            item instanceof Configuration
+                    )
+
+                    if (selected.length === 0) {
+                        vscode.window.showInformationMessage(
+                            'No configuration selected.'
+                        )
+
+                        return
+                    }
+
+                    selected.forEach((configuartion) =>
+                        this.removeConfiguration(configuartion)
+                    )
+                }
+            )
+        )
+
         // ### SCRIPTS ###
 
         this._context.subscriptions.push(
@@ -360,12 +384,25 @@ export class ConfigurationTreeDataProvider
             )
         )
 
-        this._context.subscriptions.push(
-            vscode.window.registerTreeDataProvider(
-                'sidebar-projects-view',
-                this
+        const treeView = vscode.window.createTreeView('sidebar-projects-view', {
+            treeDataProvider: this,
+            showCollapseAll: true,
+            canSelectMany: true,
+        })
+
+        treeView.onDidChangeSelection((event) => {
+            const selections = event.selection.some(
+                (item) => item instanceof Configuration
             )
-        )
+
+            vscode.commands.executeCommand(
+                'setContext',
+                'discopop.hasConfigurationSelection',
+                selections
+            )
+        })
+
+        this._context.subscriptions.push(treeView)
     }
 
     public async createAndAddConfiguration(): Promise<void> {

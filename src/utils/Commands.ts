@@ -8,6 +8,8 @@ export class Commands {
         'discopop.copyConfiguration'
     public static readonly editConfigurationOrProperty: string =
         'discopop.editConfigurationOrProperty'
+    public static readonly deleteSelectedConfigurations: string =
+        'discopop.deleteSelectedConfigurations'
 
     public static readonly addScript: string = 'discopop.addScript'
     public static readonly removeScript: string = 'discopop.removeScript'
