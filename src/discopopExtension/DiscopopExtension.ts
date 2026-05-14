@@ -1,4 +1,3 @@
-import { CombinedDataDependency } from '../resultStore/CombinedDataDependency'
 import { CombinedHotspot } from '../resultStore/CombinedHotspot'
 import { CombinedSuggestion } from '../resultStore/CombinedSuggestion'
 import {
@@ -13,10 +12,6 @@ import { WorkflowSuite } from '../workflowSuite/WorkflowSuite'
 export interface DiscopopExtensionUICallbacks {
     uiUpdateSuggestions(suggestions: Map<string, CombinedSuggestion[]>): void
     uiUpdateHotspots(hotspots: Map<string, CombinedHotspot[]>): void
-    uiUpdateDataDependencies(
-        dataDependencies: Map<string, CombinedDataDependency[]>,
-        projectPath: string
-    ): void
     uiRequestConfirmation(message: string): Promise<boolean>
     uiShowShortNotification(message: string, durationInSeconds?: number): void
     uiShowPersistentNotification(message: string, isError?: boolean): void
@@ -50,10 +45,6 @@ export class DiscopopExtension {
         // update the UI (if the results are invalid, the UI will be updated with empty data, which is fine)
         this.uiCallbacks.uiUpdateSuggestions(this.resultManager.suggestions)
         this.uiCallbacks.uiUpdateHotspots(this.resultManager.hotspots)
-        this.uiCallbacks.uiUpdateDataDependencies(
-            this.resultManager.dataDependencies,
-            projectPath
-        )
 
         // show a notification if the results are invalid
 
