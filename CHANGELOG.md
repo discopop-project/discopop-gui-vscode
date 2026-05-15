@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.1.5
+
+-   configurable path to DiscoPoP installation via venv setting
+-   deletion of multiple configurations at once
+
 ## 0.1.4
 
 -   automatic loading of view-only configurations from "HOME/.discopop_config" instead of "HOME/.discopop"
