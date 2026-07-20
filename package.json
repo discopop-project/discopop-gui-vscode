@@ -4,7 +4,7 @@
     "description": "An extension for the Parallelism Discovery tool DiscoPoP.",
     "author": "TU Darmstadt - Laboratory for Parallel Programming",
     "icon": "media/discopop_icon.png",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "publisher": "TUDarmstadt-LaboratoryforParallelProgramming",
     "repository": {
         "type": "git",
@@ -17,7 +17,9 @@
         "Other"
     ],
     "activationEvents": [
-        "onView:discopop-sidebar-view"
+        "onView:discopop-sidebar-view",
+        "workspaceContains:**/.discopop/**",
+        "onUri"
     ],
     "main": "./out/extension.js",
     "contributes": {
@@ -108,6 +110,11 @@
                     "type": "string",
                     "default": "",
                     "description": "Path to the Python virtual environment (venv) where DiscoPoP is installed."
+                },
+                "discopop.autoFocusSidebar": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Automatically focus the DiscoPoP sidebar view when a workspace containing a .discopop directory is opened."
                 }
             }
         },

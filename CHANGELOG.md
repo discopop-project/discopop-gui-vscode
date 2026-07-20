@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.6
+
+-   added support for autofocus
+
 ## 0.1.5
 
 -   configurable path to DiscoPoP installation via venv setting

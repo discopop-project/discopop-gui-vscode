@@ -8,4 +8,5 @@ export interface Settings {
     }
     previewMode: 'Peek' | 'Editor'
     pythonVenvPath: string
+    autoFocusSidebar: boolean
 }
