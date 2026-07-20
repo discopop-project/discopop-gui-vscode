@@ -67,9 +67,11 @@ export class ConfigurationTreeDataProvider
     extends SimpleTree<ConfigurationTreeItem>
     implements ConfigurationObserver
 {
+    private _treeView!: vscode.TreeView<ConfigurationTreeItem>
+
     public constructor(
         private readonly _context: ExtensionContext,
-        callbacks: ConfigurationManagerCallbacks
+        private readonly callbacks: ConfigurationManagerCallbacks
     ) {
         super([])
 
@@ -265,7 +267,7 @@ export class ConfigurationTreeDataProvider
             vscode.commands.registerCommand(
                 Commands.deleteSelectedConfigurations,
                 async () => {
-                    const selected = treeView.selection.filter(
+                    const selected = this._treeView.selection.filter(
                         (item): item is Configuration =>
                             item instanceof Configuration
                     )
@@ -384,13 +386,13 @@ export class ConfigurationTreeDataProvider
             )
         )
 
-        const treeView = vscode.window.createTreeView('sidebar-projects-view', {
+        this._treeView = vscode.window.createTreeView('sidebar-projects-view', {
             treeDataProvider: this,
             showCollapseAll: true,
             canSelectMany: true,
         })
 
-        treeView.onDidChangeSelection((event) => {
+        this._treeView.onDidChangeSelection((event) => {
             const selections = event.selection.some(
                 (item) => item instanceof Configuration
             )
@@ -402,7 +404,7 @@ export class ConfigurationTreeDataProvider
             )
         })
 
-        this._context.subscriptions.push(treeView)
+        this._context.subscriptions.push(this._treeView)
     }
 
     public async createAndAddConfiguration(): Promise<void> {
@@ -531,6 +533,55 @@ export class ConfigurationTreeDataProvider
 
     public getConfigurations(): Configuration[] {
         return this.roots as Configuration[]
+    }
+
+    public getParent(
+        _element: ConfigurationTreeItem
+    ): ConfigurationTreeItem | undefined {
+        // Only root-level Configurations are revealed programmatically, and roots
+        // have no parent. Implementing getParent is required for TreeView.reveal.
+        return undefined
+    }
+
+    /**
+     * Reveal and select the configuration whose .discopop directory matches the
+     * given path, creating a ViewOnly configuration for it if none exists, and
+     * load its results. Used by the URI handler so external tools (the DiscoPoP
+     * ProjectManager GUI) can jump straight to the relevant suggestions.
+     */
+    public async revealConfigurationForDotDiscopop(
+        dotDiscopop: string,
+        projectPath?: string
+    ): Promise<void> {
+        const normalized = path.normalize(dotDiscopop)
+        let configuration = this.getConfigurations().find(
+            (c) => path.normalize(c.dotDiscoPoP) === normalized
+        )
+        if (!configuration) {
+            const resolvedProjectPath = projectPath ?? path.dirname(normalized)
+            const name = path.basename(path.dirname(normalized)) || normalized
+            const viewOnly = new ConfigurationViewOnly(
+                name,
+                this,
+                normalized,
+                resolvedProjectPath
+            )
+            this.addConfiguration(viewOnly)
+            configuration = viewOnly
+        }
+        try {
+            await this._treeView.reveal(configuration, {
+                select: true,
+                focus: true,
+                expand: true,
+            })
+        } catch (error) {
+            console.error('Failed to reveal DiscoPoP configuration:', error)
+        }
+        this.callbacks.loadResults(
+            configuration.dotDiscoPoP,
+            configuration.projectPath
+        )
     }
 
     public onConfigurationChange(configuration: Configuration): void {

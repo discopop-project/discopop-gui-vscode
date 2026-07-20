@@ -69,6 +69,13 @@ export class VsCodeSettings implements Settings {
         VsCodeSettings._setter('pythonVenvPath', value)
     }
 
+    get autoFocusSidebar(): boolean {
+        return VsCodeSettings._getter('autoFocusSidebar', true)
+    }
+    set autoFocusSidebar(value: boolean) {
+        VsCodeSettings._setter('autoFocusSidebar', value)
+    }
+
     private static _getter(key: string, defaultValue: any): any {
         return vscode.workspace
             .getConfiguration('discopop')

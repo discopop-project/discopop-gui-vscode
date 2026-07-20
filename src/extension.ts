@@ -47,6 +47,44 @@ export function activate(context: vscode.ExtensionContext) {
         }
     )
     context.subscriptions.push(logPanelCommand)
+
+    const focusSidebar = () => {
+        vscode.commands.executeCommand(
+            'workbench.view.extension.discopop-sidebar-view'
+        )
+    }
+
+    // Auto-focus the sidebar when the extension activates on opening a project
+    // that contains a .discopop directory (see activationEvents in package.json).
+    if (new VsCodeSettings().autoFocusSidebar) {
+        focusSidebar()
+    }
+
+    // Handle vscode://TUDarmstadt-LaboratoryforParallelProgramming.discopop/focus
+    // URIs. Unlike activation, URI dispatch happens on every invocation, so this
+    // lets external tools (e.g. the DiscoPoP ProjectManager GUI) focus the sidebar
+    // even when the target window is already open and the extension is active.
+    // An optional ?dotDiscopop=<path>&projectPath=<path> query additionally selects
+    // (or creates) the configuration matching that .discopop directory.
+    context.subscriptions.push(
+        vscode.window.registerUriHandler({
+            handleUri(uri: vscode.Uri) {
+                if (uri.path === '/focus') {
+                    focusSidebar()
+                    const params = new URLSearchParams(uri.query)
+                    const dotDiscopop = params.get('dotDiscopop')
+                    if (dotDiscopop) {
+                        const projectPath =
+                            params.get('projectPath') || undefined
+                        void uiExtension.revealConfigurationForDotDiscopop(
+                            dotDiscopop,
+                            projectPath
+                        )
+                    }
+                }
+            },
+        })
+    )
 }
 
 export function deactivate() {}
@@ -98,6 +136,18 @@ export class UIExtension
         this.codeLensManager = DiscoPoPCodeLensProvider.create(
             this.context,
             this
+        )
+    }
+
+    /** Reveal/select (creating if necessary) the configuration for the given
+     * .discopop directory and load its results. Called by the URI handler. */
+    public async revealConfigurationForDotDiscopop(
+        dotDiscopop: string,
+        projectPath?: string
+    ): Promise<void> {
+        await this.configurationManager.revealConfigurationForDotDiscopop(
+            dotDiscopop,
+            projectPath
         )
     }
 
